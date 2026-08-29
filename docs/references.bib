@@ -1,0 +1,494 @@
+% ============================================================================
+% Goddard 26-27 Modular Math Model - Reference Bibliography
+%
+% Sources backing the physics in each module of the proposed model.
+% Generated 2026-08-28.
+%
+% DOIs in this file were verified against publisher records (AIAA ARC,
+% Oxford Academic, AMS, ScienceDirect) rather than written from memory.
+% Entries without a `doi` field genuinely have none -- they are books,
+% engineering-data standards, or pre-DOI government technical reports.
+% Those carry a `note` with the authoritative report/catalogue number.
+% ============================================================================
+
+
+% ----------------------------------------------------------------------------
+% MOTOR :: Fuel regression -- paraffin / liquefying hybrid fuels
+% Backs: goddard/motor/grain.py, goddard/props/fuel.py
+% ----------------------------------------------------------------------------
+
+@article{karabeyoglu2004scaleup,
+  author  = {Karabeyoglu, M. Arif and Zilliac, Greg and Cantwell, Brian J.
+             and DeZilwa, Shane and Castellucci, Paul},
+  title   = {Scale-Up Tests of High Regression Rate Paraffin-Based Hybrid
+             Rocket Fuels},
+  journal = {Journal of Propulsion and Power},
+  volume  = {20},
+  number  = {6},
+  pages   = {1037--1045},
+  year    = {2004},
+  doi     = {10.2514/1.3340},
+  note    = {Primary source for the regression-rate law rdot = a*G_ox^n and
+             its paraffin coefficients. This is where the model's default
+             a and n come from.}
+}
+
+@inproceedings{karabeyoglu2003scaleup,
+  author    = {Karabeyoglu, M. Arif and Zilliac, Greg and Cantwell, Brian J.
+               and DeZilwa, Shane and Castellucci, Paul},
+  title     = {Scale-up Tests of High Regression Rate Liquefying Hybrid
+               Rocket Fuels},
+  booktitle = {41st AIAA Aerospace Sciences Meeting and Exhibit},
+  year      = {2003},
+  number    = {AIAA 2003-1162},
+  doi       = {10.2514/6.2003-1162},
+  note      = {Conference precursor to karabeyoglu2004scaleup; contains
+               additional raw test data.}
+}
+
+@article{karabeyoglu2002part1,
+  author  = {Karabeyoglu, M. Arif and Altman, David and Cantwell, Brian J.},
+  title   = {Combustion of Liquefying Hybrid Propellants: Part 1,
+             General Theory},
+  journal = {Journal of Propulsion and Power},
+  volume  = {18},
+  number  = {3},
+  pages   = {610--620},
+  year    = {2002},
+  doi     = {10.2514/2.5975},
+  note    = {Entrainment theory explaining why paraffin regresses 3-4x
+             faster than HTPB. Justifies treating the melt layer as the
+             controlling mechanism, which is what the SEBS-MA additive
+             perturbs.}
+}
+
+@article{karabeyoglu2002part2,
+  author  = {Karabeyoglu, M. Arif and Cantwell, Brian J.},
+  title   = {Combustion of Liquefying Hybrid Propellants: Part 2,
+             Stability of Liquid Films},
+  journal = {Journal of Propulsion and Power},
+  volume  = {18},
+  number  = {3},
+  pages   = {621--630},
+  year    = {2002},
+  doi     = {10.2514/2.5976},
+  note    = {Liquid-layer stability analysis. Directly relevant to the
+             10 percent SEBS-MA: raising melt viscosity stabilises the
+             film and suppresses entrainment, which is the physical
+             reason regression_calibration may need to be below 1.0.}
+}
+
+@inproceedings{marxman1963turbulent,
+  author    = {Marxman, Gerald A. and Gilbert, Merrill},
+  title     = {Turbulent Boundary Layer Combustion in the Hybrid Rocket},
+  booktitle = {Symposium (International) on Combustion},
+  volume    = {9},
+  number    = {1},
+  pages     = {371--383},
+  year      = {1963},
+  doi       = {10.1016/S0082-0784(63)80046-6},
+  note      = {The classical diffusion-limited hybrid regression model.
+               Foundational context for the G_ox^n scaling.}
+}
+
+@inproceedings{zilliac2006regression,
+  author    = {Zilliac, Greg and Karabeyoglu, M. Arif},
+  title     = {Hybrid Rocket Fuel Regression Rate Data and Modeling},
+  booktitle = {42nd AIAA/ASME/SAE/ASEE Joint Propulsion Conference and
+               Exhibit},
+  year      = {2006},
+  number    = {AIAA 2006-4504},
+  doi       = {10.2514/6.2006-4504},
+  note      = {Compiled regression-rate dataset across fuel/oxidiser
+               combinations. Useful sanity band for the calibrated
+               paraffin/N2O regression law. DOI follows AIAA's regular
+               scheme from the confirmed paper number -- see
+               references_dois.txt.}
+}
+
+
+% ----------------------------------------------------------------------------
+% MOTOR :: Nitrous oxide properties and self-pressurizing tank blowdown
+% Backs: goddard/props/n2o.py, goddard/motor/tank.py
+% ----------------------------------------------------------------------------
+
+@techreport{esdu91022,
+  author      = {{ESDU International}},
+  title       = {Thermophysical Properties of Nitrous Oxide},
+  institution = {ESDU International plc},
+  number      = {ESDU 91022},
+  address     = {London},
+  year        = {1991},
+  note        = {No DOI -- ESDU is a subscription engineering-data series.
+                 Source of the saturated-N2O reduced correlations
+                 (Tc = 309.57 K, Pc = 7.251 MPa, rho_c = 452 kg/m^3)
+                 for rho_liq, rho_vap, P_sat and latent heat. Valid as
+                 pure-component data at the specified 99.9 percent purity.}
+}
+
+@inproceedings{zilliac2005tank,
+  author    = {Zilliac, Greg and Karabeyoglu, M. Arif},
+  title     = {Modeling of Propellant Tank Pressurization},
+  booktitle = {41st AIAA/ASME/SAE/ASEE Joint Propulsion Conference and
+               Exhibit},
+  year      = {2005},
+  number    = {AIAA 2005-3549},
+  doi       = {10.2514/6.2005-3549},
+  note      = {The adiabatic quasi-equilibrium saturated blowdown model
+               adopted for tank.py. Note the authors' own caveat: the
+               method carries a system-dependent empirical factor.}
+}
+
+@article{whitmore2010engineering,
+  author  = {Whitmore, Stephen A. and Chandler, Shannon N.},
+  title   = {Engineering Model for Self-Pressurizing
+             Saturated-{N2O}-Propellant Feed Systems},
+  journal = {Journal of Propulsion and Power},
+  volume  = {26},
+  number  = {4},
+  pages   = {706--714},
+  year    = {2010},
+  doi     = {10.2514/1.47131},
+  note    = {Refinement of the saturated blowdown treatment with a
+             practical engineering closure. Cross-check for tank.py.}
+}
+
+@inproceedings{zimmerman2013review,
+  author    = {Zimmerman, Jonah E. and Waxman, Benjamin S. and
+               Cantwell, Brian J. and Zilliac, Greg},
+  title     = {Review and Evaluation of Models for Self-Pressurizing
+               Propellant Tank Dynamics},
+  booktitle = {49th AIAA/ASME/SAE/ASEE Joint Propulsion Conference},
+  year      = {2013},
+  number    = {AIAA 2013-4045},
+  doi       = {10.2514/6.2013-4045},
+  note      = {Head-to-head comparison of six self-pressurizing tank
+               models against experiment. The reason the Zilliac-
+               Karabeyoglu equilibrium model was selected over the
+               alternatives. DOI follows AIAA's regular scheme from the
+               confirmed paper number -- see references_dois.txt.}
+}
+
+
+% ----------------------------------------------------------------------------
+% MOTOR :: Injector -- flashing flow through a showerhead plate
+% Backs: goddard/motor/injector.py
+% ----------------------------------------------------------------------------
+
+@inproceedings{dyer2007feedsystem,
+  author    = {Dyer, Jonny and Zilliac, Greg and Sadhwani, Ashley and
+               Karabeyoglu, M. Arif and Cantwell, Brian J.},
+  title     = {Modeling Feed System Flow Physics for Self-Pressurizing
+               Propellants},
+  booktitle = {43rd AIAA/ASME/SAE/ASEE Joint Propulsion Conference and
+               Exhibit},
+  year      = {2007},
+  number    = {AIAA 2007-5702},
+  doi       = {10.2514/6.2007-5702},
+  note      = {The non-equilibrium (NHNE) mass-flow model blending SPI and
+               HEM via k = sqrt((P1-P2)/(Pv-P2)). Adopted directly in
+               injector.py -- this is the correct closure precisely
+               because straight showerhead orifices are where saturated
+               N2O flashes and cavitates.}
+}
+
+@book{harrje1972instability,
+  author    = {Harrje, David T. and Reardon, Frederick H.},
+  title     = {Liquid Propellant Rocket Combustion Instability},
+  publisher = {NASA},
+  year      = {1972},
+  note      = {NASA SP-194. No DOI. Source of the feed-system-coupled
+                (chug) stability criterion dP_inj/P_c >= 0.20 that the
+                model reports as a time history. This is the governing
+                risk for a showerhead injector on a blowdown feed system,
+                because dP_inj decays faster than P_c through the burn.}
+}
+
+
+% ----------------------------------------------------------------------------
+% MOTOR :: Thermochemistry and nozzle performance
+% Backs: goddard/props/cea.py, goddard/motor/nozzle.py
+% ----------------------------------------------------------------------------
+
+@techreport{gordon1994cea,
+  author      = {Gordon, Sanford and McBride, Bonnie J.},
+  title       = {Computer Program for Calculation of Complex Chemical
+                 Equilibrium Compositions and Applications},
+  institution = {NASA},
+  number      = {NASA RP-1311},
+  year        = {1994},
+  note        = {No DOI. Generates the c*, gamma and Tc tables fitted in
+                 cea.py as functions of O/F and chamber pressure for the
+                 paraffin-blend / N2O system.}
+}
+
+@book{sutton2017rocket,
+  author    = {Sutton, George P. and Biblarz, Oscar},
+  title     = {Rocket Propulsion Elements},
+  edition   = {9},
+  publisher = {John Wiley and Sons},
+  year      = {2017},
+  isbn      = {978-1-118-75388-0},
+  note      = {No DOI. Standard reference for nozzle thrust coefficient,
+               characteristic velocity, expansion ratio and the
+               altitude-compensation term (Pe - Pa)*Ae.}
+}
+
+@book{humble1995space,
+  author    = {Humble, Ronald W. and Henry, Gary N. and Larson, Wiley J.},
+  title     = {Space Propulsion Analysis and Design},
+  publisher = {McGraw-Hill},
+  year      = {1995},
+  isbn      = {978-0-07-031320-0},
+  note      = {No DOI. Hybrid-specific sizing methodology and typical
+               c-star efficiency ranges by injector type -- the basis for
+               the eta_cstar = 0.90 default for an unaugmented
+               showerhead.}
+}
+
+
+% ----------------------------------------------------------------------------
+% AERODYNAMICS :: Normal force, centre of pressure, stability
+% Backs: goddard/aero/normal_force.py, goddard/aero/damping.py
+% ----------------------------------------------------------------------------
+
+@mastersthesis{barrowman1967practical,
+  author  = {Barrowman, James S.},
+  title   = {The Practical Calculation of the Aerodynamic Characteristics
+             of Slender Finned Vehicles},
+  school  = {The Catholic University of America},
+  year    = {1967},
+  note    = {No DOI. NASA NTRS accession 20010047838; also issued as
+             NASA/TM-2001-209983. The CN_alpha and X_cp component
+             build-up used in normal_force.py.}
+}
+
+@techreport{allen1951study,
+  author      = {Allen, H. Julian and Perkins, Edward W.},
+  title       = {A Study of Effects of Viscosity on Flow over Slender
+                 Inclined Bodies of Revolution},
+  institution = {National Advisory Committee for Aeronautics},
+  number      = {NACA Report 1048},
+  year        = {1951},
+  note        = {No DOI (pre-DOI NACA report). Body cross-flow drag term
+                 that corrects Barrowman at non-trivial angle of attack --
+                 needed because the 4-DOF model carries alpha as a state.}
+}
+
+@techreport{niskanen2013openrocket,
+  author      = {Niskanen, Sampo},
+  title       = {{OpenRocket} Technical Documentation},
+  institution = {OpenRocket},
+  year        = {2013},
+  note        = {No DOI. Documents the exact Barrowman extensions, skin-
+                 friction correlation and Mach corrections implemented in
+                 OpenRocket. Required to reproduce the goddard1.0.ork
+                 baseline in the end-to-end validation test.}
+}
+
+
+% ----------------------------------------------------------------------------
+% AERODYNAMICS :: Drag build-up, wave drag, Von Karman nose
+% Backs: goddard/aero/drag.py, goddard/aero/geometry.py
+% ----------------------------------------------------------------------------
+
+@book{hoerner1965drag,
+  author    = {Hoerner, Sighard F.},
+  title     = {Fluid-Dynamic Drag: Practical Information on Aerodynamic
+               Drag and Hydrodynamic Resistance},
+  publisher = {Published by the author},
+  address   = {Bakersfield, CA},
+  year      = {1965},
+  note      = {No DOI (self-published). Source of the base-drag
+               correlation, fin thickness and leading-edge drag, and the
+               interference terms. Also the reference for the drag
+               penalty of a rounded versus wedge leading edge at
+               supersonic speed -- relevant to the ORK's rounded fin
+               cross-section at Mach 2+.}
+}
+
+@article{ward1949supersonic,
+  author  = {Ward, G. N.},
+  title   = {Supersonic Flow Past Slender Pointed Bodies},
+  journal = {The Quarterly Journal of Mechanics and Applied Mathematics},
+  volume  = {2},
+  number  = {1},
+  pages   = {75--97},
+  year    = {1949},
+  doi     = {10.1093/qjmam/2.1.75},
+  note    = {Slender-body wave-drag theory used for the Von Karman nose
+             and the 5-to-6 inch Haack flare below the Newtonian blend
+             point at roughly Mach 1.3.}
+}
+
+@article{sears1947projectiles,
+  author  = {Sears, William R.},
+  title   = {On Projectiles of Minimum Wave Drag},
+  journal = {Quarterly of Applied Mathematics},
+  volume  = {4},
+  number  = {4},
+  pages   = {361--366},
+  year    = {1947},
+  doi     = {10.1090/qam/20394},
+  note    = {With Haack (1941), establishes the minimum-wave-drag body
+             family. The ORK nose is `haack` with shape parameter 0.0,
+             i.e. the LD-Haack / Von Karman member of this family --
+             this is the analytic result the nose drag model must
+             recover.}
+}
+
+@article{haack1941geschossformen,
+  author  = {Haack, Wolfgang},
+  title   = {Geschossformen kleinsten Wellenwiderstandes},
+  journal = {Bericht der Lilienthal-Gesellschaft f\"{u}r Luftfahrtforschung},
+  volume  = {139},
+  number  = {1},
+  pages   = {14--28},
+  year    = {1941},
+  note    = {No DOI (wartime German report). Original derivation of the
+             Haack series; the Von Karman ogive is the C = 0 member.
+             Cited for provenance of the nose shape, not for numerics.}
+}
+
+
+% ----------------------------------------------------------------------------
+% STRUCTURES :: Fin flutter, divergence, composite sandwich stiffness
+% Backs: goddard/structures/flutter.py, goddard/structures/laminate.py
+% ----------------------------------------------------------------------------
+
+@techreport{martin1958flutter,
+  author      = {Martin, Dennis J.},
+  title       = {Summary of Flutter Experiences as a Guide to the
+                 Preliminary Design of Lifting Surfaces on Missiles},
+  institution = {National Advisory Committee for Aeronautics},
+  number      = {NACA TN 4197},
+  year        = {1958},
+  note        = {No DOI (pre-DOI NACA note). NTRS accession 19930085030.
+                 The flutter-velocity criterion universally used in
+                 amateur and collegiate rocketry. The author explicitly
+                 calls the criteria "crude" -- which is why this model
+                 drives it with an effective GJ from laminate theory
+                 rather than an isotropic shear modulus, and pairs it
+                 with a separate divergence check.}
+}
+
+@techreport{theodorsen1935flutter,
+  author      = {Theodorsen, Theodore},
+  title       = {General Theory of Aerodynamic Instability and the
+                 Mechanism of Flutter},
+  institution = {National Advisory Committee for Aeronautics},
+  number      = {NACA Report 496},
+  year        = {1935},
+  note        = {No DOI (pre-DOI NACA report). The bending-torsion
+                 flutter theory underlying TN 4197; the upgrade path if
+                 the TN 4197 margin turns out to be marginal.}
+}
+
+@book{jones1999composite,
+  author    = {Jones, Robert M.},
+  title     = {Mechanics of Composite Materials},
+  edition   = {2},
+  publisher = {Taylor and Francis},
+  year      = {1999},
+  isbn      = {978-1-56032-712-7},
+  note      = {No DOI. Classical laminate theory for the carbon-fibre
+               skins. Combined with core shear this yields the effective
+               EI and GJ of the foam-cored fin sandwich -- the whole
+               point of the foam interior.}
+}
+
+@book{bisplinghoff1955aeroelasticity,
+  author    = {Bisplinghoff, Raymond L. and Ashley, Holt and
+               Halfman, Robert L.},
+  title     = {Aeroelasticity},
+  publisher = {Addison-Wesley},
+  address   = {Cambridge, MA},
+  year      = {1955},
+  isbn      = {978-0-486-69189-3},
+  note      = {No DOI (Dover reprint ISBN given). Source of the uniform-
+               cantilever torsional divergence result
+               q_div = (pi^2/4)*GJ/(s^2*e*c^2*CL_alpha) used alongside
+               TN 4197. Divergence often precedes flutter for low-GJ
+               composite fins, so flutter-only screening is insufficient.}
+}
+
+@book{allen1969sandwich,
+  author    = {Allen, Howard G.},
+  title     = {Analysis and Design of Structural Sandwich Panels},
+  publisher = {Pergamon Press},
+  address   = {Oxford},
+  year      = {1969},
+  isbn      = {978-0-08-012870-2},
+  note      = {No DOI. Sandwich-specific treatment including core shear
+               compliance, which dominates GJ for thin skins over a
+               low-modulus foam core.}
+}
+
+
+% ----------------------------------------------------------------------------
+% AEROTHERMAL :: Stagnation heating of the aluminium nose tip
+% Backs: goddard/structures/ (tip temperature output)
+% ----------------------------------------------------------------------------
+
+@article{fay1958stagnation,
+  author  = {Fay, J. A. and Riddell, F. R.},
+  title   = {Theory of Stagnation Point Heat Transfer in Dissociated Air},
+  journal = {Journal of the Aerospace Sciences},
+  volume  = {25},
+  number  = {2},
+  pages   = {73--85},
+  year    = {1958},
+  doi     = {10.2514/8.7517},
+  note    = {Stagnation-point heat flux. Drives the aluminium tip
+             temperature history that justifies the metal tip -- the
+             number the model should produce rather than assume.}
+}
+
+
+% ----------------------------------------------------------------------------
+% RECOVERY :: Reefed parachute staging, inflation, opening loads
+% Backs: goddard/recovery.py
+% ----------------------------------------------------------------------------
+
+@techreport{knacke1992parachute,
+  author      = {Knacke, Theo W.},
+  title       = {Parachute Recovery Systems Design Manual},
+  institution = {Naval Weapons Center},
+  number      = {NWC TP 6575},
+  year        = {1992},
+  note        = {No DOI. NTIS ADA247666. The reference for reefing ratio,
+                 filling time t_fill = n*D0/V, the opening-force
+                 coefficient Cx, and staged disreefing. Everything in
+                 recovery.py traces here.}
+}
+
+@book{ewing1978recovery,
+  author    = {Ewing, E. G. and Bixby, H. W. and Knacke, T. W.},
+  title     = {Recovery Systems Design Guide},
+  publisher = {Air Force Flight Dynamics Laboratory},
+  year      = {1978},
+  note      = {No DOI. AFFDL-TR-78-151. Companion to Knacke with
+               additional inflation-transient data for reefed stages.}
+}
+
+
+% ----------------------------------------------------------------------------
+% ENVIRONMENT :: Atmosphere
+% Backs: goddard/env/atmosphere.py
+% ----------------------------------------------------------------------------
+
+@techreport{usstd1976,
+  author      = {{National Oceanic and Atmospheric Administration} and
+                 {National Aeronautics and Space Administration} and
+                 {United States Air Force}},
+  title       = {U.S. Standard Atmosphere, 1976},
+  institution = {U.S. Government Printing Office},
+  number      = {NOAA-S/T 76-1562},
+  address     = {Washington, DC},
+  year        = {1976},
+  note        = {No DOI. Also issued as NASA-TM-X-74335. The seven-layer
+                 analytic formulation implemented in atmosphere.py --
+                 chosen over a lookup table specifically so there is no
+                 table edge to fall off, which is how the 25-26 model
+                 produced #N/A above 15,420 m.}
+}

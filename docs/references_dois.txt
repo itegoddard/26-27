@@ -1,0 +1,275 @@
+================================================================================
+GODDARD 26-27 MODULAR MATH MODEL -- DOI LIST
+Companion to references.bib
+Generated 2026-08-28
+================================================================================
+
+VERIFICATION STATUS
+-------------------
+[V]  Verified 2026-08-28 against the publisher's own record (AIAA ARC,
+     Oxford Academic, AMS, ScienceDirect, NASA NTRS). Resolved and matched
+     on title, authors, volume/issue and pages.
+[S]  Paper number confirmed from a primary source, DOI constructed from
+     AIAA's fully regular scheme 10.2514/6.<year>-<papernumber>. Not
+     independently resolved. Two entries only; both flagged below.
+[--] No DOI exists. Book, subscription engineering-data standard, or
+     pre-DOI government technical report. Authoritative identifier given
+     instead. These are NOT missing DOIs -- do not go looking for them.
+
+Nothing in this file was written from memory.
+
+
+================================================================================
+PART 1 -- DOIs (bare, one per line, for bulk import / Zotero / CrossRef)
+================================================================================
+
+10.2514/1.3340
+10.2514/6.2003-1162
+10.2514/2.5975
+10.2514/2.5976
+10.1016/S0082-0784(63)80046-6
+10.2514/6.2006-4504
+10.2514/6.2005-3549
+10.2514/1.47131
+10.2514/6.2013-4045
+10.2514/6.2007-5702
+10.1093/qjmam/2.1.75
+10.1090/qam/20394
+10.2514/8.7517
+
+
+================================================================================
+PART 2 -- DOIs with context
+================================================================================
+
+--- MOTOR: fuel regression -------------------------------------------------
+
+[V] 10.2514/1.3340
+    Karabeyoglu, Zilliac, Cantwell, DeZilwa, Castellucci (2004)
+    "Scale-Up Tests of High Regression Rate Paraffin-Based Hybrid Rocket Fuels"
+    J. Propulsion and Power 20(6), 1037-1045
+    -> Source of default a and n in rdot = a*G_ox^n
+    https://doi.org/10.2514/1.3340
+
+[V] 10.2514/6.2003-1162
+    Karabeyoglu et al. (2003), AIAA 2003-1162
+    "Scale-up Tests of High Regression Rate Liquefying Hybrid Rocket Fuels"
+    -> Conference precursor with additional raw test data
+    https://doi.org/10.2514/6.2003-1162
+
+[V] 10.2514/2.5975
+    Karabeyoglu, Altman, Cantwell (2002)
+    "Combustion of Liquefying Hybrid Propellants: Part 1, General Theory"
+    J. Propulsion and Power 18(3), 610-620
+    -> Entrainment theory: why paraffin beats HTPB by 3-4x
+    https://doi.org/10.2514/2.5975
+
+[V] 10.2514/2.5976
+    Karabeyoglu, Cantwell (2002)
+    "Combustion of Liquefying Hybrid Propellants: Part 2, Stability of
+    Liquid Films"
+    J. Propulsion and Power 18(3), 621-630
+    -> Melt-film stability. The physical basis for expecting the 10% SEBS-MA
+       to SUPPRESS regression (higher melt viscosity stabilises the film).
+       Read this one before setting regression_calibration.
+    https://doi.org/10.2514/2.5976
+
+[V] 10.1016/S0082-0784(63)80046-6
+    Marxman, Gilbert (1963)
+    "Turbulent Boundary Layer Combustion in the Hybrid Rocket"
+    9th Symposium (International) on Combustion, 9(1), 371-383
+    -> Classical diffusion-limited regression model; origin of G_ox^n scaling
+    https://doi.org/10.1016/S0082-0784(63)80046-6
+
+[S] 10.2514/6.2006-4504
+    Zilliac, Karabeyoglu (2006), AIAA 2006-4504
+    "Hybrid Rocket Fuel Regression Rate Data and Modeling"
+    -> Compiled cross-propellant regression dataset; sanity band for the
+       calibrated law
+    NOTE: paper number 2006-4504 confirmed from the authors' hosted copy at
+    Stanford; DOI constructed from AIAA's regular scheme, not resolved.
+    https://doi.org/10.2514/6.2006-4504
+
+--- MOTOR: N2O tank blowdown -----------------------------------------------
+
+[V] 10.2514/6.2005-3549
+    Zilliac, Karabeyoglu (2005), AIAA 2005-3549
+    "Modeling of Propellant Tank Pressurization"
+    -> The adiabatic quasi-equilibrium saturated model adopted for tank.py.
+       Authors' own caveat: carries a system-dependent empirical factor.
+    https://doi.org/10.2514/6.2005-3549
+
+[V] 10.2514/1.47131
+    Whitmore, Chandler (2010)
+    "Engineering Model for Self-Pressurizing Saturated-N2O-Propellant
+    Feed Systems"
+    J. Propulsion and Power 26(4), 706-714
+    -> Independent cross-check on the blowdown implementation
+    https://doi.org/10.2514/1.47131
+
+[S] 10.2514/6.2013-4045
+    Zimmerman, Waxman, Cantwell, Zilliac (2013), AIAA 2013-4045
+    "Review and Evaluation of Models for Self-Pressurizing Propellant
+    Tank Dynamics"
+    -> Six tank models benchmarked against experiment. The justification
+       for picking Zilliac-Karabeyoglu over the alternatives.
+    NOTE: paper number 2013-4045 confirmed from the authors' hosted copy at
+    Stanford; DOI constructed from AIAA's regular scheme, not resolved.
+    https://doi.org/10.2514/6.2013-4045
+
+--- MOTOR: showerhead injector ---------------------------------------------
+
+[V] 10.2514/6.2007-5702
+    Dyer, Zilliac, Sadhwani, Karabeyoglu, Cantwell (2007), AIAA 2007-5702
+    "Modeling Feed System Flow Physics for Self-Pressurizing Propellants"
+    -> The NHNE model: mdot = (k*mdot_SPI + mdot_HEM)/(1+k),
+       k = sqrt((P1-P2)/(Pv-P2)). Adopted verbatim in injector.py.
+       Directly on point for a showerhead: straight orifices are exactly
+       where saturated N2O flashes and cavitates.
+    https://doi.org/10.2514/6.2007-5702
+
+--- AERODYNAMICS -----------------------------------------------------------
+
+[V] 10.1093/qjmam/2.1.75
+    Ward (1949)
+    "Supersonic Flow Past Slender Pointed Bodies"
+    Quarterly J. Mechanics and Applied Mathematics 2(1), 75-97
+    -> Slender-body wave drag for the Von Karman nose and the 5-to-6 in flare
+    https://doi.org/10.1093/qjmam/2.1.75
+
+[V] 10.1090/qam/20394
+    Sears (1947)
+    "On Projectiles of Minimum Wave Drag"
+    Quarterly of Applied Mathematics 4(4), 361-366
+    -> With Haack (1941), defines the minimum-wave-drag family. The ORK nose
+       is `haack` / shapeparameter 0.0 = the Von Karman member, so this is
+       the analytic result the nose drag model must reproduce.
+    https://doi.org/10.1090/qam/20394
+
+--- AEROTHERMAL ------------------------------------------------------------
+
+[V] 10.2514/8.7517
+    Fay, Riddell (1958)
+    "Theory of Stagnation Point Heat Transfer in Dissociated Air"
+    J. of the Aerospace Sciences 25(2), 73-85
+    -> Stagnation heat flux -> aluminium tip temperature vs time.
+       Journal was renamed; some indexes list it as J. of the
+       Aeronautical Sciences. Same DOI.
+    https://doi.org/10.2514/8.7517
+
+
+================================================================================
+PART 3 -- SOURCES WITH NO DOI (identifier given instead)
+================================================================================
+
+These have no DOI. The identifier listed is the authoritative one.
+
+[--] ESDU 91022
+     "Thermophysical Properties of Nitrous Oxide", ESDU International, 1991
+     Subscription engineering-data series. Saturated-N2O correlations:
+     Tc = 309.57 K, Pc = 7.251 MPa, rho_c = 452 kg/m^3.
+     Access note: requires an ESDU subscription. If the team has no access,
+     the correlations are reproduced in several open hybrid-rocket theses;
+     cite ESDU as the primary regardless.
+
+[--] NACA TN 4197
+     Martin, D. J. (1958), "Summary of Flutter Experiences as a Guide to the
+     Preliminary Design of Lifting Surfaces on Missiles"
+     NTRS accession: 19930085030
+     https://ntrs.nasa.gov/citations/19930085030
+     Free full text. The author himself calls the criteria "crude" -- hence
+     driving it with an effective GJ from laminate theory plus a separate
+     divergence check.
+
+[--] NACA Report 496
+     Theodorsen, T. (1935), "General Theory of Aerodynamic Instability and
+     the Mechanism of Flutter"
+     Bending-torsion flutter theory underlying TN 4197.
+
+[--] NACA Report 1048
+     Allen, H. J. and Perkins, E. W. (1951), "A Study of Effects of Viscosity
+     on Flow over Slender Inclined Bodies of Revolution"
+     Body cross-flow drag; corrects Barrowman at non-trivial alpha.
+
+[--] NASA NTRS 20010047838  (also NASA/TM-2001-209983)
+     Barrowman, J. S. (1967), "The Practical Calculation of the Aerodynamic
+     Characteristics of Slender Finned Vehicles", M.S. thesis,
+     The Catholic University of America
+     https://ntrs.nasa.gov/citations/20010047838
+     Free full text.
+
+[--] NASA RP-1311
+     Gordon, S. and McBride, B. J. (1994), "Computer Program for Calculation
+     of Complex Chemical Equilibrium Compositions and Applications" (CEA)
+     Generates the c*, gamma, Tc tables fitted in cea.py.
+
+[--] NASA SP-194
+     Harrje, D. T. and Reardon, F. H. (1972), "Liquid Propellant Rocket
+     Combustion Instability"
+     Source of the chug criterion dP_inj/P_c >= 0.20.
+
+[--] NWC TP 6575  (NTIS ADA247666)
+     Knacke, T. W. (1992), "Parachute Recovery Systems Design Manual"
+     Reefing ratio, filling time t_fill = n*D0/V, opening-force coefficient
+     Cx, staged disreefing. Everything in recovery.py traces here.
+
+[--] AFFDL-TR-78-151
+     Ewing, Bixby, Knacke (1978), "Recovery Systems Design Guide"
+     Companion to Knacke; additional reefed-stage inflation data.
+
+[--] NOAA-S/T 76-1562  (also NASA-TM-X-74335)
+     "U.S. Standard Atmosphere, 1976"
+     Seven-layer analytic formulation for atmosphere.py.
+
+[--] ISBN 978-1-118-75388-0
+     Sutton, G. P. and Biblarz, O. (2017), "Rocket Propulsion Elements",
+     9th ed., Wiley
+
+[--] ISBN 978-0-07-031320-0
+     Humble, Henry, Larson (1995), "Space Propulsion Analysis and Design",
+     McGraw-Hill
+     Basis for the eta_cstar = 0.90 default for an unaugmented showerhead.
+
+[--] ISBN 978-1-56032-712-7
+     Jones, R. M. (1999), "Mechanics of Composite Materials", 2nd ed.,
+     Taylor and Francis
+     Classical laminate theory for the CF skins.
+
+[--] ISBN 978-0-08-012870-2
+     Allen, H. G. (1969), "Analysis and Design of Structural Sandwich
+     Panels", Pergamon
+     Core shear compliance -- dominates GJ for thin skins on low-modulus foam.
+     NOTE: H. G. Allen (sandwich panels) is a DIFFERENT author from
+     H. J. Allen of Allen & Perkins, NACA Report 1048 (body cross-flow drag).
+     Both are cited; do not merge them.
+
+[--] ISBN 978-0-486-69189-3  (Dover reprint)
+     Bisplinghoff, R. L., Ashley, H. and Halfman, R. L. (1955),
+     "Aeroelasticity", Addison-Wesley
+     Uniform-cantilever torsional divergence,
+     q_div = (pi^2/4)*GJ/(s^2*e*c^2*CL_alpha). Paired with NACA TN 4197
+     because divergence often precedes flutter for low-GJ composite fins.
+
+[--] Hoerner, S. F. (1965), "Fluid-Dynamic Drag", published by the author,
+     Bakersfield CA. No ISBN, no DOI; cited by author and year.
+     Base drag, fin thickness/leading-edge drag, interference. Also the
+     reference for the rounded-vs-wedge leading-edge penalty at Mach 2+.
+
+[--] Haack, W. (1941), "Geschossformen kleinsten Wellenwiderstandes",
+     Bericht der Lilienthal-Gesellschaft 139(1), 14-28.
+     Wartime German report; cited for provenance of the Von Karman /
+     Haack-series nose shape, not for numerics.
+
+[--] Niskanen, S., "OpenRocket Technical Documentation"
+     Needed to reproduce the goddard1.0.ork baseline in the end-to-end
+     validation test.
+
+
+================================================================================
+COUNTS
+================================================================================
+13 DOIs total  -- 11 verified [V], 2 constructed from confirmed paper
+                  numbers [S]
+18 sources with no DOI [--], each with an authoritative identifier
+31 sources total  (matches entry count in references.bib)
+================================================================================

@@ -1,0 +1,18 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+.venv/
+venv/
+
+# generated outputs -- regenerated on every run, never hand-edited
+out/
+*_results.xlsx
+
+# the empty stub left over from the 25-26 workbook
+math_model.xlsx
+
+~$*
+.DS_Store
