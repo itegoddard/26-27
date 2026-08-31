@@ -54,6 +54,9 @@ double-click **`run.bat`** and pick a number:
 
 **First time?** Run **6 (Setup)** once, then **2 (Simulate)**.
 
+The menu **stays open after each action**, so you can run 6 and then 2 in the
+same window without relaunching. Only **8 (Exit)** closes it.
+
 Setup builds a project-local `.venv`, so it works on locked-down machines where
 global `site-packages` is not writable, and it cannot collide with other Python
 projects. If anything misbehaves, **7 (Doctor)** prints what it found.

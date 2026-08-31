@@ -31,6 +31,7 @@ set "ROOT=%CD%"
 set "CONFIG=goddard.config.demo_placeholder"
 set "OUT=out"
 set "PAUSE_AT_END="
+set "DEADREADS=0"
 set "VENV=%ROOT%\.venv"
 set "VENV_PY=%VENV%\Scripts\python.exe"
 
@@ -68,15 +69,26 @@ echo     7.  Doctor     - diagnose the environment
 echo     8.  Exit
 echo.
 set "ACTION="
+set "PICK="
 set /p "PICK=  Choose 1-8: "
-if "%PICK%"=="1" set "ACTION=check"
-if "%PICK%"=="2" set "ACTION=sim"
-if "%PICK%"=="3" set "ACTION=band"
-if "%PICK%"=="4" set "ACTION=show"
-if "%PICK%"=="5" set "ACTION=test"
-if "%PICK%"=="6" set "ACTION=setup"
-if "%PICK%"=="7" set "ACTION=doctor"
-if "%PICK%"=="8" exit /b 0
+
+REM Guard against a closed or redirected stdin: set /p leaves PICK untouched at
+REM EOF, which would spin this menu forever. Bail out after a few dead reads.
+if "!PICK!"=="" (
+    set /a DEADREADS+=1
+    if !DEADREADS! GEQ 5 goto :quit
+    goto :menu
+)
+set "DEADREADS=0"
+
+if "!PICK!"=="1" set "ACTION=check"
+if "!PICK!"=="2" set "ACTION=sim"
+if "!PICK!"=="3" set "ACTION=band"
+if "!PICK!"=="4" set "ACTION=show"
+if "!PICK!"=="5" set "ACTION=test"
+if "!PICK!"=="6" set "ACTION=setup"
+if "!PICK!"=="7" set "ACTION=doctor"
+if "!PICK!"=="8" goto :quit
 if "!ACTION!"=="" (
     echo   Not a valid choice.
     goto :menu
@@ -296,8 +308,7 @@ echo.
 echo    Or on GitHub use  Code -^> Download ZIP,  extract it, and
 echo    run run.bat from inside the extracted folder.
 echo.
-set "PAUSE_AT_END=1"
-goto :end
+goto :hard_end
 
 
 :no_python
@@ -322,8 +333,24 @@ echo   Command failed. Scroll up for the error.
 echo   Option 7 ^(Doctor^) will diagnose the environment.
 
 
+REM ------------------------------------------------------------------ endings
+REM In menu mode return to the menu so several actions can be run in one
+REM session -- Setup then Simulate is the common pair, and closing the window
+REM in between would mean relaunching. Only option 8 exits.
+REM With a command-line argument, run once and exit so scripting still works.
+
 :end
 echo.
-if defined PAUSE_AT_END pause
+if not defined PAUSE_AT_END goto :quit
+echo   ------------------------------------------------------------
+pause
+goto :menu
+
+:hard_end
+echo.
+pause
+goto :quit
+
+:quit
 endlocal
 exit /b 0
