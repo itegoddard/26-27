@@ -18,16 +18,29 @@ Replaces the `25-26 Math Model.xlsx` single-sheet time-march.
     Goddard 26-27 Flight Model
   ========================================================
 
+    [ First run? Choose 6 to set up. ]
+
     1.  Check      - what still needs filling in
     2.  Simulate   - one flight, writes Excel + plots
     3.  Band       - 27-corner calibration sweep
     4.  Show       - open the last results
     5.  Test       - run the test suite
-    6.  Setup      - install dependencies
-    7.  Exit
+    6.  Setup      - create .venv and install dependencies
+    7.  Doctor     - diagnose the environment
+    8.  Exit
 ```
 
 **First time?** Run **6 (Setup)** once, then **2 (Simulate)**.
+
+> **Download the whole repository, not just `run.bat`.** The script needs the
+> `goddard/` package and `pyproject.toml` beside it. If you only grab the one
+> file it will tell you so and print the clone command rather than failing
+> cryptically. Use `git clone`, or GitHub's **Code → Download ZIP** and run it
+> from inside the extracted folder.
+
+Setup builds a project-local `.venv`, so it works on locked-down machines where
+global `site-packages` is not writable, and it cannot collide with other Python
+projects. If anything misbehaves, **7 (Doctor)** prints what it found.
 
 Option **2** runs a flight and then opens the Excel workbook and the plots
 folder for you automatically. Results land in `out/`:
@@ -42,16 +55,22 @@ folder for you automatically. Results land in `out/`:
 `run.bat` also takes an argument, so nothing has to be typed twice:
 
 ```bat
+run.bat setup                                   :: create .venv, install deps
 run.bat check                                   :: unfilled parameters
 run.bat sim                                     :: one flight + open results
 run.bat band                                    :: 27-corner sweep
 run.bat show                                    :: reopen last results
 run.bat test                                    :: 227 tests
+run.bat doctor                                  :: diagnose the environment
 run.bat sim goddard.config.goddard_v2           :: use a specific config
 ```
 
-It `cd`s to its own folder first, so the space in `goddard 26-27` never causes
-trouble and it works from any working directory.
+**Portability.** It `cd`s to its own folder first, so spaces in the path never
+cause trouble and it works from any working directory. It finds Python via `py`,
+`python`, or `python3` — whichever the machine has — and installs into `.venv`
+rather than global site-packages. `.gitattributes` forces `*.bat` to CRLF on
+checkout, because cmd.exe mis-parses `goto` in an LF-only batch file and the
+menu silently never appears.
 
 ### Python directly
 
