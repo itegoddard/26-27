@@ -6,11 +6,69 @@ diameter, single-stage, paraffin/N₂O hybrid sounding rocket targeting
 
 Replaces the `25-26 Math Model.xlsx` single-sheet time-march.
 
+---
+
+## Quick start — just double-click `run.bat`
+
+**On Windows you do not need to touch a terminal.** Double-click
+[`run.bat`](run.bat) in this folder and pick a number:
+
+```
+  ========================================================
+    Goddard 26-27 Flight Model
+  ========================================================
+
+    1.  Check      - what still needs filling in
+    2.  Simulate   - one flight, writes Excel + plots
+    3.  Band       - 27-corner calibration sweep
+    4.  Show       - open the last results
+    5.  Test       - run the test suite
+    6.  Setup      - install dependencies
+    7.  Exit
+```
+
+**First time?** Run **6 (Setup)** once, then **2 (Simulate)**.
+
+Option **2** runs a flight and then opens the Excel workbook and the plots
+folder for you automatically. Results land in `out/`:
+
+| Output | Contents |
+|---|---|
+| `out\goddard_results.xlsx` | Summary · Events · Trajectory (~2,700 rows × 13) · Motor |
+| `out\plots\` | altitude · mach · acceleration · dynamic_pressure · drag_coefficient · static_margin · roll_rate · chug_margin · motor |
+
+### Or from a terminal
+
+`run.bat` also takes an argument, so nothing has to be typed twice:
+
+```bat
+run.bat check                                   :: unfilled parameters
+run.bat sim                                     :: one flight + open results
+run.bat band                                    :: 27-corner sweep
+run.bat show                                    :: reopen last results
+run.bat test                                    :: 227 tests
+run.bat sim goddard.config.goddard_v2           :: use a specific config
+```
+
+It `cd`s to its own folder first, so the space in `goddard 26-27` never causes
+trouble and it works from any working directory.
+
+### Python directly
+
 ```bash
 pip install -e ".[dev,report]"
 python -m pytest                    # 227 tests
 python -m goddard.cli check         # what still needs filling in
+python -m goddard.cli run  --config goddard.config.demo_placeholder --out out
+python -m goddard.cli band --config goddard.config.demo_placeholder --out out
 ```
+
+> ⚠️ **The demo config produces meaningless numbers.**
+> `goddard/config/demo_placeholder.py` exists only so you can *see the report
+> format* before the real parameters are known. Every value in it is invented —
+> it is the apogee of a rocket nobody is building. `run.bat` prints a warning
+> box before every demo run. Delete that file once a real
+> `goddard/config/goddard_v2.py` exists.
 
 ---
 
@@ -115,8 +173,11 @@ A single scalar biased for apogee would leave burnthrough unexamined. See spec
 ## Layout
 
 ```
-goddard/            model package
-tests/              227 tests
+run.bat                        <- double-click this
+goddard/                       model package
+  config/demo_placeholder.py   invented numbers, for previewing the report only
+tests/                         227 tests
+out/                           generated results (gitignored)
 docs/
   superpowers/specs/2026-08-28-goddard-math-model-design.md   approved design
   assumptions_register.md      112 parameters, 54 OPEN  <- the meeting artifact
@@ -128,14 +189,22 @@ tools/build_register_csv.py    regenerates the CSV and status counts
 goddard1.0.ork                 OpenRocket source of the confirmed shape
 ```
 
-## Running it
+---
 
-```bash
-python -m goddard.cli check                              # unfilled parameters
-python -m goddard.cli run  --config myconfig --out out/  # single flight
-python -m goddard.cli band --config myconfig --out out/  # 27-corner sweep
+## Writing a real config
+
+A config module defines `build_vehicle()` returning a `sim.Vehicle`. Copy
+`goddard/config/demo_placeholder.py` to `goddard/config/goddard_v2.py`, replace
+every invented number with a register value, then:
+
+```bat
+run.bat sim goddard.config.goddard_v2
 ```
 
-A config module must define `build_vehicle()` returning a `sim.Vehicle`. None
-exists yet — that is what the register unblocks. `tests/conftest.py` shows the
-shape of one, with placeholder numbers that are **not** design values.
+`run.bat check` lists what is still missing, by register ID, so the register and
+the config can be filled in together.
+
+Note `check` reports **60** blocking fields against the register's **54** OPEN
+entries. Not a discrepancy — a few register entries map to more than one schema
+field (B6 is both the nose base diameter and the flare fore diameter). 54 is the
+number of distinct questions to answer; 60 is the number of slots to fill.
