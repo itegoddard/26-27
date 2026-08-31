@@ -22,14 +22,20 @@
 
 \pagestyle{fancy}
 \fancyhf{}
-\lhead{\footnotesize Goddard 26--27 --- Model Equations}
+\lhead{\footnotesize Goddard 26--27 --- Model Equations --- v\docversion}
 \rhead{\footnotesize\thepage}
 \renewcommand{\headrulewidth}{0.4pt}
+
+% ------------------------------------------------------------ document version
+% Deliberately versioned rather than dated: a date says when the file was
+% typeset, which tells a reader nothing about whether the physics changed.
+% Bump this line whenever an equation changes.
+\newcommand{\docversion}{test}
 
 \title{\textbf{Goddard 26--27 Flight Model}\\[2mm]
        \large Governing Equations}
 \author{ITE Goddard Team}
-\date{2026-08-31}
+\date{Version \docversion}
 
 \begin{document}
 \maketitle
