@@ -63,17 +63,17 @@ def test_empty_component_list_rejected():
 
 
 def test_reefed_drag_area_scales_with_diameter_squared():
-    cfg = rec_mod.RecoveryConfig(0.6, 14.0, 0.35, 300.0)
-    assert cfg.main_reefed_cds_m2 == pytest.approx(14.0 * 0.35 ** 2)
-    assert cfg.main_reefed_cds_m2 < cfg.main_cds_m2
+    cfg = rec_mod.RecoveryConfig(14.0, 0.35, 300.0)
+    assert cfg.reefed_cds_m2 == pytest.approx(14.0 * 0.35 ** 2)
+    assert cfg.reefed_cds_m2 < cfg.canopy_cds_m2
 
 
 def test_reefing_bounds_the_opening_load():
     """The entire point of reefing."""
-    cfg = rec_mod.RecoveryConfig(0.6, 14.0, 0.35, 300.0)
+    cfg = rec_mod.RecoveryConfig(14.0, 0.35, 300.0)
     q = 3000.0
-    reefed = rec_mod.opening_load(cfg, rec_mod.Stage.MAIN_REEFED, q)
-    full = rec_mod.opening_load(cfg, rec_mod.Stage.MAIN_FULL, q)
+    reefed = rec_mod.opening_load(cfg, rec_mod.Stage.REEFED, q)
+    full = rec_mod.opening_load(cfg, rec_mod.Stage.FULL, q)
     assert reefed < full
     assert reefed / full == pytest.approx(0.35 ** 2, rel=1e-9)
 
@@ -86,25 +86,25 @@ def test_inflation_ramps_rather_than_snapping():
 
 
 def test_filling_time_shortens_at_higher_speed():
-    cfg = rec_mod.RecoveryConfig(0.6, 14.0, 0.35, 300.0)
-    slow = rec_mod.filling_time(cfg, rec_mod.Stage.MAIN_FULL, 20.0)
-    fast = rec_mod.filling_time(cfg, rec_mod.Stage.MAIN_FULL, 80.0)
+    cfg = rec_mod.RecoveryConfig(14.0, 0.35, 300.0)
+    slow = rec_mod.filling_time(cfg, rec_mod.Stage.FULL, 20.0)
+    fast = rec_mod.filling_time(cfg, rec_mod.Stage.FULL, 80.0)
     assert fast < slow
     assert slow / fast == pytest.approx(4.0, rel=1e-9)
 
 
 def test_drag_area_grows_through_the_transient():
-    cfg = rec_mod.RecoveryConfig(0.6, 14.0, 0.35, 300.0)
-    early = rec_mod.drag_area(cfg, rec_mod.Stage.DROGUE, 0.01, 60.0)
-    late = rec_mod.drag_area(cfg, rec_mod.Stage.DROGUE, 10.0, 60.0)
+    cfg = rec_mod.RecoveryConfig(14.0, 0.35, 300.0)
+    early = rec_mod.drag_area(cfg, rec_mod.Stage.REEFED, 0.01, 60.0)
+    late = rec_mod.drag_area(cfg, rec_mod.Stage.REEFED, 10.0, 60.0)
     assert early < late
-    assert late == pytest.approx(cfg.drogue_cds_m2)
+    assert late == pytest.approx(cfg.reefed_cds_m2)
 
 
 def test_overload_raises_with_actionable_message():
-    cfg = rec_mod.RecoveryConfig(0.6, 14.0, 1.0, 300.0, max_opening_load_N=100.0)
+    cfg = rec_mod.RecoveryConfig(14.0, 1.0, 300.0, max_opening_load_N=100.0)
     with pytest.raises(rec_mod.ChuteOverload) as exc:
-        rec_mod.check_load(cfg, rec_mod.Stage.MAIN_FULL, 5000.0)
+        rec_mod.check_load(cfg, rec_mod.Stage.FULL, 5000.0)
     assert "J9" in str(exc.value)
 
 
@@ -115,18 +115,18 @@ def test_terminal_velocity_falls_with_more_drag_area():
 
 
 def test_disreef_triggers_below_the_set_altitude():
-    cfg = rec_mod.RecoveryConfig(0.6, 14.0, 0.35, 300.0)
-    assert rec_mod.next_stage(rec_mod.Stage.MAIN_REEFED, 400.0, cfg) is \
-        rec_mod.Stage.MAIN_REEFED
-    assert rec_mod.next_stage(rec_mod.Stage.MAIN_REEFED, 200.0, cfg) is \
-        rec_mod.Stage.MAIN_FULL
+    cfg = rec_mod.RecoveryConfig(14.0, 0.35, 300.0)
+    assert rec_mod.next_stage(rec_mod.Stage.REEFED, 400.0, cfg) is \
+        rec_mod.Stage.REEFED
+    assert rec_mod.next_stage(rec_mod.Stage.REEFED, 200.0, cfg) is \
+        rec_mod.Stage.FULL
 
 
 def test_invalid_reefing_ratio_rejected():
     with pytest.raises(ValueError):
-        rec_mod.RecoveryConfig(0.6, 14.0, 0.0, 300.0)
+        rec_mod.RecoveryConfig(14.0, 0.0, 300.0)
     with pytest.raises(ValueError):
-        rec_mod.RecoveryConfig(0.6, 14.0, 1.5, 300.0)
+        rec_mod.RecoveryConfig(14.0, 1.5, 300.0)
 
 
 # ------------------------------------------------------------------- heating

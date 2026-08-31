@@ -1,9 +1,16 @@
-"""Staged reefed recovery: drogue, reefed main, full main.
+"""Single-stage reefed recovery: one canopy, deployed reefed, then disreefed.
 
 Spec section 8, register section J.
 
+There is no drogue. A single canopy deploys at apogee in its reefed state,
+descends on the reduced drag area, and disreefs to full at a set altitude. The
+reefed stage is doing the drogue's job -- bounding the opening load and the
+initial descent rate -- which is exactly why a separate drogue is unnecessary.
+
 Bounding the opening load is the entire purpose of reefing, so peak load per
-stage is a primary output rather than a diagnostic.
+stage is a primary output rather than a diagnostic. Reefing gives two loads to
+check, not one: the initial reefed opening at high speed, and the disreef
+transient lower down. Either can be the binding case.
 
 Each stage inflates over a filling time ``t_fill = n * D0 / V`` rather than
 snapping open, and the drag area ramps across that interval. Opening load is
@@ -29,12 +36,14 @@ from dataclasses import dataclass
 
 
 class Stage(Enum):
-    """Recovery stage, in deployment order."""
+    """Recovery stage, in deployment order.
+
+    Two live states, both the same physical canopy: reefed, then full.
+    """
 
     STOWED = "stowed"
-    DROGUE = "drogue"
-    MAIN_REEFED = "main_reefed"
-    MAIN_FULL = "main_full"
+    REEFED = "reefed"
+    FULL = "full"
 
 
 class ChuteOverload(RuntimeError):
@@ -43,23 +52,23 @@ class ChuteOverload(RuntimeError):
 
 @dataclass(frozen=True)
 class RecoveryConfig:
-    """Staged recovery system.
+    """Single canopy, reefed then disreefed.
 
     Attributes
     ----------
-    drogue_cds_m2   : drogue drag area Cd*S, m^2
-    main_cds_m2     : main drag area at full inflation, m^2
+    canopy_cds_m2   : drag area Cd*S at full inflation, m^2
     reefing_ratio   : reefed diameter as a fraction of full diameter. Drag area
-                      scales with its square.
-    disreef_altitude_m : altitude AGL at which the main disreefs
+                      scales with its square, so a 0.35 reefing ratio gives
+                      about 12 % of full drag area -- which is what keeps the
+                      apogee deployment survivable.
+    disreef_altitude_m : altitude AGL at which the reefing line is cut
     filling_constant   : ``n`` in ``t_fill = n*D0/V``. Knacke gives 8-10 for
                       solid cloth.
     opening_force_coefficient : ``Cx``
     max_opening_load_N : allowable, register J9
     """
 
-    drogue_cds_m2: float
-    main_cds_m2: float
+    canopy_cds_m2: float
     reefing_ratio: float
     disreef_altitude_m: float
     filling_constant: float = 8.0
@@ -67,8 +76,8 @@ class RecoveryConfig:
     max_opening_load_N: float = math.inf
 
     def __post_init__(self) -> None:
-        if self.drogue_cds_m2 < 0.0 or self.main_cds_m2 <= 0.0:
-            raise ValueError("drag areas must be non-negative, main positive")
+        if self.canopy_cds_m2 <= 0.0:
+            raise ValueError("canopy drag area must be positive")
         if not 0.0 < self.reefing_ratio <= 1.0:
             raise ValueError(
                 f"reefing ratio must be in (0, 1], got {self.reefing_ratio}"
@@ -77,17 +86,16 @@ class RecoveryConfig:
             raise ValueError("filling constant must be positive")
 
     @property
-    def main_reefed_cds_m2(self) -> float:
+    def reefed_cds_m2(self) -> float:
         """Reefed drag area -- scales with the square of the diameter ratio."""
-        return self.main_cds_m2 * self.reefing_ratio ** 2
+        return self.canopy_cds_m2 * self.reefing_ratio ** 2
 
     def target_cds(self, stage: Stage) -> float:
         """Fully-inflated drag area for a stage, m^2."""
         return {
             Stage.STOWED: 0.0,
-            Stage.DROGUE: self.drogue_cds_m2,
-            Stage.MAIN_REEFED: self.main_reefed_cds_m2,
-            Stage.MAIN_FULL: self.main_cds_m2,
+            Stage.REEFED: self.reefed_cds_m2,
+            Stage.FULL: self.canopy_cds_m2,
         }[stage]
 
 
@@ -178,6 +186,6 @@ def terminal_velocity(
 
 def next_stage(current: Stage, altitude_agl_m: float, config: RecoveryConfig) -> Stage:
     """Stage that should be active given the current altitude."""
-    if current is Stage.MAIN_REEFED and altitude_agl_m <= config.disreef_altitude_m:
-        return Stage.MAIN_FULL
+    if current is Stage.REEFED and altitude_agl_m <= config.disreef_altitude_m:
+        return Stage.FULL
     return current

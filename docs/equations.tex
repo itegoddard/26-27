@@ -611,12 +611,14 @@ carry margin accordingly.
 \section{Recovery}
 \src{goddard/recovery.py}
 
-Three stages in deployment order: drogue, reefed main, full main.
+A single canopy in two states: deployed reefed at apogee, then disreefed
+to full. There is no drogue -- the reefed stage does that job, which is the
+whole reason a separate drogue is unnecessary.
 
 \paragraph{Reefed drag area.} \established
 Drag area scales with the square of the diameter ratio:
 \begin{equation}
-(C_dS)_{reefed} = (C_dS)_{full}\cdot \Lambda^2
+(C_dS)_{reefed} = (C_dS)_{canopy}\cdot \Lambda^2
 \end{equation}
 
 \paragraph{Inflation.} \established

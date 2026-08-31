@@ -137,7 +137,7 @@ python -m goddard.cli band --config goddard.config.demo_placeholder --out out
 | `goddard/structures/` | `laminate` · `flutter` · `heating` |
 | `goddard/report/` | `excel` · `plots` |
 
-A full flight — launch, rail exit, max-Q, burnout, apogee, drogue, disreef,
+A full flight — launch, rail exit, max-Q, burnout, apogee, chute deploy, disreef,
 landing — runs in about 1.5 s. Band mode's 27 corners take under a minute.
 
 ### What it still needs to produce a *trustworthy* number

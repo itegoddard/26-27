@@ -173,14 +173,13 @@ Shape is confirmed from `goddard1.0.ork`. **Dimensions below are all open.**
 
 | ID | Parameter | Value | Units | Status | Basis / question for NASA |
 |---|---|---|---|---|---|
-| J1 | Architecture | drogue → reefed main → full main | — | CONFIRMED | Team spec |
-| J2 | Drogue C_d·S | — | m² | OPEN | |
-| J3 | Main C_d·S (full) | — | m² | OPEN | |
+| J1 | Architecture | single canopy: reefed → full | — | CONFIRMED | Team spec. No drogue — the reefed stage does that job. |
+| J3 | Canopy C_d·S (full open) | — | m² | OPEN | Single canopy; reefed area is this × ratio² |
 | J4 | Reefing ratio | — | — | OPEN | **Sets the reefed-stage load. Typical starting value?** |
 | J5 | Disreef trigger | — | m or s | OPEN | Altitude-triggered or timer? |
 | J6 | Filling constant n | 8 | — | ESTIMATED | Knacke, solid cloth. Range 8–10. |
 | J7 | Opening force coefficient C_x | — | — | OPEN | Knacke, canopy-type dependent |
-| J8 | Drogue deploy | at apogee, no delay | — | ASSUMPTION | **Should there be a delay past apogee to reduce deployment velocity?** |
+| J8 | Canopy deploy | at apogee, no delay | — | ASSUMPTION | **Should there be a delay past apogee to reduce deployment velocity?** Reefed deployment at apogee is the high-load case. |
 | J9 | Max allowable opening load | — | N | OPEN | **What g-limit does the airframe/payload impose? This is what reefing is sized against.** |
 | J10 | Max allowable landing speed | — | m/s | OPEN | **Range safety requirement?** |
 
@@ -199,12 +198,12 @@ Shape is confirmed from `goddard1.0.ork`. **Dimensions below are all open.**
 
 ## Summary — what blocks a trustworthy run
 
-**112 parameters tracked.** Counts below are generated from this file, not
+**111 parameters tracked.** Counts below are generated from this file, not
 hand-tallied — regenerate with the script in `docs/README.md` after editing.
 
 | Count | Status | Meaning |
 |---|---|---|
-| **54** | OPEN | No value yet. Model cannot run. |
+| **53** | OPEN | No value yet. Model cannot run. |
 | **1** | PLACEHOLDER | G11, the CEA table. Model will refuse to run rather than guess. |
 | **3** | BANDED | E5, F8, G9. The dominant uncertainty. Band mode reports an envelope. |
 | **13** | ASSUMPTION | Effects deliberately not modeled — worth a sanity check with them |

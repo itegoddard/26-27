@@ -369,8 +369,7 @@ class Calibration:
 class Recovery:
     """Drogue then reefed main then full main. Register section J."""
 
-    drogue_cds_m2: Number = Open("J2", "drogue Cd*S", "m^2")
-    main_cds_m2: Number = Open("J3", "main Cd*S, full open", "m^2")
+    canopy_cds_m2: Number = Open("J3", "canopy Cd*S, full open", "m^2")
     reefing_ratio: Number = Open("J4", "reefing ratio")
     disreef_altitude_m: Number = Open("J5", "disreef trigger altitude", "m")
     filling_constant: float = 8.0               # J6 ESTIMATED, Knacke

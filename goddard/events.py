@@ -23,7 +23,7 @@ class Event(Enum):
     BURNOUT = "burnout"
     MAX_Q = "max_q"
     APOGEE = "apogee"
-    DROGUE_DEPLOY = "drogue_deploy"
+    CHUTE_DEPLOY = "chute_deploy"
     DISREEF = "disreef"
     LANDING = "landing"
 

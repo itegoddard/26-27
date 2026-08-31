@@ -397,9 +397,10 @@ number rather than assuming the result.
 `C_d·S` is a staged function with real inflation dynamics:
 
 ```
-apogee            → drogue,       C_d·S₁
-h_reef            → main reefed,  C_d·S₂ = (reefing ratio)² · C_d·S₃
-t_disreef         → main full,    C_d·S₃
+apogee            → canopy reefed, C_d·S₁ = (reefing ratio)² · C_d·S₂
+h_disreef         → canopy full,   C_d·S₂
+
+Single canopy, two states. No drogue -- the reefed stage does that job.
 ```
 
 Each stage ramps over filling time `t_fill ≈ n·D₀/V` and reports a **peak

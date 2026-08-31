@@ -333,17 +333,17 @@ def run(
         if prev_vz > 0.0 and state.vz <= 0.0 and not result.events.has(Event.APOGEE):
             t_apo = interpolate_crossing(t - dt, prev_vz, t, state.vz)
             result.events.record(EventRecord(Event.APOGEE, t_apo, agl, v, mach))
-            stage = rec_mod.Stage.DROGUE
+            stage = rec_mod.Stage.REEFED
             stage_start_t = t
             deploy_speed = max(v, 1.0)
-            result.events.record(EventRecord(Event.DROGUE_DEPLOY, t, agl, v, mach))
+            result.events.record(EventRecord(Event.CHUTE_DEPLOY, t, agl, v, mach))
 
         if (
-            stage is rec_mod.Stage.DROGUE
+            stage is rec_mod.Stage.REEFED
             and result.events.has(Event.APOGEE)
             and agl <= vehicle.recovery.disreef_altitude_m
         ):
-            stage = rec_mod.Stage.MAIN_FULL
+            stage = rec_mod.Stage.FULL
             stage_start_t = t
             deploy_speed = max(v, 1.0)
             result.events.record(EventRecord(Event.DISREEF, t, agl, v, mach))

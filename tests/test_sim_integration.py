@@ -39,7 +39,7 @@ def test_vehicle_leaves_the_rail_and_climbs(vehicle):
 def test_reaches_apogee_and_deploys(vehicle):
     result = sim_mod.run(vehicle, dt=0.02, max_time_s=400.0)
     assert result.events.has(Event.APOGEE)
-    assert result.events.has(Event.DROGUE_DEPLOY)
+    assert result.events.has(Event.CHUTE_DEPLOY)
     apogee_t = result.events.time_of(Event.APOGEE)
     rail_t = result.events.time_of(Event.RAIL_EXIT)
     assert apogee_t > rail_t

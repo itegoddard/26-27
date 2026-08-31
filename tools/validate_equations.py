@@ -398,29 +398,28 @@ def validate_recovery() -> None:
     from goddard import recovery as rec
 
     S = "Recovery"
-    cfg = rec.RecoveryConfig(drogue_cds_m2=0.6, main_cds_m2=14.0,
+    cfg = rec.RecoveryConfig(canopy_cds_m2=14.0,
                              reefing_ratio=0.35, disreef_altitude_m=300.0,
                              opening_force_coefficient=1.7,
                              max_opening_load_N=12000.0)
     # Drag area scales with the SQUARE of the diameter ratio.
-    check(S, "reefed CdS = full * ratio^2", cfg.main_reefed_cds_m2,
+    check(S, "reefed CdS = full * ratio^2", cfg.reefed_cds_m2,
           14.0 * 0.35 ** 2, 1e-12)
     check_true(S, "reefed CdS < full CdS",
-               cfg.main_reefed_cds_m2 < cfg.main_cds_m2,
-               f"{cfg.main_reefed_cds_m2:.3f} < {cfg.main_cds_m2}")
+               cfg.reefed_cds_m2 < cfg.canopy_cds_m2,
+               f"{cfg.reefed_cds_m2:.3f} < {cfg.canopy_cds_m2}")
 
     # Opening load F = Cx q CdS, per stage.
     q = 0.5 * 1.0 * 40.0 ** 2
-    for stage, cds in ((rec.Stage.DROGUE, 0.6),
-                       (rec.Stage.MAIN_REEFED, cfg.main_reefed_cds_m2),
-                       (rec.Stage.MAIN_FULL, 14.0)):
+    for stage, cds in ((rec.Stage.REEFED, cfg.reefed_cds_m2),
+                       (rec.Stage.FULL, 14.0)):
         check(S, f"F = Cx q CdS ({stage.value})",
               rec.opening_load(cfg, stage, q), 1.7 * q * cds, 1e-9)
 
     # Reefing must actually reduce the opening load -- its entire purpose.
-    check_true(S, "reefing cuts main opening load",
-               rec.opening_load(cfg, rec.Stage.MAIN_REEFED, q)
-               < rec.opening_load(cfg, rec.Stage.MAIN_FULL, q),
+    check_true(S, "reefing cuts the opening load",
+               rec.opening_load(cfg, rec.Stage.REEFED, q)
+               < rec.opening_load(cfg, rec.Stage.FULL, q),
                f"ratio {cfg.reefing_ratio ** 2:.4f}")
 
     # Nominal diameter back-out: CdS = Cd * pi D^2/4  =>  D = sqrt(4 CdS/(pi Cd))
@@ -431,7 +430,7 @@ def validate_recovery() -> None:
     V = 40.0
     d0 = rec.nominal_diameter(14.0, 1.5)
     check(S, "t_fill = n D0 / V",
-          rec.filling_time(cfg, rec.Stage.MAIN_FULL, V), 8.0 * d0 / V, 1e-12)
+          rec.filling_time(cfg, rec.Stage.FULL, V), 8.0 * d0 / V, 1e-12)
 
     # Inflation ramp: squared law, clamped at both ends.
     check(S, "inflation is squared in time", rec.inflation_fraction(0.5, 1.0),
@@ -442,7 +441,7 @@ def validate_recovery() -> None:
 
     # Fully inflated drag area must equal the stage target.
     check(S, "drag_area -> target when inflated",
-          rec.drag_area(cfg, rec.Stage.MAIN_FULL, 1e3, V), 14.0, 1e-12)
+          rec.drag_area(cfg, rec.Stage.FULL, 1e3, V), 14.0, 1e-12)
 
 
 # =============================================================================

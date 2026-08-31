@@ -138,8 +138,7 @@ def vehicle(vehicle_geometry, mass_model, cea_table, latent_heat) -> sim_mod.Veh
         expansion_ratio=4.5,
         cea=cea_table,
         recovery=rec_mod.RecoveryConfig(
-            drogue_cds_m2=0.6,
-            main_cds_m2=14.0,
+            canopy_cds_m2=14.0,
             reefing_ratio=0.35,
             disreef_altitude_m=300.0,
             opening_force_coefficient=1.7,
