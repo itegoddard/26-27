@@ -7,6 +7,7 @@
 \usepackage{xcolor}
 \usepackage{enumitem}
 \usepackage{fancyhdr}
+\usepackage{xspace}
 \usepackage[colorlinks=true,linkcolor=black,urlcolor=blue!60!black,
             citecolor=black]{hyperref}
 
@@ -15,9 +16,15 @@
 \definecolor{amber}{RGB}{176,110,0}
 \definecolor{danger}{RGB}{178,34,34}
 
-\newcommand{\established}{\textcolor{okgreen}{\textbf{[E]}}}
-\newcommand{\approxi}{\textcolor{amber}{\textbf{[A]}}}
-\newcommand{\unvalidated}{\textcolor{danger}{\textbf{[U]}}}
+% \xspace matters here. TeX discards the space that follows a control word, so
+% "\established\nWith base values" renders as "[E]With". These tags are used 46
+% times, mostly followed by running text on the next source line, so fixing it
+% at the macro rather than at each call site is the only maintainable option.
+% \xspace suppresses itself before punctuation and braces, so "\unvalidated{}"
+% and "\established," still come out right.
+\newcommand{\established}{\textcolor{okgreen}{\textbf{[E]}}\xspace}
+\newcommand{\approxi}{\textcolor{amber}{\textbf{[A]}}\xspace}
+\newcommand{\unvalidated}{\textcolor{danger}{\textbf{[U]}}\xspace}
 \newcommand{\src}[1]{\hfill{\footnotesize\texttt{#1}}}
 
 \pagestyle{fancy}
@@ -49,11 +56,15 @@ package, so the physics can be reviewed without reading source code. Each
 equation carries the module that implements it and a confidence tag:
 
 \medskip
-\begin{tabular}{@{}ll@{}}
+% p-column sized off \linewidth (the minipage width, not the page width) so the
+% descriptions wrap instead of protruding out of the surrounding \fbox. A plain
+% two-column tabular cannot wrap and overflows silently -- LaTeX issues no
+% Overfull warning for a tabular that is simply wider than its minipage.
+\begin{tabular}{@{}l@{\hspace{0.7em}}p{\dimexpr\linewidth-3.4em\relax}@{}}
 \established & Established result. Analytic, or a long-standing published
-               correlation, implemented directly. \\
+               correlation, implemented directly. \\[3pt]
 \approxi     & Engineering approximation. Right form and magnitude; the
-               leading constants are calibrated, not derived. \\
+               leading constants are calibrated, not derived. \\[3pt]
 \unvalidated & \textbf{Not validated.} Used because something is needed, but
                not yet checked against data or a trusted tool. \\
 \end{tabular}
