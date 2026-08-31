@@ -144,8 +144,9 @@ landing — runs in about 1.5 s. Band mode's 27 corners take under a minute.
 
 The code is done; the inputs are not. Three things, in order of impact:
 
-1. **Fill in `docs/assumptions_register.md`** — 54 OPEN parameters. This is the
-   meeting artifact. `python -m goddard.cli check` lists them by register ID.
+1. **Work through [`docs/WHAT_WE_NEED.md`](docs/WHAT_WE_NEED.md)** — the 54
+   blocking values sorted by *how you get them*. Only 7 need NASA; 39 are ours
+   to decide or size. `run.bat check` lists them by register ID.
 2. **Generate the CEA table** (register G11) for the 89/10/1 blend vs N₂O.
    `props/cea.py` raises `PlaceholderData` rather than guessing thermochemistry.
 3. **Supply the ESDU 91022 latent-heat coefficients.** Needed by the tank
@@ -254,6 +255,7 @@ goddard/                       model package
 tests/                         227 tests
 out/                           generated results (gitignored)
 docs/
+  WHAT_WE_NEED.md              54 blocking values, sorted by how to get them
   equations.pdf                every governing equation  <- start here
   equations.tex                its source
   superpowers/specs/2026-08-28-goddard-math-model-design.md   approved design
