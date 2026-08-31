@@ -185,8 +185,14 @@ docs/
   references.bib               31 sources, grouped by module
   references_dois.txt          13 DOIs, 11 publisher-verified
 tools/build_register_csv.py    regenerates the CSV and status counts
-25-26 Math Model.xlsx          predecessor, kept for reference
 goddard1.0.ork                 OpenRocket source of the confirmed shape
+```
+
+The predecessor `25-26 Math Model.xlsx` has been removed. It remains in git
+history at commit `648e0b8` if it is ever needed:
+
+```bat
+git show 648e0b8:"25-26 Math Model.xlsx" > old_model.xlsx
 ```
 
 ---
