@@ -8,10 +8,32 @@ Replaces the `25-26 Math Model.xlsx` single-sheet time-march.
 
 ---
 
-## Quick start — just double-click `run.bat`
+## Quick start
 
-**On Windows you do not need to touch a terminal.** Double-click
-[`run.bat`](run.bat) in this folder and pick a number:
+### Step 1 — get the code onto your computer
+
+> ⚠️ **Clicking `run.bat` here on GitHub will not run it.** GitHub only shows
+> you the file's text. You must download the project first.
+
+Pick one:
+
+**Git** (recommended — makes updates a one-liner later):
+```bat
+git clone https://github.com/itegoddard/26-27.git
+cd 26-27
+```
+
+**No git?** On this repo's GitHub page click the green **Code** button →
+**Download ZIP**, then **right-click the ZIP → Extract All**. Open the extracted
+folder.
+
+> Windows will let you look inside a ZIP without extracting, and `run.bat` will
+> fail if you launch it from there. Extract it properly first.
+
+### Step 2 — double-click `run.bat`
+
+**You do not need to touch a terminal.** In the folder you just downloaded,
+double-click **`run.bat`** and pick a number:
 
 ```
   ========================================================
@@ -32,15 +54,19 @@ Replaces the `25-26 Math Model.xlsx` single-sheet time-march.
 
 **First time?** Run **6 (Setup)** once, then **2 (Simulate)**.
 
-> **Download the whole repository, not just `run.bat`.** The script needs the
-> `goddard/` package and `pyproject.toml` beside it. If you only grab the one
-> file it will tell you so and print the clone command rather than failing
-> cryptically. Use `git clone`, or GitHub's **Code → Download ZIP** and run it
-> from inside the extracted folder.
-
 Setup builds a project-local `.venv`, so it works on locked-down machines where
 global `site-packages` is not writable, and it cannot collide with other Python
 projects. If anything misbehaves, **7 (Doctor)** prints what it found.
+
+### If something goes wrong
+
+| Symptom | Cause and fix |
+|---|---|
+| *"Windows protected your PC"* | Windows flags files downloaded from the internet. Click **More info → Run anyway**, or right-click `run.bat` → **Properties** → tick **Unblock** → **OK**. |
+| Window flashes and vanishes | You are running it from inside the ZIP preview. Extract the folder first. |
+| *"run.bat is not inside the project folder"* | Only `run.bat` was downloaded. Get the whole repo — the script prints the clone command. |
+| *"Python was not found"* | Install Python 3.10+ from [python.org](https://python.org/downloads) and tick **Add python.exe to PATH**. |
+| Anything else | Run **7 (Doctor)** — it reports interpreter, venv and package state. |
 
 Option **2** runs a flight and then opens the Excel workbook and the plots
 folder for you automatically. Results land in `out/`:
