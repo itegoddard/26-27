@@ -16,3 +16,10 @@ math_model.xlsx
 
 ~$*
 .DS_Store
+
+# LaTeX build artefacts (equations.pdf IS committed; these are not)
+*.aux
+*.toc
+*.out
+*.synctex.gz
+docs/*.log

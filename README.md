@@ -49,7 +49,8 @@ double-click **`run.bat`** and pick a number:
     5.  Test       - run the test suite
     6.  Setup      - create .venv and install dependencies
     7.  Doctor     - diagnose the environment
-    8.  Exit
+    8.  Equations  - validate every equation, open the PDF
+    9.  Exit
 ```
 
 **First time?** Run **6 (Setup)** once, then **2 (Simulate)**.
@@ -90,6 +91,7 @@ run.bat sim                                     :: one flight + open results
 run.bat band                                    :: 27-corner sweep
 run.bat show                                    :: reopen last results
 run.bat test                                    :: 227 tests
+run.bat equations                               :: validate equations, open PDF
 run.bat doctor                                  :: diagnose the environment
 run.bat sim goddard.config.goddard_v2           :: use a specific config
 ```
@@ -154,6 +156,31 @@ And one calibration task: **the supersonic wave-drag terms are unvalidated.**
 `DragBuildup.validated` is `False`, every run emits a warning, and the warning
 is carried into the Excel report. Cross-check total `C_D` against RASAero II or
 CFD at Mach 0.5 / 1.2 / 2.0 / 2.5 before trusting an absolute apogee.
+
+---
+
+## The equations
+
+**[`docs/equations.pdf`](docs/equations.pdf)** states every governing equation in
+the model, so the physics can be reviewed without reading Python. Each equation
+names the module implementing it and carries a confidence tag:
+
+| Tag | Meaning |
+|---|---|
+| **[E]** | Established — analytic, or a long-standing published correlation |
+| **[A]** | Engineering approximation — right form and magnitude, calibrated constants |
+| **[U]** | **Not validated** — used because something is needed, not yet checked against data |
+
+`run.bat equations` runs **95 independent checks** against that document and then
+opens it. These don't re-run the model and check it agrees with itself — each one
+re-derives the result a different way: against published tables, by inverting an
+analytic relation, by high-resolution quadrature, by limiting case, or by a
+defining property (net rolling moment must be *exactly* zero at the equilibrium
+roll rate; the chamber root must satisfy its own balance equation).
+
+They confirm each equation is implemented as written. They **cannot** confirm an
+approximate correlation is the *right* correlation — that's what the [U] tags are
+for, and supersonic wave drag is the one that matters.
 
 ---
 
@@ -227,12 +254,15 @@ goddard/                       model package
 tests/                         227 tests
 out/                           generated results (gitignored)
 docs/
+  equations.pdf                every governing equation  <- start here
+  equations.tex                its source
   superpowers/specs/2026-08-28-goddard-math-model-design.md   approved design
   assumptions_register.md      112 parameters, 54 OPEN  <- the meeting artifact
   assumptions_register.csv     fillable; regenerate with tools/
   references.bib               31 sources, grouped by module
   references_dois.txt          13 DOIs, 11 publisher-verified
 tools/build_register_csv.py    regenerates the CSV and status counts
+tools/validate_equations.py    95 independent equation checks
 goddard1.0.ork                 OpenRocket source of the confirmed shape
 ```
 

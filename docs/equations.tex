@@ -1,0 +1,865 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[margin=2.4cm]{geometry}
+\usepackage{amsmath,amssymb}
+\usepackage{siunitx}
+\usepackage{booktabs}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{fancyhdr}
+\usepackage[colorlinks=true,linkcolor=black,urlcolor=blue!60!black,
+            citecolor=black]{hyperref}
+
+% ---------------------------------------------------------------- status tags
+\definecolor{okgreen}{RGB}{0,120,60}
+\definecolor{amber}{RGB}{176,110,0}
+\definecolor{danger}{RGB}{178,34,34}
+
+\newcommand{\established}{\textcolor{okgreen}{\textbf{[E]}}}
+\newcommand{\approxi}{\textcolor{amber}{\textbf{[A]}}}
+\newcommand{\unvalidated}{\textcolor{danger}{\textbf{[U]}}}
+\newcommand{\src}[1]{\hfill{\footnotesize\texttt{#1}}}
+
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{\footnotesize Goddard 26--27 --- Model Equations}
+\rhead{\footnotesize\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\title{\textbf{Goddard 26--27 Flight Model}\\[2mm]
+       \large Governing Equations}
+\author{ITE Goddard Team}
+\date{2026-08-31}
+
+\begin{document}
+\maketitle
+\thispagestyle{fancy}
+
+\begin{center}
+\fbox{\begin{minipage}{0.92\textwidth}
+\small
+This document states every equation implemented in the \texttt{goddard} Python
+package, so the physics can be reviewed without reading source code. Each
+equation carries the module that implements it and a confidence tag:
+
+\medskip
+\begin{tabular}{@{}ll@{}}
+\established & Established result. Analytic, or a long-standing published
+               correlation, implemented directly. \\
+\approxi     & Engineering approximation. Right form and magnitude; the
+               leading constants are calibrated, not derived. \\
+\unvalidated & \textbf{Not validated.} Used because something is needed, but
+               not yet checked against data or a trusted tool. \\
+\end{tabular}
+
+\medskip
+Anything tagged \unvalidated{} must not be relied on for an absolute number
+without the cross-check named in Section~\ref{sec:status}.
+\end{minipage}}
+\end{center}
+
+\tableofcontents
+\newpage
+
+% =============================================================================
+\section{Notation}
+
+\begin{center}
+\begin{tabular}{@{}llll@{}}
+\toprule
+Symbol & Meaning & Symbol & Meaning \\
+\midrule
+$\rho$      & density                    & $P$        & pressure \\
+$T$         & temperature                & $a$        & speed of sound \\
+$\mu$       & dynamic viscosity          & $M$        & Mach number \\
+$V$         & speed                      & $q$        & dynamic pressure \\
+$\alpha$    & angle of attack            & $\theta$   & body pitch from vertical \\
+$\gamma$    & ratio of specific heats    & $\Gamma$   & flight path angle \\
+$p$         & roll rate                  & $\delta$   & fin cant angle \\
+$\dot m$    & mass flow                  & $\dot r$   & regression rate \\
+$G_{ox}$    & oxidiser mass flux         & $O\!/\!F$  & oxidiser/fuel ratio \\
+$c^*$       & characteristic velocity    & $C_F$      & thrust coefficient \\
+$A_t$       & throat area                & $\epsilon$ & nozzle expansion ratio \\
+$A_{ref}$   & body reference area        & $d$        & body diameter (caliber) \\
+$S$         & fin panel area             & $b$        & fin semi-span \\
+$AR$        & aspect ratio               & $\lambda$  & taper ratio \\
+$GJ$        & torsional rigidity         & $EI$       & bending rigidity \\
+$C_dS$      & parachute drag area        & $C_x$      & opening-force coefficient \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\noindent
+All quantities are SI throughout the model. Conversion happens only at the
+configuration boundary (\texttt{goddard/units.py}); no physics routine sees a
+non-SI number.
+
+% =============================================================================
+\section{Atmosphere}
+\src{goddard/env/atmosphere.py}
+
+US Standard Atmosphere 1976, evaluated analytically over seven layers from
+\SI{0}{} to \SI{86}{km}. Deliberately \emph{not} a lookup table: the previous
+Excel model used a table spanning 500--\SI{15420}{m} and returned
+\texttt{\#N/A} the moment the vehicle left it, mid-flight, without complaint.
+
+\paragraph{Geopotential altitude.} \established
+\begin{equation}
+h = \frac{r_E\,z}{r_E + z}, \qquad r_E = \SI{6356766}{m}
+\end{equation}
+where $z$ is geometric altitude. The layer breakpoints are defined on $h$, not
+$z$; conflating the two is a real error of \SI{19}{m} at \SI{11}{km}.
+
+\paragraph{Temperature and pressure within a layer.} \established
+With base values $(h_b, T_b, P_b)$ and lapse rate $L$,
+\begin{equation}
+T = T_b + L\,(h - h_b)
+\end{equation}
+\begin{equation}
+P =
+\begin{cases}
+P_b \left(\dfrac{T_b}{T}\right)^{g_0/(R L)} & L \neq 0 \\[3mm]
+P_b \exp\!\left(-\dfrac{g_0 (h-h_b)}{R\,T_b}\right) & L = 0
+\end{cases}
+\end{equation}
+with $g_0 = \SI{9.80665}{m/s^2}$ and $R = R^*/M_{air} = \SI{287.0528}{J/(kg.K)}$.
+The standard defines $R^* = 8.31432$; using the modern CODATA value would put
+the model subtly out of agreement with the published tables.
+
+\paragraph{Derived quantities.} \established
+\begin{equation}
+\rho = \frac{P}{R T}, \qquad
+a = \sqrt{\gamma R T}, \qquad
+\mu = \frac{\beta T^{3/2}}{T + S}
+\end{equation}
+with $\beta = \num{1.458e-6}$, $S = \SI{110.4}{K}$ (Sutherland).
+
+% =============================================================================
+\section{Propellants}
+
+\subsection{Nitrous oxide, saturated}
+\src{goddard/props/n2o.py}
+
+ESDU 91022 reduced correlations. Critical point $T_c = \SI{309.57}{K}$,
+$P_c = \SI{7.251}{MPa}$, $\rho_c = \SI{452}{kg/m^3}$. Reduced temperature
+$T_r = T/T_c$. At the specified \SI{99.9}{\percent} purity the pure-component
+correlations apply directly; no mixture model is used.
+
+\paragraph{Vapour pressure.} \established
+\begin{equation}
+P_{sat} = P_c \exp\!\left[\frac{1}{T_r}\sum_{i} b_i (1-T_r)^{e_i}\right]
+\end{equation}
+$b = (-6.71893,\ 1.35966,\ -1.37780,\ -4.05100)$,
+$e = (1,\ 1.5,\ 2.5,\ 5)$.
+
+\paragraph{Saturated liquid and vapour density.} \established
+\begin{equation}
+\rho_\ell = \rho_c \exp\!\left[\sum_i b_i (1-T_r)^{i/3}\right], \qquad
+\rho_v    = \rho_c \exp\!\left[\sum_i b_i \left(\tfrac{1}{T_r}-1\right)^{i/3}\right]
+\end{equation}
+
+\noindent\textbf{Verification.} At \SI{293.15}{K} these give
+\SI{5.060}{MPa}, \SI{786.6}{kg/m^3} and \SI{158.2}{kg/m^3}, against accepted
+values of ${\sim}5.05$--\SI{5.09}{MPa}, \SI{786}{kg/m^3} and
+\SI{158}{kg/m^3}. Pinned in \texttt{tests/test\_n2o.py}.
+
+\paragraph{Latent heat.} \textbf{NOT IMPLEMENTED.}
+The ESDU latent-heat coefficient set could not be verified, so
+\texttt{enthalpy\_vaporisation} raises rather than returning a plausible
+number. It is required by the tank energy balance
+(\S\ref{sec:tank}) and the injector HEM term (\S\ref{sec:injector}); both take
+it as an \emph{injected callable}, so the physics is complete and tested and
+only the data is outstanding.
+
+\subsection{Fuel blend}
+\src{goddard/props/fuel.py}
+
+Composition is fixed by team decision: \SI{89}{\percent} paraffin,
+\SI{10}{\percent} SEBS-MA, \SI{1}{\percent} carbon black, by mass.
+
+\paragraph{Blend density.} \established
+\begin{equation}
+\rho_f = \sum_i w_i \rho_i
+       = 0.89(924) + 0.10(910) + 0.01(1900)
+       \approx \SI{932}{kg/m^3}
+\end{equation}
+
+\paragraph{Regression law.} \approxi
+\begin{equation}
+\boxed{\ \dot r = k_{cal}\, a\, G_{ox}^{\,n}\ }
+\qquad a = \SI{1.55e-4}{m/s},\quad n = 0.5
+\label{eq:regression}
+\end{equation}
+\begin{equation}
+G_{ox} = \frac{\dot m_{ox}}{\pi r_{port}^2}, \qquad
+\dot m_f = \rho_f \, (2\pi r_{port} L_{grain})\, \dot r, \qquad
+O\!/\!F = \frac{\dot m_{ox}}{\dot m_f}
+\end{equation}
+
+$a$ and $n$ are published for \emph{pure} paraffin. The blend perturbs $\dot r$
+in both directions --- SEBS-MA raises melt viscosity and suppresses
+entrainment (lowering $\dot r$), carbon black opacifies the fuel and raises
+surface absorption (raising it) --- and the net effect is not resolvable from
+the literature. All of it is carried in the single calibration constant
+$k_{cal}$ (\S\ref{sec:band}). There are no other correction factors anywhere in
+the module.
+
+% =============================================================================
+\section{Motor}
+
+\subsection{Self-pressurizing tank blowdown}
+\label{sec:tank}
+\src{goddard/motor/tank.py}
+
+Adiabatic quasi-equilibrium model. Two regimes.
+
+\paragraph{Volume constraint.} \established
+The contents always fill the tank at saturation:
+\begin{equation}
+V = \frac{m_\ell}{\rho_\ell(T)} + \frac{m_v}{\rho_v(T)}
+\label{eq:tankvol}
+\end{equation}
+
+\paragraph{Liquid phase.} \established (given $h_{vap}$)
+Liquid drains at $\dot m_{out}$. The freed volume must be filled by vapour, so
+a mass $\Delta m_{boil}$ boils, determined by \eqref{eq:tankvol}. The latent
+heat is drawn from the remaining liquid:
+\begin{equation}
+\Delta T = -\frac{\Delta m_{boil}\; h_{vap}(T)}{m_\ell\, c_\ell}
+\end{equation}
+This chilling is what makes a blowdown hybrid's thrust taper. Tank pressure is
+$P_{tank} = P_{sat}(T)$ throughout.
+
+\paragraph{Vapour phase (the tail).} \established
+Once liquid is exhausted the vapour expands isentropically:
+\begin{equation}
+T_{new} = T \left(\frac{m_{v,new}}{m_v}\right)^{\gamma_v - 1},
+\qquad \gamma_v = 1.27
+\end{equation}
+
+\subsection{Showerhead injector}
+\label{sec:injector}
+\src{goddard/motor/injector.py}
+
+Saturated N\textsubscript{2}O flashes in straight drilled orifices, so neither
+limit is correct alone: single-phase incompressible over-predicts, homogeneous
+equilibrium under-predicts.
+
+\paragraph{Orifice geometry.} \established
+\begin{equation}
+A_{inj} = N_{holes}\,\frac{\pi d_{hole}^2}{4}, \qquad
+\frac{L}{d} = \frac{t_{plate}}{d_{hole}}
+\end{equation}
+
+\paragraph{Dyer non-equilibrium blend.} \established
+\begin{align}
+\dot m_{SPI} &= C_d A \sqrt{2\rho_\ell \Delta P} \\
+\dot m_{HEM} &= C_d A \rho_2 \sqrt{2(h_1 - h_2)} \\
+\kappa &= \sqrt{\frac{P_1 - P_2}{P_v - P_2}} \\
+\boxed{\ \dot m_{ox} = \frac{\kappa\,\dot m_{SPI} + \dot m_{HEM}}{1 + \kappa}\ }
+\end{align}
+$\kappa$ is the ratio of bubble-growth time to residence time: large $\kappa$
+means the fluid leaves before it can flash (SPI dominates), small $\kappa$ means
+equilibrium is reached (HEM dominates).
+
+\medskip
+\noindent\textbf{Current fallback.} Until $h_{vap}$ is available the code
+degrades to pure SPI, which \emph{over-estimates} oxidiser flow. This is
+deliberate and documented, not a substitute for the data.
+
+\paragraph{Feed-system (chug) stability.} \established
+\begin{equation}
+\frac{\Delta P_{inj}}{P_c} \;\geq\; 0.20
+\qquad\Longrightarrow\qquad
+\text{margin} = \frac{\Delta P_{inj}/P_c}{0.20}
+\end{equation}
+This is \emph{not} a single check. As the tank blows down, $\Delta P_{inj}$
+collapses faster than $P_c$, so the margin degrades through the burn and the
+worst point is the tail, not ignition. The model reports it as a time history.
+
+\subsection{Grain and burnthrough}
+\src{goddard/motor/grain.py}
+
+\paragraph{Port growth.} \established
+\begin{equation}
+r_{port}(t + \Delta t) = r_{port}(t) + \dot r\,\Delta t
+\end{equation}
+
+\paragraph{Web remaining.} \established
+\begin{equation}
+w = r_{outer} - r_{port}, \qquad
+w_{frac} = \frac{r_{outer} - r_{port}}{r_{outer} - r_{port,0}}
+\end{equation}
+$w \le 0$ is burnthrough --- the liner is exposed. This is the failure mode a
+single conservative point estimate would miss entirely; see \S\ref{sec:band}.
+
+\paragraph{Fuel mass remaining.} \established
+\begin{equation}
+m_f = \rho_f\,\pi\!\left(r_{outer}^2 - r_{port}^2\right) L_{grain}
+\end{equation}
+
+\subsection{Nozzle}
+\src{goddard/motor/nozzle.py}
+
+\paragraph{Area--Mach relation.} \established
+\begin{equation}
+\frac{A}{A^*} = \frac{1}{M}
+\left[\frac{2}{\gamma+1}\left(1 + \frac{\gamma-1}{2}M^2\right)\right]
+^{\frac{\gamma+1}{2(\gamma-1)}}
+\end{equation}
+Inverted for the supersonic branch by bisection --- monotonic for $M>1$, so it
+is robust with no initial guess and cannot diverge.
+
+\paragraph{Isentropic pressure ratio.} \established
+\begin{equation}
+\frac{P_e}{P_c} = \left(1 + \frac{\gamma-1}{2}M_e^2\right)^{-\gamma/(\gamma-1)}
+\end{equation}
+
+\paragraph{Thrust coefficient.} \established
+\begin{equation}
+\boxed{\
+C_F = \underbrace{\sqrt{\frac{2\gamma^2}{\gamma-1}
+      \left(\frac{2}{\gamma+1}\right)^{\frac{\gamma+1}{\gamma-1}}
+      \left[1 - \left(\frac{P_e}{P_c}\right)^{\frac{\gamma-1}{\gamma}}\right]}}
+      _{\text{momentum}}
+    + \underbrace{\frac{P_e - P_a}{P_c}\,\epsilon}_{\text{pressure}}
+\ }
+\end{equation}
+\begin{equation}
+F = \eta_{C_F}\, C_F\, P_c\, A_t
+\end{equation}
+The pressure term is why \textbf{thrust rises with altitude}. Over a climb to
+\SI{50000}{ft} this is a first-order effect that the 25--26 model could not
+represent at all.
+
+\paragraph{Flow separation.} \approxi
+Summerfield criterion: separation is likely once $P_e < 0.4\,P_a$.
+
+\subsection{Chamber pressure balance}
+\src{goddard/motor/chamber.py}
+
+At every instant $P_c$ is the value balancing injector supply against nozzle
+capacity:
+\begin{equation}
+\boxed{\ P_c = \bigl(\dot m_{ox}(P_c) + \dot m_f(P_c)\bigr)\,
+        \eta_{c^*}\, c^*(O\!/\!F, P_c) \,/\, A_t\ }
+\end{equation}
+$\dot m_{ox}$ \emph{falls} with $P_c$ (less injector $\Delta P$) while the
+right-hand side \emph{rises}, so the residual is monotonic and the root is found
+by bisection --- which cannot diverge the way fixed-point iteration does at low
+injector stiffness. $c^*$ and $\gamma$ come from a tabulated CEA surface
+interpolated in $(O\!/\!F, P_c)$.
+
+% =============================================================================
+\section{Aerodynamics}
+
+\subsection{Geometry}
+\src{goddard/aero/geometry.py}
+
+\paragraph{Von K\'arm\'an (Haack $C=0$) nose profile.} \established
+\begin{equation}
+\phi = \arccos\!\left(1 - \frac{2x}{L}\right), \qquad
+r(x) = \frac{R}{\sqrt{\pi}}\sqrt{\phi - \tfrac{1}{2}\sin 2\phi}
+\end{equation}
+Wetted area by surface-of-revolution quadrature over 2000 panels, cached per
+geometry.
+
+\paragraph{Fin panel.} \established
+\begin{equation}
+S = \tfrac{1}{2}(c_r + c_t)\,b, \qquad
+AR = \frac{b^2}{S}, \qquad
+\lambda = \frac{c_t}{c_r}, \qquad
+\frac{t}{c} = \frac{t}{S/b}
+\end{equation}
+
+\subsection{Drag build-up}
+\src{goddard/aero/drag.py}
+
+Total $C_D$ on the body reference area, by component. This is the single
+largest correction over the 25--26 model, which held $C_D = 0.5$ constant
+through Mach 1.65.
+
+\paragraph{Skin friction.} \established
+\begin{equation}
+C_f = \frac{1}{\left(1.50\ln Re - 5.6\right)^2},
+\qquad
+C_{f,rough} = 0.032\left(\frac{k_s}{L}\right)^{0.2}
+\end{equation}
+taking the larger, then a compressibility correction
+\begin{equation}
+C_f \leftarrow
+\begin{cases}
+C_f\,(1 - 0.1 M^2) & M < 1 \\
+C_f\,(1 + 0.15 M^2)^{-0.58} & M \geq 1
+\end{cases}
+\end{equation}
+Fully turbulent is assumed throughout --- conservative on drag at this size and
+speed. Form factors: body $1 + 60/f^3 + 0.0025 f$ on fineness $f$; fins
+$1 + 2(t/c)$.
+
+\paragraph{Nose wave drag.} \unvalidated
+Zero below $M = 0.9$ (a Von K\'arm\'an nose is a minimum-wave-drag shape),
+blended through the transonic band, and above $M=1.1$
+\begin{equation}
+C_{D,wave} \approx \frac{6}{f^2}\cdot\frac{1.2}{\beta},
+\qquad \beta = \sqrt{M^2-1}
+\end{equation}
+The $1/f^2$ scaling is the correct slender-body result for the Haack family;
+\textbf{the leading constant is calibrated, not derived.}
+
+\paragraph{Fin wave drag.} \unvalidated
+Ackeret linearised theory for the wedge term is exact:
+\begin{equation}
+C_{D,wedge} = \frac{4 (t/c)^2}{\sqrt{M^2-1}}
+\end{equation}
+A rounded leading edge adds a bluntness penalty $\approx 0.5\,(t/c)$, which is
+where the real uncertainty sits. This term is what prices the rounded-versus-wedge
+cross-section question.
+
+\paragraph{Base drag.} \established
+\begin{equation}
+C_{D,base} =
+\begin{cases}
+0.12 + 0.13 M^2 & M < 1\\
+0.25/M & M \geq 1
+\end{cases}
+\quad\times\;(1 - \text{jet blockage})
+\end{equation}
+
+\subsection{Normal force and centre of pressure}
+\src{goddard/aero/normal\_force.py}
+
+Barrowman component build-up, per radian, on the body reference area, with
+$x_{cp}$ measured aft from the nose tip. Compressibility divisor
+$\beta = \sqrt{|1 - M^2|}$, floored at $0.5$ through the transonic band.
+
+\paragraph{Nose.} \established
+Slender-body theory gives $C_{N\alpha} = 2$ on the base area for any pointed
+body of revolution, with $x_{cp} = L - V/A_{base}$. For the Haack $C=0$ profile
+the volume integrates exactly to $V = A_{base}L/2$, hence
+\begin{equation}
+C_{N\alpha,nose} = 2\,\frac{A_{base}}{A_{ref}}, \qquad x_{cp} = \frac{L}{2}
+\end{equation}
+This is a derived result, not a tabulated approximation.
+
+\paragraph{Fins with body interference.} \established
+\begin{equation}
+C_{N\alpha,fins} =
+\frac{4 N (b/d)^2}
+     {1 + \sqrt{1 + \left(\dfrac{2 l_{mid}}{c_r + c_t}\right)^2}}
+\;\cdot\;
+\underbrace{\left(1 + \frac{R}{b + R}\right)}_{K_{fb}}
+\end{equation}
+
+\paragraph{Body cross-flow.} \approxi
+Nonlinear in $\alpha$, so it contributes to $C_N$ directly rather than to the
+slope (Allen \& Perkins):
+\begin{equation}
+C_{N,cross} = K \frac{d\,L}{A_{ref}} \sin^2\alpha, \qquad K = 1.1
+\end{equation}
+Included because $\alpha$ is a live state in the 4-DOF model.
+
+\paragraph{Static margin.} \established
+\begin{equation}
+\text{SM} = \frac{x_{cp} - x_{cg}}{d} \quad \text{[calibers]}
+\end{equation}
+
+\subsection{Roll from the \SI{1}{\degree} fin cant}
+\src{goddard/aero/roll.py}
+
+Strip theory. Each spanwise strip at radius $y$ from the roll axis sees a fixed
+geometric incidence $\delta$ from the cant plus an induced incidence
+$-py/V$ from rolling. The integrals collapse to three geometric moments of the
+panel:
+\begin{equation}
+S = \int dS, \qquad
+M_1 = \int y\,dS, \qquad
+M_2 = \int y^2\,dS
+\end{equation}
+Note $y$ starts at the \emph{body radius}, not the centreline --- the fin root
+is not on the axis, and ignoring that understates both driving moment and
+damping.
+
+\paragraph{Closed-form results.} \established
+\begin{align}
+L_{roll} &= N q a_0 \left(\delta M_1 - \frac{p}{V} M_2\right) \\
+\boxed{\ p_{eq} = \frac{\delta V M_1}{M_2}\ } & \\
+\Delta C_{D,roll} &= \frac{N a_0}{A_{ref}}
+  \left(\delta^2 S - 2\delta\frac{p}{V}M_1 + \frac{p^2}{V^2}M_2\right)
+\end{align}
+The equilibrium roll rate is independent of both air density and lift-curve
+slope --- they cancel between driving and damping. It depends only on cant
+angle, flight speed and panel geometry.
+
+Roll rate is integrated as a \emph{state} rather than assumed at equilibrium,
+which matters during the burn when speed changes faster than the fins settle.
+
+\paragraph{Section lift-curve slope.} \established
+\begin{equation}
+a_0 =
+\begin{cases}
+2\pi/\sqrt{1-M^2} & M < 0.9 \quad\text{(thin aerofoil, Prandtl--Glauert)}\\
+4/\sqrt{M^2-1} & M > 1.1 \quad\text{(Ackeret)}
+\end{cases}
+\end{equation}
+
+% =============================================================================
+\section{Structures}
+
+\subsection{Sandwich fin stiffness}
+\src{goddard/structures/laminate.py}
+
+The foam core exists to raise torsional stiffness, so the flutter calculation
+must see a sandwich rather than an isotropic plate.
+
+\paragraph{Thin-face sandwich.} \approxi
+With face thickness $t_f$, core thickness $t_c$, face separation
+$d = t_c + t_f$ and chord $c$:
+\begin{align}
+EI &= \frac{E_f t_f d^2}{2}c + \frac{E_c c\, t_c^3}{12} \\
+GJ &= 4c\,\underbrace{\frac{G_f t_f d^2}{2}}_{D_{xy}}
+      + \frac{G_c c\, t_c^3}{3}
+\end{align}
+The $GJ = 4cD_{xy}$ relation is the standard thin-plate result: for a solid
+isotropic plate $D_{xy} = Gt^3/12$, recovering the familiar $GJ = Gct^3/3$.
+
+\paragraph{Bridge into an isotropic criterion.} \established
+NACA TN 4197 is written for an isotropic plate. Rather than plugging in raw
+fibre shear modulus --- which would ignore the entire point of the foam core ---
+the sandwich $GJ$ is mapped onto an equivalent solid section:
+\begin{equation}
+\boxed{\ G_{eff} = \frac{GJ_{sandwich}}{J_{solid}}, \qquad
+J_{solid} = \frac{c\,t_{total}^3}{3}\ }
+\end{equation}
+
+\medskip
+\noindent\textbf{Direction of error.} Three simplifications --- thin-face
+approximation, quasi-isotropic faces, and neglected core shear compliance ---
+all push the \emph{same} way. This \textbf{over-predicts $GJ$} and therefore
+over-predicts flutter speed. Treat the result as an upper bound.
+
+\subsection{Flutter and divergence}
+\src{goddard/structures/flutter.py}
+
+Two \emph{independent} instabilities; either can bind.
+
+\paragraph{Flutter velocity (NACA TN 4197).} \approxi
+\begin{equation}
+\boxed{\ V_f = a\sqrt{\frac{G_{eff}}{X}}\ }, \qquad
+X = \frac{1.337\,AR^3\,P\,(\lambda+1)}{2(AR+2)(t/c)^3}
+\end{equation}
+$G$ and $P$ need only share units since the criterion depends on their ratio, so
+this is evaluated in SI directly. TN 4197's own author calls the criteria
+``crude''; this is a screening number.
+
+\paragraph{Torsional divergence.} \approxi
+\begin{equation}
+\boxed{\ q_{div} = \frac{\pi^2}{4}\,
+\frac{GJ}{b^2\, e\, c^2\, C_{L\alpha}}\ }
+\end{equation}
+Checked \emph{separately} because for low-$GJ$ composite fins divergence
+frequently arrives before flutter, and flutter-only screening misses it. Default
+eccentricity $e = 0.25$ assumes elastic axis at mid-chord, aerodynamic centre at
+quarter-chord.
+
+\paragraph{Margins.} Both are $\text{critical}/\text{actual}$, evaluated against
+the actual trajectory rather than a single worst-case guess:
+\begin{equation}
+\text{FM} = \frac{V_f}{V(t)}, \qquad
+\text{DM} = \frac{q_{div}}{q(t)}
+\end{equation}
+
+\subsection{Nose-tip heating}
+\src{goddard/structures/heating.py}
+
+\paragraph{Stagnation heat flux (Sutton--Graves).} \established
+\begin{equation}
+\dot q = k\sqrt{\frac{\rho}{R_n}}\;V^3,
+\qquad k = \num{1.7415e-4}\ \text{(SI)}
+\end{equation}
+The standard engineering reduction of Fay \& Riddell's dissociated-air solution,
+accurate to roughly \SI{10}{\percent} --- well inside the other uncertainties
+here.
+
+\paragraph{Lumped-capacitance tip temperature.} \approxi
+\begin{equation}
+m c_p \frac{dT}{dt} = \dot q A - \varepsilon \sigma\left(T^4 - T_\infty^4\right) A
+\end{equation}
+Assumes the tip is thermally thin, which holds for a small aluminium tip
+precisely because aluminium conducts well. It returns the \emph{bulk}
+temperature and therefore \textbf{under-predicts peak surface temperature};
+carry margin accordingly.
+
+% =============================================================================
+\section{Recovery}
+\src{goddard/recovery.py}
+
+Three stages in deployment order: drogue, reefed main, full main.
+
+\paragraph{Reefed drag area.} \established
+Drag area scales with the square of the diameter ratio:
+\begin{equation}
+(C_dS)_{reefed} = (C_dS)_{full}\cdot \Lambda^2
+\end{equation}
+
+\paragraph{Inflation.} \established
+Each stage inflates over a filling time rather than snapping open:
+\begin{equation}
+t_{fill} = \frac{n D_0}{V}, \qquad n = 8\text{--}10 \ \text{(solid cloth)}
+\end{equation}
+with $C_dS$ ramped across that interval.
+
+\paragraph{Opening load.} \established
+\begin{equation}
+\boxed{\ F_{open} = C_x\, q\, (C_dS)\ }
+\end{equation}
+Bounding this is the entire purpose of reefing, so peak load per stage is a
+primary output, not a diagnostic.
+
+% =============================================================================
+\section{Mass properties}
+\src{goddard/mass.py}
+
+\paragraph{Composition.} \established
+\begin{equation}
+m = \sum_i m_i, \qquad
+x_{cg} = \frac{\sum_i m_i x_i}{\sum_i m_i}
+\end{equation}
+
+\paragraph{Inertia, parallel-axis.} \established
+\begin{equation}
+I_{pitch} = \sum_i \left[I_{i,lat} + m_i (x_i - x_{cg})^2\right],
+\qquad
+I_{roll} = \sum_i I_{i,ax}
+\end{equation}
+Propellant is carried as two moving point-masses (oxidiser and fuel) whose
+masses fall through the burn, so CG and inertia migrate as they should.
+
+% =============================================================================
+\section{Flight dynamics}
+\src{goddard/dynamics.py}
+
+Four degrees of freedom. State vector
+\begin{equation}
+\mathbf{s} = [\,x,\ z,\ v_x,\ v_z,\ \theta,\ q,\ \phi,\ p\,]
+\end{equation}
+
+\paragraph{Angles.} \established
+$\theta$ is measured from vertical, positive nose-over toward $+x$. The flight
+path angle uses the same convention, so
+\begin{equation}
+\Gamma = \operatorname{atan2}(v_x, v_z), \qquad
+\boxed{\ \alpha = \theta - \Gamma\ }
+\end{equation}
+Keeping both in one convention avoids the sign errors that plague planar rocket
+models.
+
+\paragraph{Translation.} \established
+\begin{equation}
+m\dot{\mathbf v} = \mathbf F_{thrust} + \mathbf F_{drag}
+                 + \mathbf F_{normal} + m\mathbf g
+\end{equation}
+with thrust along the body axis, drag opposing $\mathbf v$, and normal force
+perpendicular to the body axis.
+
+\paragraph{Rotation.} \established
+\begin{equation}
+\dot q = \frac{M_{pitch}}{I_{pitch}}, \qquad
+\dot p = \frac{L_{roll}}{I_{roll}}
+\end{equation}
+where $M_{pitch} = C_N q_\infty A_{ref} (x_{cp} - x_{cg})$ and $L_{roll}$ comes
+from the cant analysis.
+
+\paragraph{Integration.} \established
+Classical RK4 at fixed $\Delta t = \SI{0.01}{s}$, with the motor states advanced
+in the same vector. Discrete events --- rail exit, burnout, apogee, each
+recovery stage, landing --- are located by \textbf{bisection on sign change},
+never by stepping past them. The simulation runs to landing, not to a fixed row
+count.
+
+% =============================================================================
+\section{Calibration constants and band mode}
+\label{sec:band}
+\src{goddard/band.py}
+
+No static fire and no cold-flow test are planned, so three constants are
+\textbf{unmeasured}:
+
+\begin{center}
+\begin{tabular}{@{}llll@{}}
+\toprule
+Constant & Nominal & Band & Register \\
+\midrule
+$k_{cal}$ regression calibration & 0.85 & $[0.75,\ 1.00]$ & F8 \\
+$C_d$ injector discharge         & 0.70 & $[0.61,\ 0.82]$ & E5 \\
+$\eta_{c^*}$ combustion efficiency & 0.88 & $[0.82,\ 0.93]$ & G9 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection*{Why a single conservative estimate is insufficient}
+
+Oxidiser flow is set by the tank and injector, \textbf{not} by the grain.
+Therefore from \eqref{eq:regression},
+\begin{equation}
+\dot r \downarrow
+\;\Longrightarrow\;
+\dot m_f \downarrow
+\;\Longrightarrow\;
+O\!/\!F \uparrow
+\end{equation}
+Since $c^*$ peaks near $O\!/\!F \approx 7$--$8$, the \emph{sign} of the apogee
+effect flips depending on which side of that peak the design sits. Worse, the
+two directions threaten different things:
+
+\begin{center}
+\begin{tabular}{@{}ll@{}}
+\toprule
+Direction & Endangers \\
+\midrule
+$k_{cal}$ below nominal & apogee shortfall, lean $O\!/\!F$, chug margin \\
+$k_{cal}$ above nominal & \textbf{port burnthrough into the liner} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\noindent
+A single scalar biased for apogee would leave burnthrough entirely unexamined.
+So the model sweeps a $3^3$ full-factorial grid and reports an \emph{envelope
+per metric}, with the driving corner named:
+
+\begin{center}
+\begin{tabular}{@{}ll@{}}
+\toprule
+Metric & Reported as \\
+\midrule
+Apogee & minimum across band \\
+Max $q$, max $g$ & maximum across band \\
+Flutter / divergence margin & minimum across band \\
+Chug margin & minimum across band \\
+Web remaining at burnout & minimum across band \\
+$O\!/\!F$ & full excursion \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+% =============================================================================
+\section{Validation status}
+\label{sec:status}
+
+\subsection*{Automated equation checks}
+
+Every equation above is checked by \texttt{tools/validate\_equations.py}
+(\textbf{95 checks, all passing}). These do \emph{not} re-run the model and
+confirm it agrees with itself. Each check re-derives the result a different
+way and compares:
+
+\begin{itemize}[leftmargin=*,itemsep=1pt]
+\item \textbf{Against published data} --- atmosphere layer values against the
+      US Std 1976 tables; N\textsubscript{2}O saturation against accepted
+      \SI{20}{\celsius} values.
+\item \textbf{By inverse round-trip} --- the nozzle Mach solver is fed the
+      analytic area--Mach relation and must return the original $M$ to
+      $10^{-6}$.
+\item \textbf{By independent quadrature} --- the Von K\'arm\'an claim
+      $V = A_{base}L/2$ is confirmed by integrating $\pi r^2 dx$ over
+      \num{200000} panels; the roll moments $S, M_1, M_2$ against a
+      \num{200000}-strip summation.
+\item \textbf{By limiting case} --- the sandwich $GJ$ must collapse to the
+      solid-plate result $Gct^3/3$ when the faces vanish.
+\item \textbf{By defining property} --- the net rolling moment must be exactly
+      zero at $p_{eq}$; radiative equilibrium must be a fixed point of the
+      tip-temperature step; the chamber root must satisfy
+      $P_c = \dot m\,\eta\,c^*/A_t$.
+\item \textbf{By scaling law} --- $V_f \propto \sqrt{G}$, $\propto 1/\sqrt{P}$,
+      $\propto (t/c)^{3/2}$; $\dot q \propto V^3$, $\propto\sqrt{\rho}$,
+      $\propto 1/\sqrt{R_n}$; nose wave drag $\propto 1/f^2$.
+\end{itemize}
+
+\paragraph{A result worth recording.} The hydrostatic check initially
+disagreed by \SI{0.25}{\percent} at \SI{8}{km}. The cause was in the
+\emph{check}, not the model: $dP/dz = -\rho g$ holds with $g_0$ only in
+geopotential altitude, whereas in geometric altitude gravity falls off as
+$g(z) = g_0\left(r_E/(r_E+z)\right)^2$. Against the correct $g(z)$ the model
+agrees to $1.75\times10^{-9}$. The discrepancy \emph{was} the geopotential
+correction, so this independently confirms the $h(z)$ conversion rather than
+merely the layer formulas.
+
+\medskip
+\noindent
+Note what these checks can and cannot do. They confirm each equation is
+\emph{implemented as written here} and is internally consistent. They cannot
+confirm that an approximate correlation is the \emph{right} correlation --- that
+is what the \unvalidated{} tags and the table below are for.
+
+\subsection*{Per-area status}
+
+\begin{center}
+\begin{tabular}{@{}lll@{}}
+\toprule
+Area & Status & Needed \\
+\midrule
+Atmosphere & \established{} verified vs published tables & --- \\
+N\textsubscript{2}O saturation & \established{} verified at \SI{20}{\celsius} & --- \\
+N\textsubscript{2}O latent heat & \textbf{raises} & ESDU 91022 coefficients \\
+Blend density, regression form & \established{} & static fire for $k_{cal}$ \\
+Nozzle, chamber balance & \established{} & CEA table (register G11) \\
+Injector NHNE & \established{} & enthalpies; cold flow for $C_d$ \\
+Skin friction, base drag & \established{} & --- \\
+\textbf{Supersonic wave drag} & \unvalidated & \textbf{RASAero II or CFD} \\
+Barrowman normal force & \established{} & --- \\
+Roll from cant & \established{} closed form & --- \\
+Sandwich $GJ$ & \approxi{} upper bound & layup + core properties \\
+Flutter, divergence & \approxi{} screening & required margin (register I9) \\
+Tip heating & \established{} bulk temp & alloy limit (register I7) \\
+Recovery & \established{} & chute sizing (register J) \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\medskip
+\noindent
+\fbox{\begin{minipage}{0.95\textwidth}
+\textbf{The binding calibration task.} Supersonic wave drag is unvalidated.
+\texttt{DragBuildup.validated} is \texttt{False}, every run emits a warning, and
+the warning is carried into the generated Excel report. Cross-check total $C_D$
+against RASAero II or CFD at Mach 0.5, 1.2, 2.0 and 2.5 before quoting an
+absolute apogee. Trends and sensitivities remain useful in the meantime.
+\end{minipage}}
+
+% =============================================================================
+\section{References}
+
+Full bibliography with verified DOIs is in \texttt{docs/references.bib} (31
+entries, grouped by the module each one backs) and
+\texttt{docs/references\_dois.txt}.
+
+\begin{itemize}[leftmargin=*,itemsep=1pt]
+\item Karabeyoglu et al., ``Scale-Up Tests of High Regression Rate
+      Paraffin-Based Hybrid Rocket Fuels,'' \emph{JPP} 20(6), 2004.
+      \texttt{10.2514/1.3340}
+\item Karabeyoglu \& Cantwell, ``Combustion of Liquefying Hybrid Propellants:
+      Part 2, Stability of Liquid Films,'' \emph{JPP} 18(3), 2002.
+      \texttt{10.2514/2.5976}
+\item Dyer et al., ``Modeling Feed System Flow Physics for Self-Pressurizing
+      Propellants,'' AIAA 2007-5702. \texttt{10.2514/6.2007-5702}
+\item Zilliac \& Karabeyoglu, ``Modeling of Propellant Tank Pressurization,''
+      AIAA 2005-3549. \texttt{10.2514/6.2005-3549}
+\item Whitmore \& Chandler, ``Engineering Model for Self-Pressurizing
+      Saturated-N\textsubscript{2}O-Propellant Feed Systems,'' \emph{JPP} 26(4),
+      2010. \texttt{10.2514/1.47131}
+\item Fay \& Riddell, ``Theory of Stagnation Point Heat Transfer in Dissociated
+      Air,'' \emph{J.\ Aero.\ Sci.} 25(2), 1958. \texttt{10.2514/8.7517}
+\item Ward, ``Supersonic Flow Past Slender Pointed Bodies,'' \emph{QJMAM} 2(1),
+      1949. \texttt{10.1093/qjmam/2.1.75}
+\item Barrowman, \emph{The Practical Calculation of the Aerodynamic
+      Characteristics of Slender Finned Vehicles}, MS thesis, 1967.
+      NTRS 20010047838.
+\item Martin, \emph{Summary of Flutter Experiences\ldots}, NACA TN 4197, 1958.
+      NTRS 19930085030.
+\item Knacke, \emph{Parachute Recovery Systems Design Manual}, NWC TP 6575, 1992.
+\item ESDU 91022, \emph{Thermophysical Properties of Nitrous Oxide}, 1991.
+\item NOAA/NASA/USAF, \emph{U.S. Standard Atmosphere, 1976}, NOAA-S/T 76-1562.
+\end{itemize}
+
+\end{document}

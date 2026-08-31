@@ -66,11 +66,12 @@ echo     4.  Show       - open the last results
 echo     5.  Test       - run the test suite
 echo     6.  Setup      - create .venv and install dependencies
 echo     7.  Doctor     - diagnose the environment
-echo     8.  Exit
+echo     8.  Equations  - validate every equation, open the PDF
+echo     9.  Exit
 echo.
 set "ACTION="
 set "PICK="
-set /p "PICK=  Choose 1-8: "
+set /p "PICK=  Choose 1-9: "
 
 REM Guard against a closed or redirected stdin: set /p leaves PICK untouched at
 REM EOF, which would spin this menu forever. Bail out after a few dead reads.
@@ -88,7 +89,8 @@ if "!PICK!"=="4" set "ACTION=show"
 if "!PICK!"=="5" set "ACTION=test"
 if "!PICK!"=="6" set "ACTION=setup"
 if "!PICK!"=="7" set "ACTION=doctor"
-if "!PICK!"=="8" goto :quit
+if "!PICK!"=="8" set "ACTION=equations"
+if "!PICK!"=="9" goto :quit
 if "!ACTION!"=="" (
     echo   Not a valid choice.
     goto :menu
@@ -111,9 +113,31 @@ if /i "%ACTION%"=="band"  goto :do_band
 if /i "%ACTION%"=="show"  goto :do_show
 if /i "%ACTION%"=="open"  goto :do_show
 if /i "%ACTION%"=="test"  goto :do_test
+if /i "%ACTION%"=="equations" goto :do_equations
 
 echo   Unknown command: %ACTION%
-echo   Try: check ^| sim ^| band ^| show ^| test ^| setup ^| doctor
+echo   Try: check ^| sim ^| band ^| show ^| test ^| setup ^| doctor ^| equations
+goto :end
+
+
+:do_equations
+echo   Validating every equation in docs\equations.tex against an
+echo   independent derivation...
+echo.
+%PY% tools\validate_equations.py
+if errorlevel 1 (
+    echo.
+    echo   One or more equations did not validate. Scroll up.
+    goto :end
+)
+echo.
+if exist "docs\equations.pdf" (
+    echo   Opening docs\equations.pdf ...
+    start "" "docs\equations.pdf"
+) else (
+    echo   docs\equations.pdf not found. Rebuild it with:
+    echo       pdflatex -output-directory=docs docs\equations.tex
+)
 goto :end
 
 
