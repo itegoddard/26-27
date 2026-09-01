@@ -3,9 +3,11 @@
 Source: `02_BUDGET_50KFT_DESIGN.md` (+ `04_ENGINE_DESIGN.md`, `NOZZLE_DESIGN.md`,
 `01_NOSECONE_AVIONICS_REFERENCE.md`, `cea_S10W1_N2O_35bar.csv`).
 
-Every value below is mapped to its register ID. **Nothing has been applied to
-the model yet** — three of these contradict values we had locked as CONFIRMED,
-and those need a decision first (§C).
+Every value below is mapped to its register ID. **All three conflicts in §C are
+resolved and everything here is now applied** — the register went from 51
+blocking entries to 25, and the model has no PLACEHOLDER left.
+
+Section A is retained as the audit trail: what came from where.
 
 **Headline:** 61,962 ft nominal, **53,298 ft after every derate** — 6.6 % above
 the 50,000 ft target. 54,357 N·s (class O), 61.14 kg liftoff, 4.362 m long,
@@ -17,7 +19,7 @@ and the fin thickness ratio (6.35/200 = 3.17 % ✓) and they all close.
 
 ---
 
-## A. Fills an OPEN register entry — ready to apply
+## A. Applied — was OPEN, now CONFIRMED
 
 ### Geometry
 
@@ -104,9 +106,9 @@ costs regression rate, not specific impulse. Nobody should argue it costs Isp.
 
 ---
 
-## C. ⚠️ Conflicts with values we locked as CONFIRMED — need a decision
+## C. Conflicts — RESOLVED by team decision
 
-**These are not applied.** Each contradicts something you previously confirmed.
+All three were put to the team and decided. Applied as noted.
 
 ### C1. Fin planform — contradicts B12 and B13
 
@@ -120,8 +122,12 @@ marked CONFIRMED on that basis. The new document **solves** the semi-span from a
 2.0-caliber stability target and reports that the earlier fin *"failed fin
 flutter"* and was *"badly over-stable at 4.3 calibers"*.
 
-That's a strong argument, but it is a different fin from the one that was locked.
-**Which governs?**
+> ### ✅ RESOLVED: the OpenRocket file is wrong. New planform adopted.
+>
+> B12 → **0.425**, B13 → **50°**, B14 → **200 mm**, B15 → **109.7 mm**,
+> B16 → **6.35 mm**, B17 → **hexagonal**. The ORK planform is superseded and
+> the register records why: it was simultaneously over-stable and
+> flutter-critical.
 
 ### C2. Fin construction — contradicts your original spec
 
@@ -132,12 +138,18 @@ That's a strong argument, but it is a different fin from the one that was locked
 You specified *"carbon fibre fins with foam interior to minimize fin flutter."*
 The document specifies solid G10.
 
-**This has a real model consequence.** `structures/laminate.py` exists solely to
-compute sandwich `EI`/`GJ` and map it to an effective shear modulus for the
-flutter criterion. **Solid isotropic G10 needs none of that** — flutter uses G10's
-shear modulus directly. If G10 wins, that module becomes dead weight and
-register items **I1–I5 (CF and foam properties) disappear entirely**, taking 5 of
-the 51 blocking values with them.
+> ### ✅ RESOLVED: carbon fibre with foam core is correct. G10 rejected.
+>
+> `structures/laminate.py` stays and earns its place — the sandwich `GJ`
+> calculation is exactly what this construction needs. **I1–I5 remain OPEN**
+> and are now the largest single block of missing values.
+>
+> **Carries an important caveat.** The source sized the fin as solid G10 and
+> reports a worst-case flutter margin of **2.22**. That number does **not**
+> transfer: a CF/foam sandwich has a completely different `GJ`. The *planform*
+> is adopted; the *aeroelastic result* must be recomputed once I1–I5 land. This
+> is recorded in the schema, the register (B16, I9) and here, because it is
+> exactly the kind of inherited number that silently becomes wrong.
 
 ### C3. Recovery architecture — contradicts what you told me an hour ago
 
@@ -149,9 +161,14 @@ I rewrote `recovery.py` for single-stage reefed this session (commit `4e004fd`),
 removing the drogue and register J2. The document describes two separate canopies
 and no reefing at all.
 
-**These are different systems, not different numbers.** Reverting is straightforward
-— the git history has the staged version — but I'm not doing it on a document
-that may predate your decision.
+> ### ✅ RESOLVED: single canopy, reefed → full. The document is wrong here.
+>
+> `recovery.py` is unchanged. The dual-deployment numbers in the source
+> (0.58 m drogue, 2.48 m main at 450 m) do **not** apply, so J3/J4/J5/J7/J9
+> stay OPEN and must be sized for the reefed architecture.
+>
+> J10 (7 m/s touchdown) **does** carry over — it is a requirement, not an
+> artefact of the architecture.
 
 ---
 

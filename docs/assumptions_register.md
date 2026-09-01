@@ -47,22 +47,22 @@ Shape is confirmed from `goddard1.0.ork`. **Dimensions below are all open.**
 | ID | Parameter | Value | Units | Status | Basis / question for NASA |
 |---|---|---|---|---|---|
 | B1 | Body outer diameter | 0.1524 | m (6 in) | CONFIRMED | Team spec |
-| B2 | Body wall thickness | — | m | OPEN | Drives dry mass and buckling |
-| B3 | Body tube length | — | m | OPEN | |
+| B2 | Body wall thickness | 2.4 | mm | CONFIRMED | Fibreglass, non-structural — only 0.45 m of tube. Pressure vessels carry the rest. docs/reference/02_BUDGET_50KFT_DESIGN.md |
+| B3 | Body tube length | 3.60 | m | CONFIRMED | Master design variable. 3.247 m hits nominal; 3.60 m still hits target after every derate. docs/reference/02_BUDGET_50KFT_DESIGN.md |
 | B4 | Nose shape | Von Kármán (Haack C=0) | — | CONFIRMED | ORK `haack`, shapeparameter 0.0 |
-| B5 | Nose fineness ratio L/D | — | — | OPEN | ORK was ≈5.2. **Recommended fineness for Mach 2.5?** |
+| B5 | Nose fineness ratio L/D | 5.0 | — | CONFIRMED | 762 mm. Stroick: fineness 5 critical for this regime. docs/reference/02_BUDGET_50KFT_DESIGN.md |
 | B6 | Nose base diameter | 0.1524 | m (6 in) | CONFIRMED | Flare removed, so the nose meets the body at full diameter. This is now just B1. |
 | B7 | Flare present? | **no** | — | CONFIRMED | Team decision: flare removed. It cost supersonic wave drag for no return. Constant-diameter nose-to-body joint. |
 | B8 | Flare length | 0 | m | CONFIRMED | Zero by B7. Transition code retained and guarded, so reversing is a config change. |
-| B9 | Nose tip radius | — | m | OPEN | **Directly drives stagnation heating (Fay–Riddell). Sharpest tip that survives Mach 2.5?** |
+| B9 | Nose tip radius | 3.81 | mm | CONFIRMED | 5 % bluffness × 152.4 mm ÷ 2. Bonded aluminium cap. docs/reference/02_BUDGET_50KFT_DESIGN.md |
 | B10 | Fin count | 3 | — | CONFIRMED | ORK |
-| B11 | Fin planform | clipped delta | — | CONFIRMED | **Shape locked — not open for change** |
-| B12 | Fin taper ratio | 0.328 | — | CONFIRMED | Shape ratio from ORK |
-| B13 | Fin LE sweep | 62 | deg | CONFIRMED | Shape ratio from ORK |
-| B14 | Fin root chord | — | m | OPEN | Absolute size open; ratios above fixed |
-| B15 | Fin span | — | m | OPEN | |
-| B16 | Fin thickness | — | m | OPEN | **Dominant flutter driver — enters as (t/c)³** |
-| B17 | Fin cross-section | rounded | — | OPEN | ORK says rounded. **At Mach 2.5 a rounded LE gives a detached bow shock. Double-wedge instead?** Model prices both. |
+| B11 | Fin planform | clipped delta, flat tip | — | CONFIRMED | **Supersedes goddard1.0.ork** — the ORK fin was over-stable at 4.3 cal AND failed flutter. docs/reference/02_BUDGET_50KFT_DESIGN.md |
+| B12 | Fin taper ratio | 0.425 | — | CONFIRMED | 85/200 mm. **Supersedes the ORK's 0.328** — team confirmed the ORK is wrong. |
+| B13 | Fin LE sweep | 50 | deg | CONFIRMED | Band 45–70°. **Supersedes the ORK's 62°.** |
+| B14 | Fin root chord | 200 | mm | CONFIRMED | docs/reference/02_BUDGET_50KFT_DESIGN.md |
+| B15 | Fin span | 109.7 | mm | CONFIRMED | **Solved** from a 2.00-caliber stability target, not chosen. |
+| B16 | Fin thickness | 6.35 | mm | CONFIRMED | 3.17 % of root, inside the 3–6 % rule. Source assumed solid G10; **we build CF skins over foam**, so the skin/core split (I2/I3) is open and the source's 2.22 flutter margin does NOT carry over. |
+| B17 | Fin cross-section | hexagonal | — | CONFIRMED | Flat tip. Resolves the rounded-vs-wedge question. |
 | B18 | Fin cant angle | 1.0 | deg | CONFIRMED | Team spec |
 | B19 | Fin fillet radius | 0 | m | OPEN | ORK had none. Fillets help root stress and interference drag. |
 | B20 | Surface roughness | — | µm | OPEN | Enters skin friction. **Expected finish quality?** |
@@ -86,11 +86,11 @@ Shape is confirmed from `goddard1.0.ork`. **Dimensions below are all open.**
 | ID | Parameter | Value | Units | Status | Basis / question for NASA |
 |---|---|---|---|---|---|
 | D1 | Oxidizer | N₂O, 99.9 % | — | CONFIRMED | Team spec |
-| D2 | N₂O mass | — | kg | OPEN | **Primary performance driver. Sized against the 50 kft target.** |
-| D3 | Tank internal volume | — | m³ | OPEN | |
-| D4 | Initial fill fraction | — | — | OPEN | Typically 0.80–0.85 liquid by volume. **Recommended ullage for thermal safety?** |
+| D2 | N₂O mass | 25.04 | kg | CONFIRMED | Solved so tank + grain exactly fill the body tube. docs/reference/02_BUDGET_50KFT_DESIGN.md |
+| D3 | Tank internal volume | 0.0399 | m³ (39.9 L) | CONFIRMED | 6061-T6, 152.4 mm OD × 3.50 mm wall, 145.4 mm bore. |
+| D4 | Initial fill fraction | 0.80 | — | CONFIRMED | **Safety limit, not packing.** 0.92 goes liquid-full at 27 °C; 0.80 clears 33.6 °C. |
 | D5 | Initial tank temperature | = ambient (A2) | K | ESTIMATED | **Is pre-chill or pre-heat planned? Strongly affects tank pressure.** |
-| D6 | Tank material / MEOP | — | — | OPEN | **Burst margin required? Aluminum or composite-overwrapped?** |
+| D6 | Tank material / MEOP | 6061-T6, 70 bar | — | CONFIRMED | Burst SF 2.0 on ultimate. Above 56.5 bar vapour pressure at 25 °C, below 72.45 bar critical. |
 | D7 | Feed line ID and length | — | m | OPEN | |
 | D8 | Feed line pressure drop | neglected | — | ASSUMPTION | Only injector ΔP modeled. **Safe to neglect, or does line loss matter for chug?** |
 | D9 | Main valve type / open time | — | s | OPEN | Affects ignition transient |
@@ -102,8 +102,8 @@ Shape is confirmed from `goddard1.0.ork`. **Dimensions below are all open.**
 | ID | Parameter | Value | Units | Status | Basis / question for NASA |
 |---|---|---|---|---|---|
 | E1 | Injector type | showerhead, straight-drilled | — | CONFIRMED | Team spec |
-| E2 | Number of orifices | — | — | OPEN | |
-| E3 | Orifice diameter | — | m | OPEN | |
+| E2 | Number of orifices | 33 | — | CONFIRMED | Many small holes decouple the motor from the feed system. |
+| E3 | Orifice diameter | 1.5 | mm | CONFIRMED | Effective flow area 38.3 mm². |
 | E4 | Plate thickness (sets L/d) | — | m | OPEN | L/d sets discharge coefficient regime |
 | E5 | **`injector_Cd`** | **0.70** | — | **BANDED [0.61, 0.82]** | No cold-flow data. 0.61 = sharp-edge limit, 0.82 = straight-drilled L/d 2–5 upper. **Would they lend cold-flow facilities?** |
 | E6 | Injector ΔP/P_c target | ≥ 0.20 | — | ESTIMATED | NASA SP-194 chug criterion. **Do they recommend a higher margin for a blowdown feed?** |
@@ -120,10 +120,10 @@ Shape is confirmed from `goddard1.0.ork`. **Dimensions below are all open.**
 | F6 | Regression coefficient a | 1.55e-4 | m/s | ESTIMATED | Pure paraffin, Karabeyoglu 2004 (`10.2514/1.3340`) |
 | F7 | Regression exponent n | 0.5 | — | ESTIMATED | Same source |
 | F8 | **`regression_calibration`** | **0.85** | — | **BANDED [0.75, 1.00]** | No static fire. SEBS-MA stabilizes melt film → suppresses regression; carbon black opacifies → raises it. Net unresolved. **Do they have data on SEBS-MA-loaded paraffin?** |
-| F9 | Grain length | — | m | OPEN | |
-| F10 | Initial port diameter | — | m | OPEN | Sets initial G_ox and therefore initial O/F |
-| F11 | Grain OD / web thickness | — | m | OPEN | **Sets the burnthrough margin — see spec §6.1** |
-| F12 | Liner material and thickness | — | m | OPEN | |
+| F9 | Grain length | 349 | mm | CONFIRMED | docs/reference/02_BUDGET_50KFT_DESIGN.md |
+| F10 | Initial port diameter | 69.2 | mm | CONFIRMED | 0.50 of grain OD. At n=0.5 this does not trade against apogee. |
+| F11 | Grain OD / web thickness | 137.0 | mm (33.9 mm web) | CONFIRMED | 3.6 mm web left at burnout against a 3.0 mm threshold. **Burns through at a=0.150.** |
+| F12 | Liner material and thickness | 3.0 mm under grain, 12.7 mm pre/post | m | CONFIRMED | Ablative. docs/reference/02_BUDGET_50KFT_DESIGN.md |
 | F13 | Port geometry | single circular | — | CONFIRMED | Multi-port out of scope |
 | F14 | Grain casting defects | ignored | — | ASSUMPTION | Uniform density assumed. **Is void content a real risk for cast paraffin?** |
 
@@ -133,15 +133,15 @@ Shape is confirmed from `goddard1.0.ork`. **Dimensions below are all open.**
 |---|---|---|---|---|---|
 | G1 | Post-combustion chamber | none | — | CONFIRMED | Team spec |
 | G2 | Mixing diaphragm | none | — | CONFIRMED | Team spec |
-| G3 | Pre-combustion chamber volume | — | m³ | OPEN | |
-| G4 | Throat diameter | — | m | OPEN | **Sets chamber pressure. Primary design variable.** |
-| G5 | Expansion ratio ε | — | — | OPEN | **Optimize for what altitude? Sea-level-safe vs. altitude-optimized.** |
-| G6 | Nozzle material | — | — | OPEN | Graphite? Phenolic? |
+| G3 | Pre-combustion chamber volume | 60 mm length (L/D 0.43) | m³ | CONFIRMED | Inside the 0.26–0.66 droplet-vaporisation stability band. |
+| G4 | Throat diameter | 28.96 | mm (658.7 mm²) | CONFIRMED | Falls out of the chamber mass balance at 36 bar. |
+| G5 | Expansion ratio ε | 6.0 | — | CONFIRMED | Exit 70.9 mm. Sweep flat 4.5–8.0; 6.0 keeps margin against sea-level separation. |
+| G6 | Nozzle material | graphite throat, silica-phenolic con/div | — | CONFIRMED | docs/reference/02_BUDGET_50KFT_DESIGN.md |
 | G7 | Throat erosion | not modeled | — | ASSUMPTION | A_t held constant. **How much erosion is typical over a ~6 s N₂O burn? This could be significant.** |
-| G8 | Nozzle divergence half-angle | — | deg | OPEN | Sets the divergence loss factor |
+| G8 | Nozzle contour / angles | 80 % bell, 45° convergence | deg | CONFIRMED | NASA SP-8115 standard convergence. |
 | G9 | **`eta_cstar`** | **0.88** | — | **BANDED [0.82, 0.93]** | Showerhead, no post-combustion chamber. **Engineering estimate — no published range found for this exact configuration. Do they have data?** |
-| G10 | `eta_Cf` | 0.97 | — | ESTIMATED | Typical nozzle efficiency |
-| G11 | **CEA c\*/γ/T_c table** | **not generated** | — | **PLACEHOLDER** | **Must be produced from NASA CEA (RP-1311) for this exact 89/10/1 blend vs N₂O. The model will refuse to run without it — it will not guess.** |
+| G10 | `eta_Cf` | 0.96 | — | ESTIMATED | Adopted from the design record: 0.985 bell friction, less divergence loss and throat erosion. |
+| G11 | CEA c\*/γ/T_c table | `data/cea_S10W1_N2O_35bar.csv` | — | CONFIRMED | Real NASA CEA O/F sweep at 35 bar for the S10W1 blend. Peak c\* 1598.1 m/s at O/F 7.00. Load with `cea.load_of_sweep(path, 35e5)`. Pinned by `tests/test_cea_real_table.py`. |
 
 ## H. Aerodynamics
 
@@ -167,7 +167,7 @@ Shape is confirmed from `goddard1.0.ork`. **Dimensions below are all open.**
 | I6 | Aluminum tip alloy | — | — | OPEN | 6061? 7075? **Which has the service temperature margin at Mach 2.5?** |
 | I7 | Al service temperature limit | — | K | OPEN | Checked against Fay–Riddell tip temperature |
 | I8 | Fin root attachment | rigid | — | ASSUMPTION | Root fixity assumed perfect. **Real root compliance lowers flutter speed — how much margin to carry?** |
-| I9 | Required flutter margin | — | — | OPEN | **What flutter margin do they require? 1.5×? 2×?** |
+| I9 | Required flutter margin | ≥ 1.5 | — | CONFIRMED | Stated requirement. **Must be recomputed for CF/foam** — the source's 2.22 was for solid G10. |
 
 ## J. Recovery
 
@@ -181,7 +181,7 @@ Shape is confirmed from `goddard1.0.ork`. **Dimensions below are all open.**
 | J7 | Opening force coefficient C_x | — | — | OPEN | Knacke, canopy-type dependent |
 | J8 | Canopy deploy | at apogee, no delay | — | ASSUMPTION | **Should there be a delay past apogee to reduce deployment velocity?** Reefed deployment at apogee is the high-load case. |
 | J9 | Max allowable opening load | — | N | OPEN | **What g-limit does the airframe/payload impose? This is what reefing is sized against.** |
-| J10 | Max allowable landing speed | — | m/s | OPEN | **Range safety requirement?** |
+| J10 | Max allowable landing speed | 7 | m/s | CONFIRMED | Design target achieved in the source. |
 
 ## K. Simulation settings
 
@@ -203,12 +203,12 @@ hand-tallied — regenerate with the script in `docs/README.md` after editing.
 
 | Count | Status | Meaning |
 |---|---|---|
-| **50** | OPEN | No value yet. Model cannot run. |
-| **1** | PLACEHOLDER | G11, the CEA table. Model will refuse to run rather than guess. |
+| **25** | OPEN | No value yet. Model cannot run. |
+| **0** | PLACEHOLDER | G11 resolved — the CEA table is in `data/`. |
 | **3** | BANDED | E5, F8, G9. The dominant uncertainty. Band mode reports an envelope. |
 | **13** | ASSUMPTION | Effects deliberately not modeled — worth a sanity check with them |
 | **13** | ESTIMATED | Usable now; better data improves confidence |
-| **26** | CONFIRMED | Locked by team decision |
+| **52** | CONFIRMED | Locked by team decision |
 | **5** | DERIVED | Computed from other entries |
 
 ### The five questions most worth their time

@@ -1,24 +1,28 @@
 # What We Need — Goddard 26-27
 
-**51 values block a trustworthy run.** This document sorts every one of them by
+**25 values block a trustworthy run.** This document sorts every one of them by
 *how you get it*, so work can start in parallel instead of waiting on a meeting.
 
-Coverage is verified: 51 blocking entries in the register, 51 assigned below,
+Coverage is verified: 25 blocking entries in the register, 25 assigned below,
 no duplicates, none dropped. Regenerate the underlying list with
 `run.bat check`.
 
-> **Read this first.** Only **7 of the 51** actually need NASA. Another **7**
-> need a vendor datasheet and **1** needs a tool run. The remaining **36 are
-> ours to decide or size.** The meeting is not the bottleneck — we are.
+> **Updated after the design-record intake.** 26 of the original 51 were
+> answered by `docs/reference/02_BUDGET_50KFT_DESIGN.md` — see
+> [`DESIGN_POINT.md`](DESIGN_POINT.md). **G11, the CEA table, is resolved**, so
+> the model has no PLACEHOLDER left.
+>
+> Of the 25 remaining, the **7 material properties (I1–I7) are now the single
+> largest block** and they gate the entire flutter and divergence calculation.
 
 | # | Route | Count | Blocked on |
 |---|---|---|---|
-| ① | Team decides | **21** | nobody |
-| ② | Motor sizing (coupled) | **11** | a solver, or a lot of hand-iteration |
-| ③ | Vendor datasheets | **7** | picking suppliers |
-| ④ | Run a tool | **1** | someone running NASA CEA |
-| ⑤ | Ask NASA / the range | **7** | the meeting |
-| ⑥ | Recovery sizing | **4** | Knacke + a load limit from ⑤ |
+| ① | Team decides | **9** | nobody |
+| ② | Motor sizing | **~~11~~ 1** | mostly solved by the design record |
+| ③ | **Vendor datasheets** | **7** | **picking suppliers — now the critical path** |
+| ④ | Run a tool | **~~1~~ 0** | ✅ CEA table delivered |
+| ⑤ | Ask NASA / the range | **4** | the meeting |
+| ⑥ | Recovery sizing | **5** | Knacke + a load limit from ⑤ |
 
 ---
 

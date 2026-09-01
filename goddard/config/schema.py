@@ -150,11 +150,11 @@ class Environment:
 class NoseCone:
     """Von Karman (Haack C=0) nose. Register section B."""
 
-    length_m: Number = Open("B5", "nose length (sets fineness ratio)", "m")
+    length_m: Number = 0.762                    # B5 CONFIRMED, fineness 5.0
     # B6 CONFIRMED -- the flare was removed, so the nose meets the body at full
     # diameter. This is no longer an independent parameter: it IS B1.
     base_diameter_m: Number = 0.1524
-    tip_radius_m: Number = Open("B9", "nose tip radius", "m")
+    tip_radius_m: Number = 0.00381              # B9 CONFIRMED, 5 % bluffness
     haack_c: float = 0.0                        # B4 CONFIRMED, Von Karman
 
 
@@ -183,28 +183,42 @@ class BodyTube:
     """Register section B."""
 
     diameter_m: Number = 0.1524                 # B1 CONFIRMED, 6 in
-    length_m: Number = Open("B3", "body tube length", "m")
-    wall_thickness_m: Number = Open("B2", "body wall thickness", "m")
+    length_m: Number = 3.60                     # B3 CONFIRMED, master variable
+    wall_thickness_m: Number = 0.0024           # B2 CONFIRMED, fibreglass tube
 
 
 @dataclass(frozen=True)
 class FinSet:
-    """Three clipped-delta fins. Planform shape is CONFIRMED and locked.
+    """Three clipped-delta fins. Register section B.
 
-    Register section B. The taper ratio and sweep are shape ratios carried over
-    from goddard1.0.ork and are not open for change; the absolute size is.
+    Planform SUPERSEDES goddard1.0.ork. The ORK fin was found to be wrong on
+    two counts at once (docs/reference/02_BUDGET_50KFT_DESIGN.md): it produced
+    4.3 calibers of static margin -- badly over-stable, so the vehicle
+    weathercocks into wind and loses apogee -- and it failed fin flutter,
+    because a thin fin on a 300 mm root chord is only 1.6 % thick against a
+    3-6 % design rule. Shrinking the fin fixes both simultaneously.
+
+    The semi-span is therefore SOLVED from a 2.0-caliber stability target
+    rather than chosen, which is why it carries an odd value.
+
+    Construction is carbon-fibre skins over a foam core (team spec), NOT the
+    solid G10 the source document assumed. See ``thickness_m``.
     """
 
     count: int = 3                              # B10 CONFIRMED
-    taper_ratio: float = 0.328                  # B12 CONFIRMED
-    sweep_angle_rad: float = 1.0821             # B13 CONFIRMED, 62 deg
+    taper_ratio: float = 0.425                  # B12 CONFIRMED, 85/200 mm
+    sweep_angle_rad: float = 0.872665           # B13 CONFIRMED, 50 deg
     cant_angle_rad: float = 0.017453            # B18 CONFIRMED, 1.0 deg
-    root_chord_m: Number = Open("B14", "fin root chord", "m")
-    span_m: Number = Open("B15", "fin span", "m")
-    thickness_m: Number = Open("B16", "fin thickness", "m")
-    cross_section: Number = Open(
-        "B17", "fin cross-section: rounded (per ORK) or double-wedge"
-    )
+    root_chord_m: Number = 0.200                # B14 CONFIRMED
+    span_m: Number = 0.1097                     # B15 CONFIRMED, solved for 2.0 cal
+    # B16 CONFIRMED as a total section thickness -- 3.17 % of root chord, inside
+    # the 3-6 % rule. NOTE: the source sized this as 1/4 in solid G10 sheet. We
+    # are building carbon-fibre skins over a foam core, so the skin/core split
+    # (I2, I3) is still open and the source's flutter margin of 2.22 does NOT
+    # carry over -- a sandwich has a different GJ entirely. Recompute once
+    # I1-I5 land.
+    thickness_m: Number = 0.00635
+    cross_section: str = "hexagonal"            # B17 CONFIRMED, flat tip
     fillet_radius_m: Number = Open("B19", "fin fillet radius", "m")
 
     @property
@@ -233,9 +247,10 @@ class Geometry:
 class Tank:
     """Self-pressurizing N2O tank. Register section D."""
 
-    oxidiser_mass_kg: Number = Open("D2", "N2O mass", "kg")
-    volume_m3: Number = Open("D3", "tank internal volume", "m^3")
-    fill_fraction: Number = Open("D4", "initial liquid fill fraction")
+    oxidiser_mass_kg: Number = 25.04            # D2 CONFIRMED
+    volume_m3: Number = 0.0399                  # D3 CONFIRMED, 39.9 L
+    fill_fraction: Number = 0.80                # D4 CONFIRMED -- SAFETY limit,
+    # not a packing choice. 0.92 goes liquid-full at 27 C; 0.80 clears 33.6 C.
     initial_temperature_K: Number = 303.15      # D5 ESTIMATED, = ambient
     ullage_noncondensable_fraction: float = 0.0  # D10 CONFIRMED
 
@@ -244,8 +259,8 @@ class Tank:
 class Injector:
     """Straight-drilled showerhead plate. Register section E."""
 
-    n_holes: Number = Open("E2", "number of orifices")
-    hole_diameter_m: Number = Open("E3", "orifice diameter", "m")
+    n_holes: Number = 33                        # E2 CONFIRMED
+    hole_diameter_m: Number = 0.0015            # E3 CONFIRMED, 1.5 mm
     plate_thickness_m: Number = Open("E4", "plate thickness, sets L/d", "m")
     min_dp_ratio: float = 0.20                  # E6 ESTIMATED, chug criterion
 
@@ -254,20 +269,23 @@ class Injector:
 class Grain:
     """Single circular port, paraffin blend. Register section F."""
 
-    length_m: Number = Open("F9", "grain length", "m")
-    initial_port_diameter_m: Number = Open("F10", "initial port diameter", "m")
-    outer_diameter_m: Number = Open("F11", "grain OD, sets burnthrough margin", "m")
-    liner_material: Number = Open("F12", "liner material and thickness")
+    length_m: Number = 0.349                    # F9 CONFIRMED
+    initial_port_diameter_m: Number = 0.0692    # F10 CONFIRMED, 0.50 of grain OD
+    outer_diameter_m: Number = 0.1370           # F11 CONFIRMED, 33.9 mm web
+    liner_thickness_m: float = 0.003            # F12 CONFIRMED, ablative under
+    # the grain; 12.7 mm in the pre- and post-chambers where gas touches the case
 
 
 @dataclass(frozen=True)
 class Nozzle:
     """Register section G."""
 
-    throat_diameter_m: Number = Open("G4", "throat diameter", "m")
-    expansion_ratio: Number = Open("G5", "expansion ratio")
-    divergence_half_angle_rad: Number = Open("G8", "divergence half angle", "rad")
-    eta_cf: float = 0.97                        # G10 ESTIMATED
+    throat_diameter_m: Number = 0.02896         # G4 CONFIRMED, 658.7 mm^2
+    expansion_ratio: Number = 6.0               # G5 CONFIRMED, exit 70.9 mm
+    convergence_half_angle_rad: float = 0.785398  # G8 CONFIRMED, 45 deg, SP-8115
+    contour: str = "80% bell"                     # G8 CONFIRMED
+    eta_cf: float = 0.96                        # G10 -- adopted from the design
+    # record: 0.985 bell friction, less divergence loss and throat erosion.
 
 
 @dataclass(frozen=True)
@@ -276,12 +294,13 @@ class Motor:
     injector: Injector = field(default_factory=Injector)
     grain: Grain = field(default_factory=Grain)
     nozzle: Nozzle = field(default_factory=Nozzle)
-    chamber_volume_m3: Number = Open("G3", "pre-combustion chamber volume", "m^3")
-    nozzle_material: Number = Open("G6", "nozzle material")
+    pre_chamber_length_m: float = 0.060         # G3 CONFIRMED, L/D 0.43
+    nozzle_material: str = "graphite throat, silica-phenolic con/div"  # G6
     feed_line_diameter_m: Number = Open("D7", "feed line inner diameter", "m")
     feed_line_length_m: Number = Open("D7", "feed line length", "m")
     main_valve_open_time_s: Number = Open("D9", "main valve opening time", "s")
-    tank_material: Number = Open("D6", "tank material / MEOP")
+    tank_material: str = "6061-T6"              # D6 CONFIRMED
+    tank_meop_Pa: float = 70e5                  # D6 CONFIRMED, burst SF 2.0
 
 
 # ------------------------------------------------------------ mass properties
@@ -324,7 +343,10 @@ class FinMaterials:
     core_shear_Pa: Number = Open("I4", "foam core shear modulus -- dominates GJ", "Pa")
     core_modulus_Pa: Number = Open("I4", "foam core Young's modulus", "Pa")
     core_density: Number = Open("I5", "foam core density", "kg/m^3")
-    required_flutter_margin: Number = Open("I9", "required flutter margin")
+    # I9 CONFIRMED. NOTE: the design record achieved 2.22, but that was for a
+    # SOLID G10 fin. We build CF skins over a foam core, so GJ differs and the
+    # margin must be recomputed once I1-I5 land.
+    required_flutter_margin: float = 1.5
 
 
 @dataclass(frozen=True)
@@ -382,7 +404,7 @@ class Recovery:
     filling_constant: float = 8.0               # J6 ESTIMATED, Knacke
     opening_force_coefficient: Number = Open("J7", "opening force coefficient Cx")
     max_opening_load_N: Number = Open("J9", "max allowable opening load", "N")
-    max_landing_speed_ms: Number = Open("J10", "max allowable landing speed", "m/s")
+    max_landing_speed_ms: float = 7.0           # J10 CONFIRMED
 
 
 # ------------------------------------------------------------------ settings

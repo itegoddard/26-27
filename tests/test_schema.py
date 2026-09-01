@@ -46,14 +46,15 @@ def test_default_config_reports_its_gaps():
     assert len(missing) > 20
     ids = {o.register_id for _, o in missing}
     # Spot-check parameters known to be OPEN in the register
-    assert {"B14", "B15", "B16", "D2", "D3", "E2", "F9", "G4"} <= ids
+    # Spot-check parameters still OPEN after the design-record intake.
+    assert {"A4", "A6", "C3", "C4", "D7", "I1", "I4", "J3"} <= ids
 
 
 def test_report_missing_is_readable():
     report = s.RocketConfig().report_missing()
     assert "still OPEN" in report
-    assert "B14" in report
-    assert "fin root chord" in report
+    assert "A4" in report
+    assert "mean wind speed" in report
 
 
 def test_assert_complete_lists_everything_at_once():
@@ -80,7 +81,7 @@ def test_confirmed_values_are_present_and_correct():
     assert cfg.environment.field_elevation_m == 1216.0     # A1 Tularosa Basin
     assert cfg.geometry.body.diameter_m == pytest.approx(0.1524)  # B1, 6 in
     assert cfg.geometry.fins.count == 3                    # B10
-    assert cfg.geometry.fins.taper_ratio == pytest.approx(0.328)  # B12
+    assert cfg.geometry.fins.taper_ratio == pytest.approx(0.425)  # B12
     assert cfg.motor.tank.ullage_noncondensable_fraction == 0.0   # D10
 
 
@@ -101,14 +102,22 @@ def test_calibration_nominals_sit_inside_their_bands():
 
 
 def test_derived_tip_chord_propagates_open():
-    """A derived quantity built from an OPEN input must itself stay OPEN."""
+    """A derived quantity built from an OPEN input must itself stay OPEN.
+
+    The root chord is now confirmed, so this substitutes one back in to prove
+    the propagation still works -- the guarantee matters regardless of which
+    fields happen to be filled today.
+    """
+    fins = dataclasses.replace(
+        s.FinSet(), root_chord_m=s.Open("B14", "fin root chord", "m")
+    )
     with pytest.raises(s.OpenParameter):
-        _ = float(s.FinSet().tip_chord_m)
+        _ = float(fins.tip_chord_m)
 
 
-def test_derived_tip_chord_works_once_filled():
-    fins = dataclasses.replace(s.FinSet(), root_chord_m=0.30)
-    assert fins.tip_chord_m == pytest.approx(0.30 * 0.328)
+def test_derived_tip_chord_uses_the_confirmed_taper_ratio():
+    assert s.FinSet().tip_chord_m == pytest.approx(0.200 * 0.425)
+    assert s.FinSet().tip_chord_m == pytest.approx(0.085, abs=1e-9)
 
 
 def test_config_is_frozen():

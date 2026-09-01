@@ -52,11 +52,16 @@ def test_every_open_schema_field_has_a_register_entry():
     )
 
 
-def test_register_has_exactly_one_placeholder():
-    """G11, the CEA table. If a second appears, it needs the same treatment."""
+def test_no_placeholders_remain():
+    """G11 (the CEA table) was the only one, and it is resolved.
+
+    A PLACEHOLDER is a dataset the model refuses to invent. If one reappears it
+    must be given the same treatment: a loader that raises rather than guessing,
+    and tests pinning the real data once it lands.
+    """
     rows = _register_rows()
     placeholders = [r["ID"] for r in rows if r["Status"].startswith("PLACEHOLDER")]
-    assert placeholders == ["G11"]
+    assert placeholders == [], f"unresolved PLACEHOLDER(s): {placeholders}"
 
 
 def test_the_three_banded_constants_are_the_expected_ones():

@@ -144,9 +144,10 @@ landing — runs in about 1.5 s. Band mode's 27 corners take under a minute.
 
 The code is done; the inputs are not. Three things, in order of impact:
 
-1. **Work through [`docs/WHAT_WE_NEED.md`](docs/WHAT_WE_NEED.md)** — the 51
-   blocking values sorted by *how you get them*. Only 7 need NASA; 36 are ours
-   to decide or size. `run.bat check` lists them by register ID.
+1. **Work through [`docs/WHAT_WE_NEED.md`](docs/WHAT_WE_NEED.md)** — 25 blocking
+   values, down from 51 after the design-record intake. The 7 material
+   properties (I1–I7) are the critical path: they gate flutter entirely.
+   `run.bat check` lists them by register ID.
 2. ~~Generate the CEA table (register G11)~~ — **done.**
    `data/cea_S10W1_N2O_35bar.csv` is a real NASA CEA sweep for the S10W1 blend;
    peak c\* 1598.1 m/s at O/F 7.00. Load with `cea.load_of_sweep(path, 35e5)`.
@@ -260,11 +261,11 @@ data/
 docs/
   DESIGN_POINT.md              values from the reference docs, conflicts flagged
   reference/                   design record and literature (sources, not model)
-  WHAT_WE_NEED.md              51 blocking values, sorted by how to get them
+  WHAT_WE_NEED.md              25 blocking values, sorted by how to get them
   equations.pdf                every governing equation  <- start here
   equations.tex                its source
   superpowers/specs/2026-08-28-goddard-math-model-design.md   approved design
-  assumptions_register.md      111 parameters, 50 OPEN  <- the meeting artifact
+  assumptions_register.md      111 parameters, 25 OPEN  <- the meeting artifact
   assumptions_register.csv     fillable; regenerate with tools/
   references.bib               31 sources, grouped by module
   references_dois.txt          13 DOIs, 11 publisher-verified
