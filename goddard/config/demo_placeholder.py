@@ -11,7 +11,7 @@
  a real config. The apogee it reports is meaningless -- it is the apogee of
  a rocket nobody is building.
 
- The real values are the 54 OPEN entries in docs/assumptions_register.md.
+ The real values are the 50 OPEN entries in docs/assumptions_register.md.
  Run `python -m goddard.cli check` to list them.
 ===========================================================================
 

@@ -151,24 +151,31 @@ class NoseCone:
     """Von Karman (Haack C=0) nose. Register section B."""
 
     length_m: Number = Open("B5", "nose length (sets fineness ratio)", "m")
-    base_diameter_m: Number = Open("B6", "nose base diameter", "m")
+    # B6 CONFIRMED -- the flare was removed, so the nose meets the body at full
+    # diameter. This is no longer an independent parameter: it IS B1.
+    base_diameter_m: Number = 0.1524
     tip_radius_m: Number = Open("B9", "nose tip radius", "m")
     haack_c: float = 0.0                        # B4 CONFIRMED, Von Karman
 
 
 @dataclass(frozen=True)
 class Transition:
-    """Haack flare from the nose section up to the body. Register section B.
+    """Flare between the nose section and the body. REMOVED by team decision.
 
-    Set ``length_m = 0.0`` to remove the flare entirely (nose base diameter
-    equal to body diameter). See register B7 -- whether the flare is intended
-    is an open question, and it costs supersonic wave drag.
+    The ORK carried a sub-body-diameter nose flaring out to the body tube. That
+    costs supersonic wave drag for no aerodynamic return, and the team removed
+    it (register B7). A constant-diameter nose-to-body joint is the design.
+
+    The transition machinery is kept rather than deleted: it is implemented and
+    tested, it contributes exactly zero at zero length, and keeping it means
+    reversing the decision is a config change rather than a rewrite. Everything
+    downstream is guarded on ``present``.
     """
 
-    present: Number = Open("B7", "is the sub-body-diameter nose + flare intended?")
-    length_m: Number = Open("B8", "flare length", "m")
-    fore_diameter_m: Number = Open("B6", "flare fore diameter", "m")
-    aft_diameter_m: float = 0.1524   # B1 CONFIRMED -- the flare meets the body
+    present: bool = False            # B7 CONFIRMED -- flare removed
+    length_m: float = 0.0            # B8 CONFIRMED -- zero length, no flare
+    fore_diameter_m: float = 0.1524  # B6 CONFIRMED -- equals the body diameter
+    aft_diameter_m: float = 0.1524   # B1 CONFIRMED
 
 
 @dataclass(frozen=True)

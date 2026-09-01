@@ -144,8 +144,8 @@ landing — runs in about 1.5 s. Band mode's 27 corners take under a minute.
 
 The code is done; the inputs are not. Three things, in order of impact:
 
-1. **Work through [`docs/WHAT_WE_NEED.md`](docs/WHAT_WE_NEED.md)** — the 54
-   blocking values sorted by *how you get them*. Only 7 need NASA; 39 are ours
+1. **Work through [`docs/WHAT_WE_NEED.md`](docs/WHAT_WE_NEED.md)** — the 51
+   blocking values sorted by *how you get them*. Only 7 need NASA; 36 are ours
    to decide or size. `run.bat check` lists them by register ID.
 2. **Generate the CEA table** (register G11) for the 89/10/1 blend vs N₂O.
    `props/cea.py` raises `PlaceholderData` rather than guessing thermochemistry.
@@ -255,11 +255,11 @@ goddard/                       model package
 tests/                         227 tests
 out/                           generated results (gitignored)
 docs/
-  WHAT_WE_NEED.md              54 blocking values, sorted by how to get them
+  WHAT_WE_NEED.md              51 blocking values, sorted by how to get them
   equations.pdf                every governing equation  <- start here
   equations.tex                its source
   superpowers/specs/2026-08-28-goddard-math-model-design.md   approved design
-  assumptions_register.md      112 parameters, 54 OPEN  <- the meeting artifact
+  assumptions_register.md      111 parameters, 50 OPEN  <- the meeting artifact
   assumptions_register.csv     fillable; regenerate with tools/
   references.bib               31 sources, grouped by module
   references_dois.txt          13 DOIs, 11 publisher-verified
@@ -290,7 +290,7 @@ run.bat sim goddard.config.goddard_v2
 `run.bat check` lists what is still missing, by register ID, so the register and
 the config can be filled in together.
 
-Note `check` reports **60** blocking fields against the register's **54** OPEN
-entries. Not a discrepancy — a few register entries map to more than one schema
-field (B6 is both the nose base diameter and the flare fore diameter). 54 is the
-number of distinct questions to answer; 60 is the number of slots to fill.
+Note `check` reports **55** blocking fields against the register's **51** OPEN /
+PLACEHOLDER entries. Not a discrepancy — a few register entries map to more than one schema
+field. 51 is the number of distinct questions to answer; 55 is the number of
+slots to fill.

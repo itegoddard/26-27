@@ -51,9 +51,9 @@ Shape is confirmed from `goddard1.0.ork`. **Dimensions below are all open.**
 | B3 | Body tube length | — | m | OPEN | |
 | B4 | Nose shape | Von Kármán (Haack C=0) | — | CONFIRMED | ORK `haack`, shapeparameter 0.0 |
 | B5 | Nose fineness ratio L/D | — | — | OPEN | ORK was ≈5.2. **Recommended fineness for Mach 2.5?** |
-| B6 | Nose base diameter | — | m | OPEN | ORK had nose **narrower** than body (5 in vs 6 in) with a flare |
-| B7 | Flare present? | yes (per ORK shape) | — | OPEN | **Is the sub-body-diameter nose + flare intentional? It costs wave drag.** Set flare length = 0 to remove. |
-| B8 | Flare length | — | m | OPEN | |
+| B6 | Nose base diameter | 0.1524 | m (6 in) | CONFIRMED | Flare removed, so the nose meets the body at full diameter. This is now just B1. |
+| B7 | Flare present? | **no** | — | CONFIRMED | Team decision: flare removed. It cost supersonic wave drag for no return. Constant-diameter nose-to-body joint. |
+| B8 | Flare length | 0 | m | CONFIRMED | Zero by B7. Transition code retained and guarded, so reversing is a config change. |
 | B9 | Nose tip radius | — | m | OPEN | **Directly drives stagnation heating (Fay–Riddell). Sharpest tip that survives Mach 2.5?** |
 | B10 | Fin count | 3 | — | CONFIRMED | ORK |
 | B11 | Fin planform | clipped delta | — | CONFIRMED | **Shape locked — not open for change** |
@@ -203,12 +203,12 @@ hand-tallied — regenerate with the script in `docs/README.md` after editing.
 
 | Count | Status | Meaning |
 |---|---|---|
-| **53** | OPEN | No value yet. Model cannot run. |
+| **50** | OPEN | No value yet. Model cannot run. |
 | **1** | PLACEHOLDER | G11, the CEA table. Model will refuse to run rather than guess. |
 | **3** | BANDED | E5, F8, G9. The dominant uncertainty. Band mode reports an envelope. |
 | **13** | ASSUMPTION | Effects deliberately not modeled — worth a sanity check with them |
 | **13** | ESTIMATED | Usable now; better data improves confidence |
-| **23** | CONFIRMED | Locked by team decision |
+| **26** | CONFIRMED | Locked by team decision |
 | **5** | DERIVED | Computed from other entries |
 
 ### The five questions most worth their time

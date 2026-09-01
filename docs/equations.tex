@@ -389,6 +389,22 @@ AR = \frac{b^2}{S}, \qquad
 \frac{t}{c} = \frac{t}{S/b}
 \end{equation}
 
+\paragraph{Nose-to-body transition: none.}
+The source OpenRocket file carried a sub-body-diameter nose flaring out to the
+body tube. A flare is a supersonic wave-drag source with no aerodynamic return
+on this vehicle, and it has been \textbf{removed} (register B7): the nose meets
+the body at full diameter, so $D_{nose,base} = D_{body} = \SI{0.1524}{m}$ and
+there is no transition term in either the drag build-up or the normal-force
+sum.
+
+The transition machinery in \texttt{aero/geometry.py},
+\texttt{aero/drag.py} and \texttt{aero/normal\_force.py} is retained rather
+than deleted. It is implemented and tested, every downstream term is guarded on
+a \texttt{present} flag and contributes exactly zero at zero length, and
+keeping it means reversing the decision is a configuration change rather than a
+rewrite. Its equations are omitted here because they are not part of the
+current design.
+
 \subsection{Drag build-up}
 \src{goddard/aero/drag.py}
 

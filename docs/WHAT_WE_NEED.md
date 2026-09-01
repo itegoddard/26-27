@@ -1,19 +1,19 @@
 # What We Need — Goddard 26-27
 
-**54 values block a trustworthy run.** This document sorts every one of them by
+**51 values block a trustworthy run.** This document sorts every one of them by
 *how you get it*, so work can start in parallel instead of waiting on a meeting.
 
-Coverage is verified: 54 blocking entries in the register, 54 assigned below,
+Coverage is verified: 51 blocking entries in the register, 51 assigned below,
 no duplicates, none dropped. Regenerate the underlying list with
 `run.bat check`.
 
-> **Read this first.** Only **7 of the 54** actually need NASA. Another **7**
-> need a vendor datasheet and **1** needs a tool run. The remaining **39 are
+> **Read this first.** Only **7 of the 51** actually need NASA. Another **7**
+> need a vendor datasheet and **1** needs a tool run. The remaining **36 are
 > ours to decide or size.** The meeting is not the bottleneck — we are.
 
 | # | Route | Count | Blocked on |
 |---|---|---|---|
-| ① | Team decides | **24** | nobody |
+| ① | Team decides | **21** | nobody |
 | ② | Motor sizing (coupled) | **11** | a solver, or a lot of hand-iteration |
 | ③ | Vendor datasheets | **7** | picking suppliers |
 | ④ | Run a tool | **1** | someone running NASA CEA |
@@ -22,7 +22,7 @@ no duplicates, none dropped. Regenerate the underlying list with
 
 ---
 
-## ① Team decides — 24 items, needs nobody
+## ① Team decides — 21 items, needs nobody
 
 Design calls, not research. **Start here.** Every one of these unblocks
 something downstream, and none require anyone outside the team.
@@ -32,9 +32,6 @@ something downstream, and none require anyone outside the team.
 | B2 | Body wall thickness | m | drives dry mass and buckling |
 | B3 | Body tube length | m | 25-26 used 2.5 m overall |
 | B5 | Nose fineness ratio L/D | — | ORK was ≈5.2 |
-| B6 | Nose base diameter | m | see B7 |
-| B7 | **Flare present?** | — | **Decide first — B6 and B8 depend on it** |
-| B8 | Flare length | m | set 0 to remove the flare |
 | B9 | Nose tip radius | m | drives stagnation heating directly |
 | B14 | Fin root chord | m | planform *ratios* are locked; size is not |
 | B15 | Fin span | m | |
@@ -54,7 +51,7 @@ something downstream, and none require anyone outside the team.
 | G6 | Nozzle material | — | graphite? phenolic? |
 | G8 | Nozzle divergence half-angle | deg | sets divergence loss |
 
-**Suggested order:** B7 → B6/B8 → B5/B9 (nose done), then B14/B15/B16/B17
+**Suggested order:** B5/B9 (nose done — flare already removed), then B14/B15/B16/B17
 (fins done, flutter becomes computable), then C2–C5 (mass model closes).
 
 ---
@@ -210,12 +207,11 @@ its last ~1,050 m on frozen density with no error raised. Ours is analytic to
 ## Critical path
 
 ```
-1. Decide B7 (flare)          -> unblocks B6, B8, and the nose
-2. Fin dimensions B14-B17     -> flutter becomes computable once ③ lands
-3. Run NASA CEA (G11)         -> unblocks the entire motor model
-4. Vendor datasheets I1-I5    -> unblocks flutter and divergence
-5. NASA meeting (⑤)           -> J9 unblocks J4, I9 sizes the fins
-6. Motor sizing ②             -> needs G11 first; wants a solver
+1. Fin dimensions B14-B17     -> flutter becomes computable once (3) lands
+2. Run NASA CEA (G11)         -> unblocks the entire motor model
+3. Vendor datasheets I1-I5    -> unblocks flutter and divergence
+4. NASA meeting (5)           -> J9 unblocks J4, I9 sizes the fins
+5. Motor sizing (2)           -> needs G11 first; wants a solver
 ```
 
 **Fastest single action:** run NASA CEA. It is one person, one afternoon, free,
