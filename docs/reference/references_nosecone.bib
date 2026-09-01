@@ -1,0 +1,235 @@
+% ============================================================
+% Nose Cone & Avionics — Reference Library
+% Keys match the N-numbers in 01_NOSECONE_AVIONICS_REFERENCE.md
+% ============================================================
+
+% ---------- SHAPE SELECTION ----------
+
+@article{N1_ajuwon_nosecone_apogee,
+  author  = {Ajuwon, O.},
+  title   = {Optimization Design of Rocket Nosecone for Achieving Desired Apogee},
+  year    = {2020},
+  url     = {http://ieworldconference.org/content/SISE2020/Papers/Ajuwon.pdf},
+  note    = {Free PDF. FEA + OpenRocket. Maximum altitude at 30 in length, 6.15 in diameter, fiberglass, ogive shape.}
+}
+
+@article{N2_vonkarman_cfd,
+  title = {Aerodynamic Optimization of the Von Karman Nose Cone for a Supersonic Sounding Rocket},
+  year  = {2023},
+  url   = {https://www.academia.edu/99406637},
+  note  = {ANSYS Fluent CFD, Mach 0.3–3. Optimal fineness ratio 6.75 for Von Karman.}
+}
+
+@misc{N3_crowell_geometry,
+  author = {Crowell, Gary A.},
+  title  = {The Descriptive Geometry of Nose Cones},
+  year   = {1996},
+  url    = {http://servidor.demec.ufpr.br/CFD/bibliografia/aerodinamica/Crowell_1996.pdf},
+  note   = {Free PDF. Comprehensive geometry reference: ogive, Haack, power series, bluffness ratio.}
+}
+
+@misc{N4_stroick_optimization,
+  author = {Stroick, Gary},
+  title  = {Nose Cone \& Fin Optimization},
+  year   = {2011},
+  howpublished = {Tripoli Minnesota},
+  url    = {https://offwegorocketry.com/userfiles/file/Nose\%20Cone\%20\%26\%20Fin\%20Optimization.pdf},
+  note   = {Free PDF. Fineness ratio 5 critical. Von Karman best transonic, X3/4 power best supersonic.}
+}
+
+% ---------- WALL THICKNESS ----------
+
+@techreport{N5_nasa_nosecone_weight,
+  author      = {Nevins, Clyde D. and Helton, Benny W.},
+  title       = {An Investigation of Various Parameters Affecting the Structural Weight of Rocket Vehicle Nose Cones},
+  institution = {NASA George C. Marshall Space Flight Center},
+  number      = {MTP-P\&VE-S-63-4},
+  year        = {1963},
+  url         = {https://ntrs.nasa.gov/api/citations/19640002252/downloads/19640002252.pdf},
+  note        = {Free PDF from NTRS. 144 cones analyzed, 120–260 in diameter, aluminum + fiberglass. Minimum skin 0.030 in.}
+}
+
+@techreport{N6_hyak1_irec,
+  title = {{Hyak-1} Project Report},
+  institution = {University of Victoria Rocketry Team, ESRA IREC},
+  year  = {2023},
+  url   = {https://www.soundingrocket.org/uploads/9/0/6/4/9064598/117_project_report.pdf},
+  note  = {Free PDF. 4-layer fiberglass nose cone, fineness ratio 5, avionics inside nose cone, RF transparency justified.}
+}
+
+@techreport{N7_esra84_nosecone_bay,
+  title = {{ESRA IREC} Report 84: Nose Cone Payload Bay Design},
+  institution = {ESRA},
+  url   = {https://www.soundingrocket.org/uploads/9/0/6/4/9064598/84_project_report.pdf},
+  note  = {Free PDF. Plywood bulkhead, 3/8-16 threaded rod, anti-rotation stops. Documents unthreading failure mode and fix.}
+}
+
+@misc{N8_apogee_newsletter_fg,
+  author = {Van Milligan, Tim},
+  title  = {Making Ultra Lightweight Fiberglass Nose Cones},
+  year   = {2016},
+  howpublished = {Apogee Components Newsletter 413},
+  url    = {https://www.apogeerockets.com/education/downloads/Newsletter413.pdf},
+  note   = {Free PDF. Practical wet layup guide: cloth cutting, mold release, tip filling with FG shavings.}
+}
+
+@techreport{N9_oregonstate_irec,
+  title = {{Oregon State University} 30k Project Report},
+  institution = {Oregon State University, ESRA IREC},
+  url   = {https://www.soundingrocket.org/uploads/9/0/6/4/9064598/21_project_report.pdf},
+  note  = {Free PDF. Layup schedule [0/0/45/-45/0/0] Kevlar + [0/0] FG. Autoclave 275F, 6 hr. Documented ply sequence.}
+}
+
+% ---------- RF TRANSPARENCY ----------
+
+@misc{N10_uae_hybrid_rf,
+  title  = {Composite Materials Engineering for the {UAE}'s First Hybrid Sounding Rocket},
+  year   = {2026},
+  howpublished = {Technology Innovation Institute Insights},
+  url    = {https://www.tii.ae/insights/composite-materials-engineering-uaes-first-hybrid-sounding-rocket},
+  note   = {CF is opaque to RF; fiberglass chosen for radome. GPS/telemetry uninterrupted in flight. Key RF transparency source.}
+}
+
+@misc{N11_rf_placement_community,
+  title  = {GPS Tracker Placement — Avionics Bay or Nosecone?},
+  howpublished = {The Rocketry Forum},
+  url    = {https://www.rocketryforum.com/threads/gps-tracker-placement-avbay-or-nosecone.192731/},
+  note   = {Community consensus: fiberglass nose cone for GPS. No metallic paint. Ground test 30--45 min before flight.}
+}
+
+% ---------- AVIONICS BAY INTEGRATION ----------
+
+@techreport{N12_io_irec,
+  title = {{IO} Rocket: 6-Inch Diameter, 10-ft Tall IREC Vehicle},
+  institution = {BSLI 10k Competition Team, ESRA IREC},
+  year  = {2018},
+  url   = {https://www.soundingrocket.org/uploads/9/0/6/4/9064598/60_project_report_.pdf},
+  note  = {Free PDF. 6-in diameter, 24-in ogive nose, fiberglass split mold, SRAD LoRa telemetry + GPS + altimeter.}
+}
+
+@techreport{N13_atlantis2_irec,
+  title = {{Atlantis II} Sounding Rocket},
+  institution = {SOAR, ESRA IREC},
+  url   = {https://www.soundingrocket.org/uploads/9/0/6/4/9064598/43_project_report.pdf},
+  note  = {Free PDF. N2O hybrid, fiberglass nose + aluminum tip, STM32F4 flight computer, IMU + barometer + GPS.}
+}
+
+@article{N14_material_girl,
+  title  = {{Material Girl} Launch Report},
+  author = {Garud, Parth and Johnson, Connor and Lagares de Toledo, Alfonso},
+  year   = {2024},
+  url    = {https://arxiv.org/pdf/2411.00807},
+  note   = {Free PDF. arXiv 2411.00807. GTXR, 6.17-in diameter, 220,000 ft simulated, fiberglass shrouds for GPS on CF airframe.}
+}
+
+% ---------- FLIGHT COMPUTERS ----------
+
+@misc{N15_featherweight_raven4,
+  title  = {{Featherweight Altimeters Raven 4 / Blue Raven}},
+  url    = {https://www.featherweightaltimeters.com},
+  note   = {IREC 2025 DTEG recommended altimeter. Redundant deployment. Deploys drogue 3 sec after apogee if v < 400 fps.}
+}
+
+@misc{N16_altus_metrum_telemetrum,
+  title  = {{Altus Metrum TeleMetrum}},
+  url    = {https://altusmetrum.org/AltOS/doc/altusmetrum.html},
+  note   = {70 cm ham-band, 10 Hz ascent telemetry, GPS, barometer to 100 kft, 2.75x1 in board. Range: 65 kft with 3-el Yagi.}
+}
+
+@article{N17_cats_vega,
+  title   = {{CATS}: Empowering the next generation of rocket scientists through educational flight computers},
+  journal = {arXiv preprint arXiv:2511.04725},
+  year    = {2024},
+  url     = {https://arxiv.org/pdf/2511.04725},
+  note    = {Free PDF. CATS Vega: STM32F4, MS5607 barometer, FHSS telemetry, Kalman filter with IMU/baro fusion, open-source.}
+}
+
+% ---------- TELEMETRY ----------
+
+@inproceedings{N18_radio_telemetry_university,
+  author    = {Francois, T. and Montano, T.},
+  title     = {Design of a Radio Telemetry System for Use by University Rocket Teams},
+  booktitle = {International Telemetering Conference Proceedings},
+  volume    = {57},
+  year      = {2022},
+  url       = {https://repository.arizona.edu/bitstream/handle/10150/666950/ITC_2022_22-09-03.pdf},
+  note      = {Free PDF. External patch antennas on CF airframe. RF physics of microstrip antennas. CF blocks internal antennas.}
+}
+
+@inproceedings{N19_telemetry_paralites,
+  author    = {Francois, T.},
+  title     = {Telemetry Systems for a Sounding Rocket and Its Paralites},
+  booktitle = {International Telemetering Conference Proceedings},
+  volume    = {56},
+  year      = {2021},
+  url       = {https://repository.arizona.edu/bitstream/handle/10150/666262/ITC_2021_21-06-03.pdf},
+  note      = {Free PDF. TeleMetrum 3.0 + 900 MHz SRAD. Link analysis: 440 MHz useful to 50 km altitude. Previous rockets fiberglass.}
+}
+
+@techreport{N20_io_rit_lora,
+  title = {{SRAD LoRa Telemetry}: IO and RIT All-Fiberglass Rockets},
+  note  = {IO: ESRA Report 60 (LoRa 433 MHz + GPS + altimeter, Eggtimer backup). RIT: 433 MHz LoRa, corner-reflector ground antenna.},
+  url   = {http://launch.rit.edu/uploads/1/1/4/2/114234541/78_project_report.pdf}
+}
+
+@article{N21_cats_kalman,
+  title  = {{CATS} Vega Kalman Filter State Estimation},
+  note   = {See N17 (arXiv 2511.04725). Kalman filter switches IMU/baro weighting by flight phase. Coasting detected by Z-accel threshold.}
+}
+
+@techreport{N22_irec_dteg_2025,
+  title       = {{IREC} 2025 Design, Test \& Evaluation Guide},
+  institution = {ESRA},
+  year        = {2025},
+  url         = {https://www.soundingrocket.org/uploads/9/0/6/4/9064598/2025-irec_dteg_v1.1.4_02-01-25.pdf},
+  note        = {Free PDF. Recommends Featherweight Blue Raven. Safety rules for energetic device arming and pyrotechnic placement.}
+}
+
+@inproceedings{N23_gtxr_modular_avionics,
+  author    = {Georgia Tech Experimental Rocketry},
+  title     = {Design of a Modular Avionics System for a Two-Stage Sounding Rocket},
+  booktitle = {AIAA Regional Student Conferences},
+  year      = {2024},
+  doi       = {10.2514/6.2024-85660},
+  note      = {PC-104 CAN bus stack. EKF with GNSS lockout. IMU+baro+magnetometer+high-G accel. Request via university library.}
+}
+
+@techreport{N24_concordia_supersonic,
+  title = {{Concordia} Supersonice Rocket Report},
+  url   = {https://www.soundingrocket.org/uploads/9/0/6/4/9064598/79_project_report.pdf},
+  note  = {Free PDF. TeleMetrum primary + PerfectFlite StratoLogger backup. Dual-redundant architecture, separate batteries.}
+}
+
+% ---------- SUPPORTING REFERENCES ----------
+
+@misc{S_nasa_hpr_book,
+  title = {NASA High Powered Rocketry Video Instruction Book},
+  url   = {https://www.nasa.gov/wp-content/uploads/2016/02/sl_video_instruction_book.pdf},
+  note  = {Free PDF. Fiberglass vs carbon vs phenolic tubing comparison. Bluffness ratio 0.1 for commercial nose cones.}
+}
+
+@misc{S_altusmetrum_manual,
+  title = {The Altus Metrum System: An Owner's Manual},
+  url   = {https://altusmetrum.org/AltOS/doc/altusmetrum.html},
+  note  = {Full system documentation. 10 Hz telemetry, audio beacon, AltosUI ground station, Google Maps export.}
+}
+
+@misc{S_girlguide_nose_mit,
+  title = {How to: Choose a Nose Cone},
+  howpublished = {MIT Rocket Team Wiki},
+  url   = {https://wikis.mit.edu/confluence/display/RocketTeam/How+to:+Choose+a+Nose+Cone},
+  note  = {Discusses fineness ratio vs wave drag tradeoff. Points to OpenRocket for simulation verification.}
+}
+
+@misc{S_mit_nose_layup,
+  title = {Nose Cone Layup},
+  howpublished = {MIT Rocket Team Wiki},
+  url   = {https://wikis.mit.edu/confluence/display/RocketTeam/Nose+Cone+Layup},
+  note  = {Practical layup notes: approximately 30 each of 3x4, 4x8, 10x12 inch FG rectangles. Split mold technique.}
+}
+
+@misc{S_cats_website,
+  title = {CATS: Control and Telemetry Systems},
+  url   = {https://www.catsystems.io/},
+  note  = {Open-source flight computers. Kalman filter baro+accel fusion. Used as official EuRoC flight computer.}
+}

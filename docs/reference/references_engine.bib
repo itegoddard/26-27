@@ -1,0 +1,425 @@
+% ============================================================
+% N2O / Paraffin Hybrid Rocket Engine — Referennpm install -g --allow-scripts=@anthropic-ai/claude-codenpm install -g --allow-scripts=@anthropic-ai/claude-codenpm install -g --allow-scripts=@anthropic-ai/claude-codenpm install -g --allow-scripts=@anthropic-ai/claude-codenpm install -g --allow-scripts=@anthropic-ai/claude-codenpm install -g --allow-scripts=@anthropic-ai/claude-codenpm install -g --allow-scripts=@anthropic-ai/claude-codenpm install -g --allow-scripts=@anthropic-ai/claude-codenpm install -g --allow-scripts=@anthropic-ai/claude-codenpm install -g --allow-scripts=@anthropic-ai/claude-codenpm install -g --allow-scripts=@anthropic-ai/claude-codenpm install -g --allow-scripts=@anthropic-ai/claude-codenpm install -g --allow-scripts=@anthropic-ai/claude-codenpm install -g --allow-scripts=@anthropic-ai/claude-codece Library
+% Keys match the S-numbers in 00_HYBRID_ENGINE_REFERENCE.md
+% ============================================================
+
+% ---------- FOUNDATIONS ----------
+
+@book{S1_cantwell_aircraft_rocket_propulsion,
+  author    = {Cantwell, Brian J.},
+  title     = {Aircraft and Rocket  Propulsion, Chapter 11: Hybrid Rockets},
+  publisher = {Stanford University (AA283 course notes)},
+  year      = {2024},
+  url       = {https://web.stanford.edu/~cantwell/AA283_Course_Material/AA283_Lectures/AA283_Chapter_11__Hybrid_Rockets_Brian_J_Cantwell_2024.pdf},
+  note      = {Free PDF. Companion chapters 7, 9, 10 in same directory.}
+}
+
+@misc{S2_karabeyoglu_aa284a,
+  author = {Karabeyoglu, M. Arif},
+  title  = {{AA284a} Advanced Rocket Propulsion, Lecture Series},
+  year   = {2019},
+  howpublished = {Stanford University / Ko\c{c} University},
+  url    = {https://web.stanford.edu/~cantwell/AA284A_Course_Material/Karabeyoglu\%20AA\%20284A\%20Lectures/}
+}
+
+% ---------- SIZING & INTERNAL BALLISTICS ----------
+
+@article{S3_mcgill_computational_model,
+  title   = {A computational model for the design of a nitrous oxide--paraffin wax hybrid rocket engine},
+  journal = {arXiv preprint arXiv:2302.06725},
+  year    = {2023},
+  url     = {https://arxiv.org/pdf/2302.06725},
+  note    = {McGill Rocket Team. Open access.}
+}
+
+@article{S4_regression_primer,
+  title = {A Primer on Classical Regression Rate Modeling in Hybrid Rockets},
+  year  = {2021},
+  url   = {https://par.nsf.gov/servlets/purl/10274228},
+  note  = {NSF Public Access Repository. Open access.}
+}
+
+% ---------- FUEL GRAIN ----------
+
+@inproceedings{S5_doran_regression_characterization,
+  author    = {Doran, Eric and Dyer, Jonny and Lohner, Kevin and Dunn, Zachary and Cantwell, Brian and Zilliac, Greg},
+  title     = {Nitrous Oxide Hybrid Rocket Motor Fuel Regression Rate Characterization},
+  booktitle = {43rd AIAA/ASME/SAE/ASEE Joint Propulsion Conference and Exhibit},
+  address   = {Cincinnati, OH},
+  year      = {2007}
+}
+
+@inproceedings{S6_paraffin_htpb_n2o,
+  title     = {Fuel Regression Rate in a Paraffin-{HTPB} Nitrous Oxide Hybrid Rocket},
+  booktitle = {AIAA Joint Propulsion Conference},
+  year      = {2009}
+}
+
+@article{S7_liu_paraffin_regression,
+  title   = {Regression rate of paraffin-based fuels in hybrid rocket motor},
+  journal = {Aerospace Science and Technology},
+  volume  = {107},
+  pages   = {106269},
+  year    = {2020},
+  doi     = {10.1016/j.ast.2020.106269}
+}
+
+@article{S8_paraffin_manufacturing,
+  title   = {Characterization and manufacturing of a paraffin wax as fuel for hybrid rockets},
+  journal = {Propulsion and Power Research},
+  year    = {2018},
+  url     = {https://www.sciencedirect.com/science/article/pii/S2212540X18300452},
+  note    = {See also: Microcrystalline paraffin wax as fuel for Hybrid Rocket Engine.}
+}
+
+@article{S9_veale_additives_review,
+  author  = {Veale, Kirsty and Adali, Sarp and Pitot, Jean and Brooks, Michael},
+  title   = {A review of the performance and structural considerations of paraffin wax hybrid rocket fuels with additives},
+  journal = {Acta Astronautica},
+  volume  = {141},
+  number  = {1},
+  pages   = {196--208},
+  year    = {2017}
+}
+
+% ---------- OXIDIZER TANK ----------
+
+@inproceedings{S10_zimmerman_tank_models,
+  author    = {Zimmerman, Jonah E. and Waxman, Benjamin S. and Cantwell, Brian J. and Zilliac, Gregory G.},
+  title     = {Review and Evaluation of Models for Self-Pressurizing Propellant Tank Dynamics},
+  booktitle = {49th AIAA/ASME/SAE/ASEE Joint Propulsion Conference},
+  year      = {2013},
+  number    = {AIAA 2013-4045},
+  url       = {https://www.ibb.ch/publication/N2O/AIAA\%202013-4045\%20.pdf}
+}
+
+@mastersthesis{S11_n2o_state_estimation,
+  title  = {Nitrous Oxide State Estimation in Hybrid Rocket Oxidizer Tanks},
+  url    = {https://core.ac.uk/download/pdf/144150075.pdf},
+  note   = {Open access via CORE.}
+}
+
+@mastersthesis{S12_williams_composite_tank,
+  author = {Williams, Dylan Roy},
+  title  = {Development of a composite oxidiser tank for the {Phoenix-1B Mk. II} hybrid rocket},
+  school = {University of KwaZulu-Natal, Durban},
+  year   = {2020},
+  url    = {https://researchspace.ukzn.ac.za/items/c126df97-fe02-40bc-ba69-6d3cfa406604/full}
+}
+
+@article{S13_copv_hybrid_launcher,
+  title   = {On the Multidisciplinary Design of a Hybrid Rocket Launcher with a Composite Overwrapped Pressure Vessel},
+  journal = {Journal of Composites Science},
+  volume  = {8},
+  number  = {3},
+  pages   = {109},
+  year    = {2024},
+  doi     = {10.3390/jcs8030109},
+  url     = {https://www.mdpi.com/2504-477X/8/3/109}
+}
+
+% ---------- INJECTOR ----------
+
+@inproceedings{S14_waxman_injector_isolation,
+  author    = {Waxman, Benjamin S. and Cantwell, Brian and Zilliac, Gregory and Zimmerman, Jonah E.},
+  title     = {Mass Flow Rate and Isolation Characteristics of Injectors for Use with Self-Pressurizing Oxidizers in Hybrid Rockets},
+  booktitle = {49th AIAA/ASME/SAE/ASEE Joint Propulsion Conference},
+  year      = {2013},
+  number    = {AIAA 2013-3636},
+  url       = {https://ntrs.nasa.gov/api/citations/20190001326/downloads/20190001326.pdf},
+  note      = {Free via NASA NTRS.}
+}
+
+@inproceedings{S15_dyer_nhne,
+  author    = {Dyer, Jonny and Doran, Eric and Dunn, Zachary and Lohner, Kevin and Zilliac, Gregory and Cantwell, Brian},
+  title     = {Modeling Feed System Flow Physics for Self-Pressurizing Propellants},
+  booktitle = {43rd AIAA/ASME/SAE/ASEE Joint Propulsion Conference and Exhibit},
+  year      = {2007},
+  number    = {AIAA 2007-5702},
+  doi       = {10.2514/6.2007-5702}
+}
+
+@phdthesis{S16_waxman_dissertation,
+  author = {Waxman, Benjamin S.},
+  title  = {An investigation of injectors for use with high vapor pressure propellants with applications to hybrid rockets},
+  school = {Stanford University, Dept. of Aeronautics and Astronautics},
+  url    = {https://purl.stanford.edu/ng346xh6244}
+}
+
+@article{S17_injector_comparison_1kn,
+  title   = {Performance comparison of oxidizer injectors in a 1-{kN} paraffin-fueled hybrid rocket motor},
+  journal = {Aerospace Science and Technology},
+  year    = {2019},
+  url     = {https://www.sciencedirect.com/science/article/abs/pii/S1270963818320157},
+  note    = {Companion: Experimental investigation of the axial oxidizer injectors geometry, S2667134421000584.}
+}
+
+@article{S18_injector_plate_design,
+  title = {Design of Injector Plates for Hybrid Rocket Motors Test Bench with Gaseous Oxygen},
+  year  = {2022},
+  url   = {https://www.researchgate.net/publication/373822615}
+}
+
+@inproceedings{S19_mcgill_angled_hole,
+  title     = {Classification of Angled-Hole Oxidizer Injector Designs for Hybrid Rockets, and Experimental Study of Hole Angle on Discharge Coefficients},
+  booktitle = {AIAA SciTech Forum},
+  year      = {2026},
+  number    = {AIAA 2026-2872},
+  doi       = {10.2514/6.2026-2872},
+  note      = {McGill Rocket Team.}
+}
+
+@article{S_mdpi_multiangle_injector,
+  title   = {Experimental Investigation on Combustion Characteristics of Hybrid Rocket Fuels with Multi-Angle Diverging Injector},
+  journal = {International Journal of Turbomachinery, Propulsion and Power},
+  volume  = {5},
+  number  = {2},
+  pages   = {12},
+  year    = {2020},
+  url     = {https://www.mdpi.com/2504-186X/5/2/12}
+}
+
+@article{S_mdpi_selfpress_massflow,
+  title   = {Experimental Study on the Mass Flow Rate of the Self-Pressurizing Propellants in the Rocket Injector},
+  journal = {Aerospace},
+  volume  = {8},
+  number  = {11},
+  pages   = {317},
+  year    = {2021},
+  url     = {https://www.mdpi.com/2226-4310/8/11/317}
+}
+
+% ---------- COMBUSTION STABILITY ----------
+
+@article{S20_prechamber_instability,
+  title   = {Role of Precombustion Chamber Design in Feed-System Coupled Instabilities of Hybrid Rockets},
+  journal = {Journal of Propulsion and Power},
+  year    = {2020},
+  doi     = {10.2514/1.B37706},
+  url     = {https://shura.shu.ac.uk/27601/2/JPPjournal_Jungpyo_final.pdf}
+}
+
+@inproceedings{S21_eucass_instability,
+  title     = {Theoretical and Experimental Study of Combustion Instability in Hybrid Rocket Motors},
+  booktitle = {8th European Conference for Aeronautics and Space Sciences (EUCASS)},
+  year      = {2019},
+  number    = {EUCASS2019-0538},
+  url       = {https://www.eucass.eu/doi/EUCASS2019-0538.pdf}
+}
+
+@article{S22_lowfreq_timelag,
+  title = {Low-Frequency Combustion Instability Induced by the Combustion Time Lag of Liquid Oxidizer in Hybrid Rocket Motors},
+  year  = {2012},
+  url   = {https://www.researchgate.net/publication/260566402}
+}
+
+% ---------- IGNITER ----------
+
+@mastersthesis{S23_arc_ignition_thesis,
+  title  = {Direct Electrical Arc Ignition of Hybrid Rocket Motors},
+  school = {Utah State University},
+  url    = {https://digitalcommons.usu.edu/cgi/viewcontent.cgi?article=5171&context=etd},
+  note   = {Open access via DigitalCommons@USU.}
+}
+
+@article{S24_whitmore_nytrox_arc,
+  author  = {Whitmore, Stephen A.},
+  title   = {Further Development of a Low-Energy Arc-Ignition System for {Nytrox/ABS} Hybrid Propulsion Systems},
+  journal = {Aerospace},
+  volume  = {13},
+  number  = {4},
+  pages   = {366},
+  year    = {2026},
+  doi     = {10.3390/aerospace13040366}
+}
+
+@article{S25_igniter_taxonomy,
+  title   = {Igniter design for solid and hybrid rocket motors},
+  journal = {IOP Conference Series: Materials Science and Engineering},
+  volume  = {973},
+  pages   = {012004},
+  year    = {2020},
+  doi     = {10.1088/1757-899X/973/1/012004},
+  url     = {https://iopscience.iop.org/article/10.1088/1757-899X/973/1/012004/pdf}
+}
+
+% ---------- NOZZLE & CHAMBER ----------
+
+@mastersthesis{S26_balmogim_phoenix1b,
+  author = {Balmogim, Udil},
+  title  = {Design and development of the {Phoenix-1B} hybrid rocket},
+  school = {University of KwaZulu-Natal, Durban},
+  year   = {2017},
+  url    = {https://researchspace.ukzn.ac.za/server/api/core/bitstreams/9952f9a0-ff2c-467e-9d5a-1ee7320982ca/content},
+  note   = {Focus on nozzle and injector design. Open access PDF.}
+}
+
+@inproceedings{S27_zilliac_combustion_efficiency,
+  author    = {Zilliac, Gregory and Story, George T. and Karp, Ashley C. and Jens, Elizabeth T. and Whittinghill, George},
+  title     = {Combustion Efficiency in Single Port Hybrid Rocket Engines},
+  booktitle = {AIAA Propulsion and Energy 2020 Forum},
+  year      = {2020},
+  number    = {AIAA 2020-3746},
+  doi       = {10.2514/6.2020-3746}
+}
+
+@article{S28_passive_mixing_device,
+  author  = {Hill, C. D. and Nelson, W. and Johansen, C. T.},
+  title   = {Evaluation of a Paraffin/Nitrous Oxide Hybrid Rocket Motor with a Passive Mixing Device},
+  journal = {Journal of Propulsion and Power},
+  volume  = {38},
+  number  = {6},
+  pages   = {884--892},
+  year    = {2022},
+  doi     = {10.2514/1.B38659}
+}
+
+@inproceedings{S28b_grosse_diaphragm,
+  author    = {Grosse, M.},
+  title     = {Effect of a Diaphragm on Performance and Fuel Regression of a Laboratory Scale Hybrid Rocket Motor Using Nitrous Oxide and Paraffin},
+  booktitle = {45th AIAA/ASME/SAE/ASEE Joint Propulsion Conference and Exhibit},
+  year      = {2009},
+  number    = {AIAA 2009-5113},
+  doi       = {10.2514/6.2009-5113},
+  note      = {HIGH PRIORITY -- most relevant diaphragm paper for N2O/paraffin. Request via ILL.}
+}
+
+@article{S29_nozzle_erosion,
+  title = {Erosion Rate Investigation of Various Nozzle Materials in Hybrid Rocket Motors},
+  year  = {2020},
+  url   = {https://www.researchgate.net/publication/343705098}
+}
+
+% ---------- FLIGHT-PROVEN VEHICLES ----------
+
+@article{S30_heros,
+  author  = {Kobald, Mario and Fischer, Ulrich and Tomilin, Konstantin and Petrarolo, Anna and Schmierer, Christian},
+  title   = {Hybrid Experimental Rocket Stuttgart: A Low-Cost Technology Demonstrator},
+  journal = {Journal of Spacecraft and Rockets},
+  volume  = {55},
+  number  = {2},
+  pages   = {484--500},
+  year    = {2018},
+  doi     = {10.2514/1.A34035},
+  note    = {32,300 m apogee, 8 Nov 2016. World student hybrid altitude record.}
+}
+
+@inproceedings{S31_n2orth,
+  title = {Design and Launch of the Hybrid Sounding Rocket {N2ORTH}},
+  year  = {2024},
+  note  = {HyEnD, University of Stuttgart. DLR STERN programme. Launched April 2023.},
+  url   = {https://www.researchgate.net/publication/386018972}
+}
+
+@techreport{S32_peregrine_status,
+  title       = {Status Update Report for the {Peregrine} 100km Sounding Rocket Project},
+  institution = {NASA Ames Research Center / Stanford University / Space Propulsion Group},
+  year        = {2009},
+  url         = {https://ntrs.nasa.gov/api/citations/20090029211/downloads/20090029211.pdf}
+}
+
+@inproceedings{S32b_dyer_peregrine_design,
+  author    = {Dyer, J. and Doran, E. and Dunn, Z. and Lohner, K. and Bayart, C. and Sadhwani, A. and Zilliac, G. and Cantwell, B. and Karabeyoglu, A.},
+  title     = {Design and Development of a 100 km Nitrous Oxide/Paraffin Hybrid Rocket Vehicle},
+  booktitle = {43rd AIAA/ASME/SAE/ASEE Joint Propulsion Conference and Exhibit},
+  year      = {2007},
+  number    = {AIAA 2007-5362}
+}
+
+@inproceedings{S33_utat_eos3,
+  author    = {Wang, Jeremy C.-H. and others},
+  title     = {The Design and Organizational Approach to a Student-built Paraffin-Nitrous Oxide Hybrid Sounding Rocket},
+  booktitle = {66th International Astronautical Congress},
+  address   = {Jerusalem, Israel},
+  year      = {2015}
+}
+
+@inproceedings{S33b_utat_eos2,
+  title     = {The Design and Testing of a Student-built Paraffin-Aluminum-Nitrous Oxide Hybrid Sounding Rocket},
+  booktitle = {International Astronautical Congress},
+  year      = {2015}
+}
+
+% ---------- SAFETY ----------
+
+@inproceedings{S34_n2o_safety,
+  author    = {Velthuysen, Timothy J. and Broughton, Kai M. and Brooks, Michael J. and Pitot, Jean and Lineberry, David M. and Tingley, Evan},
+  title     = {Safety Aspects of Nitrous Oxide Use in Hybrid Rocket Motor Design and Testing},
+  booktitle = {2018 Joint Propulsion Conference},
+  address   = {Cincinnati, OH},
+  year      = {2018},
+  number    = {AIAA 2018-4411},
+  doi       = {10.2514/6.2018-4411}
+}
+
+@inproceedings{S35_karabeyoglu_n2o_decomposition,
+  author    = {Karabeyoglu, A. and Dyer, J. and Stevens, J. and Cantwell, B.},
+  title     = {Modeling of {N2O} Decomposition Events},
+  booktitle = {44th AIAA/ASME/SAE/ASEE Joint Propulsion Conference and Exhibit},
+  year      = {2008}
+}
+
+% ---------- SUPPORTING / CONTEXT ----------
+
+@mastersthesis{S_bernard_hrpc,
+  author = {Bernard, Genevi\`{e}ve},
+  title  = {Development of a hybrid sounding rocket motor},
+  school = {University of KwaZulu-Natal, Durban},
+  note   = {Develops the Hybrid Rocket Performance Code (HRPC), MATLAB + NASA CEA coupled to an N2O tank blowdown model.},
+  url    = {https://researchspace.ukzn.ac.za/items/4066a7ec-ff49-40ff-b599-211324b56437}
+}
+
+@mastersthesis{S_ukzn_100km,
+  title  = {Performance modelling and simulation of a 100km hybrid sounding rocket},
+  school = {University of KwaZulu-Natal, Durban},
+  url    = {https://researchspace.ukzn.ac.za/xmlui/handle/10413/11422},
+  note   = {Source of the <650 kg/m2-s flux rule and >15\% injector dp/pc rule.}
+}
+
+@mastersthesis{S_theba_slab_motor,
+  author = {Theba, Raisa},
+  title  = {The development of a paraffin wax/nitrous oxide hybrid rocket slab motor},
+  school = {University of KwaZulu-Natal, Durban},
+  year   = {2019},
+  url    = {https://researchspace.ukzn.ac.za/handle/10413/18105}
+}
+
+@mastersthesis{S_ukzn_throttle,
+  title  = {Closed-loop throttle control of a hybrid rocket motor},
+  school = {University of KwaZulu-Natal, Durban},
+  url    = {https://researchspace.ukzn.ac.za/server/api/core/bitstreams/6eda10f4-a998-4f06-8d20-b6cf15209214/content}
+}
+
+@article{S_blowdown_sensitivity,
+  title   = {Performance sensitivity study on a blowdown nitrous oxide paraffin wax hybrid sounding rocket},
+  journal = {Acta Astronautica},
+  year    = {2019},
+  url     = {https://www.sciencedirect.com/science/article/abs/pii/S0094576519301948}
+}
+
+@article{S_bridging_gap,
+  title   = {Bridging the Technology Gap: Strategies for Hybrid Rocket Engines},
+  journal = {Aerospace},
+  volume  = {10},
+  number  = {10},
+  pages   = {901},
+  year    = {2023},
+  doi     = {10.3390/aerospace10100901}
+}
+
+@article{S_test_activities_review,
+  title   = {Test Activities on Hybrid Rocket Engines: Combustion Analyses and Green Storable Oxidizers---A Short Review},
+  journal = {Aerospace},
+  volume  = {10},
+  number  = {7},
+  pages   = {572},
+  year    = {2023},
+  doi     = {10.3390/aerospace10070572}
+}
+
+@inproceedings{S_iss_nytrox,
+  title     = {Development of a Nytrox-Paraffin Hybrid Rocket Engine},
+  booktitle = {AIAA Propulsion and Energy Forum},
+  year      = {2020},
+  note      = {Illinois Space Society. Graphite vs canvas/phenolic nozzle trade; rocket candy igniter.}
+}

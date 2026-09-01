@@ -147,8 +147,9 @@ The code is done; the inputs are not. Three things, in order of impact:
 1. **Work through [`docs/WHAT_WE_NEED.md`](docs/WHAT_WE_NEED.md)** — the 51
    blocking values sorted by *how you get them*. Only 7 need NASA; 36 are ours
    to decide or size. `run.bat check` lists them by register ID.
-2. **Generate the CEA table** (register G11) for the 89/10/1 blend vs N₂O.
-   `props/cea.py` raises `PlaceholderData` rather than guessing thermochemistry.
+2. ~~Generate the CEA table (register G11)~~ — **done.**
+   `data/cea_S10W1_N2O_35bar.csv` is a real NASA CEA sweep for the S10W1 blend;
+   peak c\* 1598.1 m/s at O/F 7.00. Load with `cea.load_of_sweep(path, 35e5)`.
 3. **Supply the ESDU 91022 latent-heat coefficients.** Needed by the tank
    blowdown and the Dyer HEM term. Both take it as an injected callable, so the
    physics is complete and tested — only the data is outstanding.
@@ -254,7 +255,11 @@ goddard/                       model package
   config/demo_placeholder.py   invented numbers, for previewing the report only
 tests/                         227 tests
 out/                           generated results (gitignored)
+data/
+  cea_S10W1_N2O_35bar.csv      NASA CEA sweep -- resolves register G11
 docs/
+  DESIGN_POINT.md              values from the reference docs, conflicts flagged
+  reference/                   design record and literature (sources, not model)
   WHAT_WE_NEED.md              51 blocking values, sorted by how to get them
   equations.pdf                every governing equation  <- start here
   equations.tex                its source

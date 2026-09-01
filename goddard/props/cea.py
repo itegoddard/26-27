@@ -164,3 +164,58 @@ def load(path: str | Path) -> CEATable:
     if not points:
         raise PlaceholderData(f"CEA table at {p} is empty.")
     return CEATable(points, source=str(p))
+
+
+def load_of_sweep(path: str | Path, pressure_Pa: float) -> CEATable:
+    """Load a single-chamber-pressure CEA export (an O/F sweep).
+
+    This reads the column layout NASA CEA actually emits from an O/F sweep run
+    at one chamber pressure:
+
+        O/F, c*_m/s, Tc_K, ..., gamma_chamber, ...
+
+    rather than the (O/F, pressure) grid ``load`` expects. Extra columns are
+    ignored.
+
+    Parameters
+    ----------
+    path        : CSV from a CEA O/F sweep
+    pressure_Pa : the chamber pressure the sweep was run at. It is NOT in the
+                  file, so it must be supplied and must be correct.
+
+    Single-pressure caveat
+    ----------------------
+    The resulting table is constant in pressure, so ``c_star(of, P)`` returns
+    the same value at every ``P``. That is acceptable here because c* is very
+    nearly flat in chamber pressure for this propellant -- 1592 m/s at 20 bar
+    against 1602 m/s at 50 bar, a 0.6 % span across the whole usable range,
+    while O/F moves it by tens of percent.
+
+    It is still an approximation, and it is the reason this is a separate
+    function rather than a silent branch inside ``load``: a caller choosing
+    this has to say so. If pressure dependence ever matters, run CEA at several
+    pressures and use ``load`` instead.
+    """
+    p = Path(path)
+    if not p.exists():
+        raise PlaceholderData(
+            f"No CEA O/F sweep at {p}. See load() for how to generate one."
+        )
+    if pressure_Pa <= 0.0:
+        raise ValueError(f"chamber pressure must be positive, got {pressure_Pa}")
+
+    points: list[CEAPoint] = []
+    with p.open(newline="", encoding="utf-8") as f:
+        for row in csv.DictReader(f):
+            points.append(
+                CEAPoint(
+                    of_ratio=float(row["O/F"]),
+                    pressure_Pa=pressure_Pa,
+                    c_star_ms=float(row["c*_m/s"]),
+                    gamma=float(row["gamma_chamber"]),
+                    temperature_K=float(row["Tc_K"]),
+                )
+            )
+    if not points:
+        raise PlaceholderData(f"CEA O/F sweep at {p} is empty.")
+    return CEATable(points, source=f"{p} (single pressure {pressure_Pa/1e5:.0f} bar)")
