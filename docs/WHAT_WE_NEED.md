@@ -1,9 +1,9 @@
 # What We Need — Goddard 26-27
 
-**25 values block a trustworthy run.** This document sorts every one of them by
+**23 values block a trustworthy run.** This document sorts every one of them by
 *how you get it*, so work can start in parallel instead of waiting on a meeting.
 
-Coverage is verified: 25 blocking entries in the register, 25 assigned below,
+Coverage is verified: 23 blocking entries in the register, 23 assigned below,
 no duplicates, none dropped. Regenerate the underlying list with
 `run.bat check`.
 
@@ -19,7 +19,7 @@ no duplicates, none dropped. Regenerate the underlying list with
 |---|---|---|---|
 | ① | Team decides | **9** | nobody |
 | ② | Motor sizing | **~~11~~ 1** | mostly solved by the design record |
-| ③ | **Vendor datasheets** | **7** | **picking suppliers — now the critical path** |
+| ③ | **Vendor datasheets** | **5** | **the foam core (I3–I5) and tip alloy (I6/I7)** |
 | ④ | Run a tool | **~~1~~ 0** | ✅ CEA table delivered |
 | ⑤ | Ask NASA / the range | **4** | the meeting |
 | ⑥ | Recovery sizing | **5** | Knacke + a load limit from ⑤ |
@@ -111,8 +111,8 @@ Pick suppliers, pull the TDS. No analysis required.
 
 | ID | Parameter | Units | Source |
 |---|---|---|---|
-| I1 | CF skin E₁ / E₂ / G₁₂ | GPa | prepreg datasheet |
-| I2 | CF ply thickness and layup | — | our layup schedule |
+| ~~I1~~ | ~~CF skin E / G~~ | ✅ | **17.3 / 31.0 GPa**, density 1570 |
+| ~~I2~~ | ~~ply thickness and layup~~ | ✅ | **1.981e-4 m, [(±45)₃/core/(±45)₃]** |
 | I3 | Foam core type | — | Rohacell / Divinycell / other |
 | I4 | **Foam core shear modulus** | MPa | **dominates fin GJ — the one that moves the flutter answer** |
 | I5 | Foam core density | kg/m³ | foam datasheet |

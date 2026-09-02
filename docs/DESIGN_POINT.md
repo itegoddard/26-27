@@ -73,7 +73,7 @@ and the fin thickness ratio (6.35/200 = 3.17 % ✓) and they all close.
 | ID | Parameter | Value |
 |---|---|---|
 | G3 | Pre-combustion chamber | 60 mm length (L/D 0.43) |
-| G4 | Throat diameter | **28.96 mm** (658.7 mm²) |
+| G4 | Throat diameter | **28.87 mm** (654.6 mm²) — team value, supersedes the record's 28.96 |
 | G5 | Expansion ratio | **6.0** (exit 70.9 mm) |
 | G6 | Nozzle material | graphite throat, silica-phenolic convergent/divergent |
 | G8 | Contour | 80 % bell; **45° convergence half-angle** (NASA SP-8115) |

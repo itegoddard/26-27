@@ -27,7 +27,10 @@ Limitations -- read before trusting a flutter margin
    layup is orthotropic and direction matters. For a fin whose flutter mode is
    torsional this is the largest modelling simplification here.
 3. Core shear compliance reduces effective torsional stiffness beyond what the
-   direct core term captures. Not modelled.
+   direct core term captures. NOW MODELLED, opt-in, via
+   ``shear_correction_factor`` -- pass ``characteristic_length_m`` to
+   ``torsional_stiffness``. Without it the faces are assumed perfectly coupled
+   and the result is an upper bound.
 
 All three push in the SAME direction: this module **over-predicts** ``GJ``, and
 therefore over-predicts flutter speed. Treat its output as an upper bound and
@@ -40,6 +43,8 @@ Allen, H. G., *Analysis and Design of Structural Sandwich Panels*, Pergamon,
 """
 
 from __future__ import annotations
+
+import math
 
 from dataclasses import dataclass
 
@@ -102,10 +107,83 @@ def bending_stiffness(section: SandwichSection) -> float:
     return faces + core
 
 
-def torsional_stiffness(section: SandwichSection) -> float:
+def core_shear_stiffness(section: SandwichSection) -> float:
+    """Transverse shear stiffness of the core per unit width, ``S``, N/m.
+
+        S = G_core * d**2 / t_core
+
+    This is the quantity that decides whether the core is doing its job. The
+    faces carry the torsion; the core's only structural task is to hold them
+    apart and transfer shear between them. If it is too soft to do that, the
+    section shears internally and the faces stop acting as a couple.
+    """
+    if section.core_thickness_m <= 0.0:
+        return math.inf
+    return (
+        section.core_shear_Pa
+        * section.face_separation_m ** 2
+        / section.core_thickness_m
+    )
+
+
+def shear_correction_factor(
+    section: SandwichSection, characteristic_length_m: float
+) -> float:
+    """Knock-down on the face-derived rigidity from core shear compliance.
+
+        k = 1 / (1 + pi**2 * D_face / (L**2 * S))
+
+    Returns 1.0 for a rigid core and tends to 0 for a very soft one.
+
+    Why this exists
+    ---------------
+    Without it the model is *blind to the core*. For the current fin -- three
+    plies of +/-45 carbon each side of a 5.16 mm core -- the face term is
+    5327x the core torsion term, so sweeping the core shear modulus from 5 to
+    200 MPa moved GJ by 0.7 %. That is not a finding about the fin; it is the
+    formula having no mechanism for the core to matter. Core shear compliance
+    is that mechanism.
+
+    ``characteristic_length_m`` is the twisting half-wavelength. For a fin
+    panel the chord is the defensible choice, and it is a parameter rather than
+    a hard-coded chord because that choice is an approximation.
+
+    APPROXIMATE. The shear-lag form is standard for sandwich *bending* (Allen
+    1969, ch. 8); applying it to torsion with the chord as the length scale is
+    an engineering extension, not a derived result. It is far better than
+    ignoring core shear entirely, and it is not a substitute for a coupon test.
+    """
+    if characteristic_length_m <= 0.0:
+        raise ValueError("characteristic length must be positive")
+    s = core_shear_stiffness(section)
+    if math.isinf(s):
+        return 1.0
+    if s <= 0.0:
+        return 0.0
+    d_face = (
+        section.face_shear_Pa
+        * section.face_thickness_m
+        * section.face_separation_m ** 2
+        / 2.0
+    )
+    return 1.0 / (1.0 + math.pi ** 2 * d_face / (characteristic_length_m ** 2 * s))
+
+
+def torsional_stiffness(
+    section: SandwichSection, characteristic_length_m: float | None = None
+) -> float:
     """Effective ``GJ`` of the section, N m^2.
 
-    See the module docstring: this is an upper bound.
+    Parameters
+    ----------
+    characteristic_length_m : if given, apply the core-shear-compliance
+        knock-down of ``shear_correction_factor``. If omitted the faces are
+        assumed perfectly coupled, which is an UPPER BOUND -- see the module
+        docstring. Pass the chord for a fin panel.
+
+    The correction is opt-in rather than automatic so that existing callers do
+    not silently change answer, and so that a caller accepting the upper bound
+    has to do so deliberately.
     """
     t_f = section.face_thickness_m
     d = section.face_separation_m
@@ -113,6 +191,8 @@ def torsional_stiffness(section: SandwichSection) -> float:
 
     d_xy = section.face_shear_Pa * t_f * d * d / 2.0
     faces = 4.0 * c * d_xy
+    if characteristic_length_m is not None:
+        faces *= shear_correction_factor(section, characteristic_length_m)
     core = section.core_shear_Pa * c * section.core_thickness_m ** 3 / 3.0
     return faces + core
 

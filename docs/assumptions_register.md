@@ -42,7 +42,9 @@ most confidence — those three are the dominant uncertainty in the whole model.
 
 ## B. Vehicle geometry
 
-Shape is confirmed from `goddard1.0.ork`. **Dimensions below are all open.**
+Planform **supersedes** `goddard1.0.ork` — the ORK fin was simultaneously
+over-stable (4.3 cal) and flutter-critical (1.6 % thick). Dimensions now come
+from `docs/reference/02_BUDGET_50KFT_DESIGN.md`.
 
 | ID | Parameter | Value | Units | Status | Basis / question for NASA |
 |---|---|---|---|---|---|
@@ -134,7 +136,7 @@ Shape is confirmed from `goddard1.0.ork`. **Dimensions below are all open.**
 | G1 | Post-combustion chamber | none | — | CONFIRMED | Team spec |
 | G2 | Mixing diaphragm | none | — | CONFIRMED | Team spec |
 | G3 | Pre-combustion chamber volume | 60 mm length (L/D 0.43) | m³ | CONFIRMED | Inside the 0.26–0.66 droplet-vaporisation stability band. |
-| G4 | Throat diameter | 28.96 | mm (658.7 mm²) | CONFIRMED | Falls out of the chamber mass balance at 36 bar. |
+| G4 | Throat diameter | 28.87 | mm (654.6 mm²) | CONFIRMED | Team value, supersedes the 28.96 mm in the design record. Falls out of the chamber mass balance at 36 bar. |
 | G5 | Expansion ratio ε | 6.0 | — | CONFIRMED | Exit 70.9 mm. Sweep flat 4.5–8.0; 6.0 keeps margin against sea-level separation. |
 | G6 | Nozzle material | graphite throat, silica-phenolic con/div | — | CONFIRMED | docs/reference/02_BUDGET_50KFT_DESIGN.md |
 | G7 | Throat erosion | not modeled | — | ASSUMPTION | A_t held constant. **How much erosion is typical over a ~6 s N₂O burn? This could be significant.** |
@@ -159,8 +161,8 @@ Shape is confirmed from `goddard1.0.ork`. **Dimensions below are all open.**
 
 | ID | Parameter | Value | Units | Status | Basis / question for NASA |
 |---|---|---|---|---|---|
-| I1 | CF skin E₁ / E₂ / G₁₂ | — | GPa | OPEN | **Which prepreg/layup? Needed for laminate theory.** |
-| I2 | CF ply thickness and layup | — | — | OPEN | |
+| I1 | CF skin E / G | 17.3 / 31.0 | GPa | CONFIRMED | E_x and G_xy at 45°, derived by CLT. Density 1570 kg/m³. **G > E is correct for ±45**, not an error — fibres lie along the principal shear directions, which is exactly what a flutter-critical fin wants. |
+| I2 | CF ply thickness and layup | 1.981e-4 m, [(±45)₃/core/(±45)₃] | m | CONFIRMED | 3 fabric plies per side → 0.594 mm faces, leaving 5.161 mm of core. Woven fabric at 45° gives ±45 in one ply, so the stack is balanced and symmetric with no hand-orientation of tows. |
 | I3 | Foam core type | — | — | OPEN | **Which foam? Divinycell, Rohacell, other?** |
 | I4 | Foam core shear modulus | — | MPa | OPEN | **Dominates fin GJ — the single most important structural unknown** |
 | I5 | Foam core density | — | kg/m³ | OPEN | |
@@ -203,12 +205,12 @@ hand-tallied — regenerate with the script in `docs/README.md` after editing.
 
 | Count | Status | Meaning |
 |---|---|---|
-| **25** | OPEN | No value yet. Model cannot run. |
+| **23** | OPEN | No value yet. Model cannot run. |
 | **0** | PLACEHOLDER | G11 resolved — the CEA table is in `data/`. |
 | **3** | BANDED | E5, F8, G9. The dominant uncertainty. Band mode reports an envelope. |
 | **13** | ASSUMPTION | Effects deliberately not modeled — worth a sanity check with them |
 | **13** | ESTIMATED | Usable now; better data improves confidence |
-| **52** | CONFIRMED | Locked by team decision |
+| **54** | CONFIRMED | Locked by team decision |
 | **5** | DERIVED | Computed from other entries |
 
 ### The five questions most worth their time

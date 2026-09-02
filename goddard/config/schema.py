@@ -280,7 +280,7 @@ class Grain:
 class Nozzle:
     """Register section G."""
 
-    throat_diameter_m: Number = 0.02896         # G4 CONFIRMED, 658.7 mm^2
+    throat_diameter_m: Number = 0.02887         # G4 CONFIRMED, 654.6 mm^2
     expansion_ratio: Number = 6.0               # G5 CONFIRMED, exit 70.9 mm
     convergence_half_angle_rad: float = 0.785398  # G8 CONFIRMED, 45 deg, SP-8115
     contour: str = "80% bell"                     # G8 CONFIRMED
@@ -335,10 +335,25 @@ class FinMaterials:
     ``structures/laminate.py``.
     """
 
-    face_modulus_Pa: Number = Open("I1", "CF skin Young's modulus", "Pa")
-    face_shear_Pa: Number = Open("I1", "CF skin shear modulus", "Pa")
-    ply_thickness_m: Number = Open("I2", "CF ply thickness", "m")
-    layup: Number = Open("I2", "CF layup schedule")
+    # ---- I1/I2 CONFIRMED: carbon-fibre skins, +/-45 woven fabric
+    #
+    # Note G_xy (31.0 GPa) EXCEEDS E_x (17.3 GPa). For an isotropic material
+    # that would be impossible -- G = E/2(1+nu) is roughly 0.4E. For a +/-45
+    # laminate it is exactly right and it is the whole point: the fibres lie
+    # along the principal shear directions, so the layup is optimised for
+    # torsional stiffness. On a flutter-critical fin, where GJ is what sets the
+    # flutter speed, that is the correct choice rather than an anomaly.
+    #
+    # Woven fabric rotated 45 deg to the fin axis puts +45 and -45 fibres in a
+    # single ply, so the stack is balanced and symmetric without anyone having
+    # to orient individual tows by hand.
+    face_modulus_Pa: Number = 1.733e10          # I1, E_x at 45 deg by CLT
+    face_shear_Pa: Number = 3.10e10             # I1, G_xy at 45 deg by CLT
+    face_density: Number = 1570.0               # I1, 1.57 g/cc
+    ply_thickness_m: Number = 1.981e-4          # I2, normalisation CPT
+    plies_per_side: int = 3                     # I2
+    layup: str = "[(+/-45)3 / core / (+/-45)3]"  # I2
+
     core_type: Number = Open("I3", "foam core type")
     core_shear_Pa: Number = Open("I4", "foam core shear modulus -- dominates GJ", "Pa")
     core_modulus_Pa: Number = Open("I4", "foam core Young's modulus", "Pa")

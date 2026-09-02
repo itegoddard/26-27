@@ -112,3 +112,84 @@ def test_rejects_nonphysical_sections():
         section(core_shear_Pa=-1.0)
     with pytest.raises(ValueError):
         lam.torsion_constant_solid(0.2, 0.0)
+
+
+# ------------------------------------------- core shear compliance (the fix)
+
+
+def _fin_section(core_shear_Pa: float) -> lam.SandwichSection:
+    """The real fin: 3 plies of +/-45 carbon each side of a foam core."""
+    t_face = 3 * 1.981e-4
+    return lam.SandwichSection(
+        face_thickness_m=t_face,
+        core_thickness_m=0.00635 - 2 * t_face,
+        chord_m=0.1425,
+        face_modulus_Pa=1.733e10,
+        face_shear_Pa=3.10e10,
+        core_modulus_Pa=core_shear_Pa * 2.5,
+        core_shear_Pa=core_shear_Pa,
+    )
+
+
+def test_core_shear_stiffness_closed_form():
+    sec = _fin_section(19e6)
+    expected = 19e6 * sec.face_separation_m ** 2 / sec.core_thickness_m
+    assert lam.core_shear_stiffness(sec) == pytest.approx(expected)
+
+
+def test_shear_correction_is_between_zero_and_one():
+    for g in (1e6, 19e6, 200e6, 5e9):
+        k = lam.shear_correction_factor(_fin_section(g), 0.1425)
+        assert 0.0 < k <= 1.0
+
+
+def test_stiffer_core_gives_less_knockdown():
+    soft = lam.shear_correction_factor(_fin_section(5e6), 0.1425)
+    stiff = lam.shear_correction_factor(_fin_section(200e6), 0.1425)
+    assert soft < stiff
+
+
+def test_correction_tends_to_unity_for_a_very_stiff_core():
+    assert lam.shear_correction_factor(_fin_section(1e12), 0.1425) == pytest.approx(
+        1.0, abs=1e-3
+    )
+
+
+def test_corrected_gj_is_below_the_upper_bound():
+    """The uncorrected value is an upper bound, so the correction must reduce."""
+    sec = _fin_section(19e6)
+    upper = lam.torsional_stiffness(sec)
+    corrected = lam.torsional_stiffness(sec, characteristic_length_m=0.1425)
+    assert corrected < upper
+
+
+def test_the_core_now_actually_changes_the_answer():
+    """Regression test for the bug this correction fixes.
+
+    Before core shear compliance was modelled, sweeping the core shear modulus
+    from 5 to 200 MPa moved GJ by 0.7 % -- the faces outweighed the core term
+    5327:1, so the model was effectively blind to the core it exists to
+    evaluate. With the correction the same sweep must move GJ substantially.
+    """
+    c = 0.1425
+    soft = lam.torsional_stiffness(_fin_section(5e6), characteristic_length_m=c)
+    stiff = lam.torsional_stiffness(_fin_section(200e6), characteristic_length_m=c)
+    assert stiff / soft > 3.0, "core shear compliance is not being felt"
+
+
+def test_solid_limit_is_unaffected_by_the_correction():
+    """Vanishing faces means nothing to shear-lag, so the solid result stands."""
+    g, c, t = 5.0e9, 0.20, 0.006
+    sec = lam.SandwichSection(
+        face_thickness_m=1e-9, core_thickness_m=t, chord_m=c,
+        face_modulus_Pa=1.0, face_shear_Pa=1.0,
+        core_modulus_Pa=g, core_shear_Pa=g,
+    )
+    assert lam.torsional_stiffness(sec, characteristic_length_m=c) == pytest.approx(
+        g * c * t ** 3 / 3.0, rel=1e-6
+    )
+
+
+def test_rejects_bad_characteristic_length():
+    with pytest.raises(ValueError):
+        lam.shear_correction_factor(_fin_section(19e6), 0.0)
