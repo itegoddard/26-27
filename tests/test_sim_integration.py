@@ -54,13 +54,36 @@ def test_motor_actually_fires(vehicle):
     assert all(s.chamber_pressure > 0.0 for s in thrusting)
 
 
-def test_of_ratio_stays_physical_while_burning(vehicle):
+def test_of_ratio_stays_physical_while_the_flame_is_lit(vehicle):
+    """O/F must be physical while fuel is actually burning.
+
+    Once oxidiser flux falls below the flame-holding floor the grain stops
+    regressing, fuel flow goes to zero and O/F is legitimately infinite -- that
+    is the flame being out, not a bad number. Only the lit portion is bounded.
+    """
+    import math
+
     result = sim_mod.run(vehicle, dt=0.02, max_time_s=200.0)
-    ratios = [s.of_ratio for s in result.samples if s.thrust > 0.0]
-    assert ratios
-    assert all(0.5 < r < 40.0 for r in ratios), (
-        f"O/F left physical bounds: min {min(ratios):.2f} max {max(ratios):.2f}"
+    lit = [s.of_ratio for s in result.samples
+           if s.thrust > 0.0 and math.isfinite(s.of_ratio)]
+    assert lit, "no sample had a finite O/F while thrusting"
+    assert all(0.5 < r < 40.0 for r in lit), (
+        f"O/F left physical bounds while lit: min {min(lit):.2f} max {max(lit):.2f}"
     )
+
+
+def test_flame_blows_out_before_the_tank_empties(vehicle):
+    """The flame-holding floor must actually fire in a blowdown burn.
+
+    Without it the regression law returns a non-zero rate for any non-zero
+    flux, so the model eats fuel through the entire vapour tail. On the v1
+    config that consumed an 18 % web margin and reported a false burnthrough.
+    """
+    import math
+
+    result = sim_mod.run(vehicle, dt=0.02, max_time_s=200.0)
+    out = [s for s in result.samples if not math.isfinite(s.of_ratio)]
+    assert out, "flame never blew out -- the flame-holding floor is not firing"
 
 
 def test_grain_web_is_consumed_but_tracked(vehicle):

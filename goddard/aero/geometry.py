@@ -117,6 +117,15 @@ class FinGeometry:
     sweep_angle_rad: float
     cant_angle_rad: float
     cross_section: str = "rounded"
+    # Station of the fin ROOT LEADING EDGE, m aft of the nose tip.
+    #
+    # None means "flush with the tail", which is the usual amateur layout and
+    # was the only behaviour available before. It is wrong whenever a nozzle
+    # protrudes past the fins: on this vehicle the nozzle occupies
+    # 4.167-4.332 m, so flush-mounting put the fins 150 mm too far aft and the
+    # centre of pressure 103 mm aft with it -- worth 0.64 calibers of static
+    # margin, which is the difference between a 2.0 cal design and a 2.6 cal one.
+    root_station_m: float | None = None
 
     @property
     def panel_area_m2(self) -> float:

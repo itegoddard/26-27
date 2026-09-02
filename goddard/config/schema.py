@@ -320,7 +320,7 @@ class MassBudget:
     # non-structural fibreglass tube remains. Density here is the aluminium.
     airframe_material_density: Number = 2700.0
     airframe_material: str = "6061-T6 aluminium (pressure vessels), fibreglass tube"
-    avionics_mass_kg: Number = Open("C3", "avionics mass", "kg")
+    avionics_mass_kg: Number = 1.200         # C3 CONFIRMED, at 0.594 m
     # C4 ESTIMATED, not measured. CosmicWatch Desktop Muon Detector v3X.
     # The repository publishes no mass, so this is built from its own drawings:
     #   enclosure PN2506 aluminium extrusion, 66.4 x 39.9 mm, 73.7 mm long,
@@ -334,7 +334,7 @@ class MassBudget:
     # Coincidence mode needs TWO detectors: ~0.43 kg plus the CAT5 cable.
     # WEIGH THE ACTUAL UNIT before this is treated as confirmed.
     payload_mass_kg: Number = 0.215
-    recovery_mass_kg: Number = Open("C5", "recovery system mass", "kg")
+    recovery_mass_kg: Number = 4.400         # C5 CONFIRMED, at 0.937 m
     # C6 DERIVED from D6 geometry, not guessed:
     #   rho_Al * pi * (R^2 - (R-t)^2) * L
     #   = 2700 * pi * (0.0762^2 - 0.0727^2) * 2.401 = 10.61 kg
@@ -373,10 +373,14 @@ class FinMaterials:
     plies_per_side: int = 3                     # I2
     layup: str = "[(+/-45)3 / core / (+/-45)3]"  # I2
 
-    core_type: Number = Open("I3", "foam core type")
-    core_shear_Pa: Number = Open("I4", "foam core shear modulus -- dominates GJ", "Pa")
-    core_modulus_Pa: Number = Open("I4", "foam core Young's modulus", "Pa")
-    core_density: Number = Open("I5", "foam core density", "kg/m^3")
+    core_type: str = "Divinycell H100"       # I3 CONFIRMED
+    # I4 CONFIRMED. Note this did NOT turn out to dominate GJ as first assumed:
+    # once core shear compliance is modelled the fin clears the 1.5 flutter
+    # margin at every plausible core. The core couples the faces; it does not
+    # supply the stiffness.
+    core_shear_Pa: Number = 3.5e7
+    core_modulus_Pa: Number = 1.35e8         # I4 CONFIRMED
+    core_density: Number = 100.0             # I5 CONFIRMED
     # I9 CONFIRMED. NOTE: the design record achieved 2.22, but that was for a
     # SOLID G10 fin. We build CF skins over a foam core, so GJ differs and the
     # margin must be recomputed once I1-I5 land.

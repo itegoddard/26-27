@@ -67,14 +67,14 @@ FIN_FACE_DENSITY = 1570.0            # carbon skin density
 OXIDISER_MASS_KG = 25.04          # nitrous oxide mass
 TANK_VOLUME_M3 = 0.0399           # tank internal volume, 39.9 L
 TANK_FILL_FRACTION = 0.80         # initial fill fraction -- a SAFETY limit
-TANK_LENGTH_M = 2.401             # tank length
+TANK_LENGTH_M = 2.3866            # tank length
 TANK_WALL_M = 0.0035              # tank wall thickness, 6061-T6
 TANK_DRY_MASS_KG = 10.61          # tank dry mass, derived from the above
 
 INJECTOR_HOLES = 33               # injector orifice count
 INJECTOR_HOLE_DIAMETER_M = 0.0015  # injector orifice diameter
 
-GRAIN_LENGTH_M = 0.349            # grain length
+GRAIN_LENGTH_M = 0.3484           # grain length
 GRAIN_PORT_RADIUS_M = 0.0692 / 2  # initial port radius
 GRAIN_OUTER_RADIUS_M = 0.1370 / 2  # grain outer radius, 33.9 mm web
 
@@ -119,9 +119,12 @@ DISREEF_ALTITUDE_M = 450.0        # disreef trigger altitude
 # ---------------------------------------------------------------------------
 PROVISIONAL = {
     # --- structures
-    "foam core shear modulus": 19.0e6,   # need: foam product and grade
-    "foam core Young's modulus": 47.0e6,  # need: same datasheet
-    "foam core density": 60.0,           # need: same datasheet
+    # -- foam core RESOLVED: Divinycell H100, manufacturer datasheet.
+    #    Kept in this dict only so the whole material set reads together;
+    #    these are confirmed values, not placeholders.
+    "foam core shear modulus": 3.5e7,
+    "foam core Young's modulus": 1.35e8,
+    "foam core density": 100.0,
     "nose tip mass": 0.028,              # derived below; weigh the machined cap
     # --- recovery
     "reefing ratio": 0.30,               # need: max allowable opening load
@@ -133,11 +136,44 @@ PROVISIONAL = {
     "mean wind speed": 5.0,              # need: range limits. 25-26 used 5.0
     "surface roughness": 20e-6,          # need: expected finish quality
     # --- mass breakdown: the 32.55 kg dry total is CONFIRMED, the split is not
-    "avionics mass": 4.0,                # need: actual avionics stack
-    "recovery system mass": 4.5,         # need: canopy + harness + hardware
+    # -- masses RESOLVED from the register; kept here for one-place visibility
+    "avionics mass": 1.200,              # sled, two flight computers, batteries
+    "recovery system mass": 4.400,       # chutes 2.600 + cords 1.400 + ejection 0.400
+    "nozzle assembly mass": 2.000,       # graphite throat and retainer
 }
 
-DRY_MASS_TOTAL_KG = 32.55         # total dry mass, from the design record
+DRY_MASS_TOTAL_KG = 32.916        # total dry mass
+
+# ---------------------------------------------------------------------------
+# STATION TABLE -- x measured aft from the nose tip, metres.
+#
+# This is the length budget, and getting it wrong dominates everything else.
+# An earlier version placed the tank with an arbitrary 0.10 m gap behind the
+# nose and NO recovery bay, putting its midpoint at 2.062 m instead of 2.305 m.
+# That single 250 mm error moved the centre of gravity forward by more than the
+# entire mass-allocation error combined, and pushed static margin from 2.0 to
+# 5.2 calibers. Reconcile stations before touching masses.
+# ---------------------------------------------------------------------------
+STATIONS = {                      # (start, end) in metres
+    "nose_cone":       (0.0000, 0.7620),
+    "recovery_bay":    (0.7620, 1.1120),
+    "oxidiser_tank":   (1.1120, 3.4986),
+    "feed_bay":        (3.4986, 3.5986),
+    "injector":        (3.5986, 3.6586),
+    "pre_chamber":     (3.6586, 3.7186),
+    "fuel_grain":      (3.7186, 4.0670),
+    "post_chamber":    (4.0670, 4.1670),
+    "nozzle":          (4.1670, 4.3320),
+}
+TOTAL_LENGTH_M = 4.362
+
+FIN_CG_STATION_M = 4.112          # fin set centre of gravity
+
+
+def mid(name: str) -> float:
+    """Midpoint of a station, m aft of the nose tip."""
+    a, b = STATIONS[name]
+    return 0.5 * (a + b)
 
 
 def _cea() -> cea_mod.CEATable:
@@ -202,51 +238,50 @@ def build_vehicle() -> sim_mod.Vehicle:
             sweep_angle_rad=FIN_SWEEP_RAD,
             cant_angle_rad=FIN_CANT_RAD,
             cross_section=FIN_SECTION,
+            # Root LE from the station table, NOT flush with the tail:
+            # the nozzle occupies 4.167-4.332 m.
+            root_station_m=FIN_CG_STATION_M - FIN_ROOT_CHORD_M / 2.0,
         ),
         surface_roughness_m=PROVISIONAL["surface roughness"],
     )
 
-    # ---- mass layout, x measured aft from the nose tip
-    x_tank = NOSE_LENGTH_M + 0.10
-    x_chamber = x_tank + TANK_LENGTH_M
-    chamber_length = PRE_CHAMBER_LENGTH_M + GRAIN_LENGTH_M + POST_CHAMBER_LENGTH_M
-
+    # ---- mass layout, every station taken from STATIONS above
     def tube(name, m, x, length):
         i_ax, i_lat = mass_mod.tube_inertia(m, r_body * 0.9, r_body, length)
         return mass_mod.MassComponent(name, m, x, i_ax, i_lat)
 
-    chamber_case = 2700.0 * math.pi * (
-        r_body ** 2 - (r_body - CHAMBER_WALL_M) ** 2
-    ) * chamber_length
+    def point(name, m, x, i_ax=0.004, i_lat=0.02):
+        return mass_mod.MassComponent(name, m, x, i_ax, i_lat)
 
     known = [
-        tube("tank", TANK_DRY_MASS_KG, x_tank + TANK_LENGTH_M / 2, TANK_LENGTH_M),
-        tube("chamber_case", chamber_case, x_chamber + chamber_length / 2,
-             chamber_length),
-        mass_mod.MassComponent(
-            "fins", fin_set_mass_kg(), NOSE_LENGTH_M + BODY_LENGTH_M - 0.10,
-            0.004, 0.02),
-        mass_mod.MassComponent(
-            "nose_tip", PROVISIONAL["nose tip mass"], 0.025, 1e-5, 1e-5),
-        mass_mod.MassComponent("payload", 0.215, 0.45, 0.001, 0.004),
-        mass_mod.MassComponent(
-            "avionics", PROVISIONAL["avionics mass"], 0.50, 0.004, 0.02),
-        mass_mod.MassComponent(
-            "recovery", PROVISIONAL["recovery system mass"], 1.05, 0.005, 0.03),
+        point("nose_tip", PROVISIONAL["nose tip mass"], 0.025, 1e-5, 1e-5),
+        point("payload", 0.215, 0.450, 0.001, 0.004),
+        point("avionics", PROVISIONAL["avionics mass"], 0.594),
+        point("recovery", PROVISIONAL["recovery system mass"], mid("recovery_bay")),
+        # Tank REGION, not just the tube: wall 10.55 + bulkheads 1.80 +
+        # couplers 1.00. The bulkheads and couplers are part of the tank
+        # section and belong at its station, not lumped elsewhere.
+        tube("tank_region", 13.35, mid("oxidiser_tank"), TANK_LENGTH_M),
+        point("feed_and_valve", 1.50, mid("feed_bay")),
+        point("injector", 1.00, mid("injector")),
+        tube("chamber_case", 2.862, mid("fuel_grain"), 0.5084),
+        point("liners", 3.05, mid("fuel_grain")),
+        point("nozzle", PROVISIONAL["nozzle assembly mass"], mid("nozzle")),
+        # Fin set INCLUDING tabs, fillets and the retainer ring. The exposed
+        # panels alone are only ~0.10 kg (see fin_set_mass_kg); the attachment
+        # hardware is 0.55 kg of it. Using panels-only put nearly a kilogram
+        # in the wrong place at the worst possible station.
+        point("fins", 1.087, FIN_CG_STATION_M, 0.004, 0.02),
     ]
-    # Everything not itemised -- nose shell, body tube, nozzle, plumbing,
-    # bulkheads, fasteners -- is lumped so the dry total matches the design
-    # record exactly rather than drifting.
+    # Nose shell and the non-structural body tube. Balanced to the dry total so
+    # it cannot drift, and placed forward where that structure actually is.
     balance = DRY_MASS_TOTAL_KG - sum(c.mass_kg for c in known)
-    known.append(
-        tube("structure_balance", balance, NOSE_LENGTH_M + BODY_LENGTH_M / 2,
-             BODY_LENGTH_M)
-    )
+    known.append(tube("shell_and_tube", balance, 0.60, 1.112))
 
     mass_model = mass_mod.MassModel(
         dry=known,
-        oxidiser_x_m=x_tank + TANK_LENGTH_M / 2,
-        fuel_x_m=x_chamber + PRE_CHAMBER_LENGTH_M + GRAIN_LENGTH_M / 2,
+        oxidiser_x_m=mid("oxidiser_tank"),
+        fuel_x_m=mid("fuel_grain"),
         oxidiser_radius_m=(r_body - TANK_WALL_M) * 0.9,
         fuel_radius_m=GRAIN_OUTER_RADIUS_M,
     )

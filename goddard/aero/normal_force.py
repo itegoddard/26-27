@@ -113,7 +113,13 @@ def fin_contribution(geom: VehicleGeometry) -> tuple[float, float]:
     cn_alpha *= 1.0 + R / (s + R)
 
     sweep_len = s * math.tan(f.sweep_angle_rad)
-    x_root = geom.total_length_m - f.root_chord_m
+    # Fin root leading-edge station. Falls back to flush with the tail only if
+    # the layout does not say otherwise -- see FinGeometry.root_station_m.
+    x_root = (
+        f.root_station_m
+        if f.root_station_m is not None
+        else geom.total_length_m - f.root_chord_m
+    )
     x_cp = (
         x_root
         + sweep_len * (f.root_chord_m + 2.0 * f.tip_chord_m)

@@ -75,9 +75,9 @@ from `docs/reference/02_BUDGET_50KFT_DESIGN.md`.
 |---|---|---|---|---|---|
 | C1 | Total dry mass | — | kg | DERIVED | Built from geometry × material density, with override hooks |
 | C2 | Airframe material | 6061-T6 aluminium + fibreglass | — | CONFIRMED | Stacked pressure vessels carry the airframe over their own length; only 0.45 m of non-structural fibreglass tube remains. |
-| C3 | Avionics mass | — | kg | OPEN | |
+| C3 | Avionics mass | 1.200 | kg | CONFIRMED | Sled, two flight computers, batteries. At 0.594 m. |
 | C4 | Payload mass | 0.215 | kg | ESTIMATED | CosmicWatch v3X. **The repo publishes no mass** — computed from its own drawings: PN2506 enclosure 136 g + endplates 19 g + scintillator 26 g + boards ~25 g + sundries ~10 g. Scintillator thickness assumed 10 mm (not dimensioned). Two detectors for coincidence ≈ 0.43 kg. **Weigh the real unit.** |
-| C5 | Recovery system mass | — | kg | OPEN | |
+| C5 | Recovery system mass | 4.400 | kg | CONFIRMED | Chutes 2.600 + cords 1.400 + ejection 0.400, at 0.937 m. |
 | C6 | Tank dry mass | 10.61 | kg | DERIVED | From D6 geometry: 2700 × π(0.0762²−0.0727²) × 2.401. Not a guess. |
 | C7 | Dry CG | derived | m | DERIVED | |
 | C8 | Inertia I_xx, I_yy | derived | kg·m² | DERIVED | |
@@ -141,6 +141,7 @@ from `docs/reference/02_BUDGET_50KFT_DESIGN.md`.
 | G6 | Nozzle material | graphite throat, silica-phenolic con/div | — | CONFIRMED | docs/reference/02_BUDGET_50KFT_DESIGN.md |
 | G7 | Throat erosion | not modeled | — | ASSUMPTION | A_t held constant. **How much erosion is typical over a ~6 s N₂O burn? This could be significant.** |
 | G8 | Nozzle contour / angles | 80 % bell, 45° convergence | deg | CONFIRMED | NASA SP-8115 standard convergence. |
+| G12 | Nozzle assembly mass | 2.000 | kg | CONFIRMED | Graphite throat and retainer, at the nozzle-section midpoint 4.250 m. |
 | G9 | **`eta_cstar`** | **0.88** | — | **BANDED [0.82, 0.93]** | Showerhead, no post-combustion chamber. **Engineering estimate — no published range found for this exact configuration. Do they have data?** |
 | G10 | `eta_Cf` | 0.96 | — | ESTIMATED | Adopted from the design record: 0.985 bell friction, less divergence loss and throat erosion. |
 | G11 | CEA c\*/γ/T_c table | `data/cea_S10W1_N2O_35bar.csv` | — | CONFIRMED | Real NASA CEA O/F sweep at 35 bar for the S10W1 blend. Peak c\* 1598.1 m/s at O/F 7.00. Load with `cea.load_of_sweep(path, 35e5)`. Pinned by `tests/test_cea_real_table.py`. |
@@ -163,9 +164,9 @@ from `docs/reference/02_BUDGET_50KFT_DESIGN.md`.
 |---|---|---|---|---|---|
 | I1 | CF skin E / G | 17.3 / 31.0 | GPa | CONFIRMED | E_x and G_xy at 45°, derived by CLT. Density 1570 kg/m³. **G > E is correct for ±45**, not an error — fibres lie along the principal shear directions, which is exactly what a flutter-critical fin wants. |
 | I2 | CF ply thickness and layup | 1.981e-4 m, [(±45)₃/core/(±45)₃] | m | CONFIRMED | 3 fabric plies per side → 0.594 mm faces, leaving 5.161 mm of core. Woven fabric at 45° gives ±45 in one ply, so the stack is balanced and symmetric with no hand-orientation of tows. |
-| I3 | Foam core type | — | — | OPEN | **Which foam? Divinycell, Rohacell, other?** |
-| I4 | Foam core shear modulus | — | MPa | OPEN | **Dominates fin GJ — the single most important structural unknown** |
-| I5 | Foam core density | — | kg/m³ | OPEN | |
+| I3 | Foam core type | Divinycell H100 | — | CONFIRMED | Manufacturer datasheet. |
+| I4 | Foam core shear modulus | 35 | MPa | CONFIRMED | Divinycell H100. Young's modulus 135 MPa. Flutter passes at every plausible core, so this was never the binding constraint — the core's role is coupling the faces, not supplying stiffness. |
+| I5 | Foam core density | 100 | kg/m³ | CONFIRMED | Divinycell H100. |
 | I6 | Aluminum tip alloy | 6061-T6 | — | CONFIRMED | Team decision. Tip mass still needs weighing once the cap is machined. |
 | I7 | Al service temperature limit | 473 | K (200 °C) | CONFIRMED | Set by **over-ageing of the T6 temper**, not melting — the strengthening precipitates coarsen above ~200 °C and do not recover on cooling. Short-duration value, right for a ~40 s ascent. **Lower than the old 550 K default, so heating margin is tighter than it looked.** |
 | I8 | Nose tip mass | — | kg | OPEN | Solid bonded aluminium cap. Drives the lumped-capacitance thermal response: a heavier tip heats more slowly. **Weigh it once machined.** |
@@ -201,17 +202,17 @@ from `docs/reference/02_BUDGET_50KFT_DESIGN.md`.
 
 ## Summary — what blocks a trustworthy run
 
-**112 parameters tracked.** Counts below are generated from this file, not
+**113 parameters tracked.** Counts below are generated from this file, not
 hand-tallied — regenerate with the script in `docs/README.md` after editing.
 
 | Count | Status | Meaning |
 |---|---|---|
-| **18** | OPEN | No value yet. Model cannot run. |
+| **13** | OPEN | No value yet. Model cannot run. |
 | **0** | PLACEHOLDER | G11 resolved — the CEA table is in `data/`. |
 | **3** | BANDED | E5, F8, G9. The dominant uncertainty. Band mode reports an envelope. |
 | **13** | ASSUMPTION | Effects deliberately not modeled — worth a sanity check with them |
 | **14** | ESTIMATED | Usable now; better data improves confidence |
-| **59** | CONFIRMED | Locked by team decision |
+| **64** | CONFIRMED | Locked by team decision |
 | **5** | DERIVED | Computed from other entries |
 
 ### The five questions most worth their time

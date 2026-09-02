@@ -94,7 +94,28 @@ def oxidiser_flux(m_dot_ox: float, r_port: float) -> float:
     return m_dot_ox / (math.pi * r_port ** 2)
 
 
-def regression_rate(G_ox: float, calibration: float) -> float:
+# Lower flame-holding limit, kg/(m^2 s). Below this the diffusion flame cannot
+# anchor and combustion blows out; the grain stops regressing even though
+# oxidiser is still trickling through.
+#
+# This matters at the END of a blowdown burn, not the start. Without it the
+# regression law returns a non-zero rate for ANY non-zero flux, so the model
+# keeps eating fuel through the whole vapour tail: on the v1 config the liquid
+# phase ended at 18 s with 18 % of the web intact, and the phantom tail burn
+# then consumed all of it and reported burnthrough. Both the burnthrough and
+# the impulse it added were artefacts.
+#
+# ESTIMATE. The upper flame-holding limit (~650 for single-port paraffin/N2O)
+# is far better characterised than the lower one. Treat 20 as a placeholder
+# until a static fire shows where this motor actually blows out.
+MIN_FLUX_FOR_COMBUSTION = 20.0
+
+
+def regression_rate(
+    G_ox: float,
+    calibration: float,
+    min_flux: float = MIN_FLUX_FOR_COMBUSTION,
+) -> float:
     """Surface regression rate (m/s).
 
     Parameters
@@ -102,9 +123,14 @@ def regression_rate(G_ox: float, calibration: float) -> float:
     G_ox        : oxidiser mass flux, kg/(m^2 s)
     calibration : ``regression_calibration``, the single unmeasured constant
                   carrying the whole SEBS-MA / carbon-black net effect.
+    min_flux    : flame-holding floor. Returns zero below it -- the flame has
+                  blown out, so the grain stops regressing. Pass 0.0 to
+                  disable, which restores the old always-burning behaviour.
     """
     if G_ox < 0.0:
         raise ValueError(f"oxidiser flux must be non-negative, got {G_ox}")
+    if G_ox < min_flux:
+        return 0.0
     return calibration * REGRESSION_A * G_ox ** REGRESSION_N
 
 

@@ -47,7 +47,7 @@ def test_default_config_reports_its_gaps():
     ids = {o.register_id for _, o in missing}
     # Spot-check parameters known to be OPEN in the register
     # Spot-check parameters still OPEN after the design-record intake.
-    assert {"A4", "A6", "C3", "C5", "D7", "I3", "I4", "J3"} <= ids
+    assert {"A4", "A6", "D7", "D9", "E4", "J3", "J4", "J9"} <= ids
 
 
 def test_report_missing_is_readable():
@@ -62,7 +62,12 @@ def test_assert_complete_lists_everything_at_once():
     with pytest.raises(s.OpenParameter) as exc:
         s.assert_complete(s.RocketConfig())
     msg = str(exc.value)
-    assert msg.count("\n") > 20
+    # One line per unfilled parameter, plus a header and a trailer. The count
+    # shrinks as the register is answered, so this asserts only that every
+    # remaining gap is listed -- the point is that it does not stop at the
+    # first one.
+    assert msg.count("\n") >= len(s.RocketConfig().missing())
+    assert msg.count("\n") > 5
 
 
 def test_assert_complete_passes_when_filled():
