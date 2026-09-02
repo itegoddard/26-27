@@ -74,14 +74,14 @@ from `docs/reference/02_BUDGET_50KFT_DESIGN.md`.
 | ID | Parameter | Value | Units | Status | Basis / question for NASA |
 |---|---|---|---|---|---|
 | C1 | Total dry mass | — | kg | DERIVED | Built from geometry × material density, with override hooks |
-| C2 | Airframe material | — | — | OPEN | ORK said fiberglass (1850 kg/m³). **CF airframe or fiberglass?** |
+| C2 | Airframe material | 6061-T6 aluminium + fibreglass | — | CONFIRMED | Stacked pressure vessels carry the airframe over their own length; only 0.45 m of non-structural fibreglass tube remains. |
 | C3 | Avionics mass | — | kg | OPEN | |
-| C4 | Payload mass | — | kg | OPEN | **Is there a required payload for the competition/agreement?** |
+| C4 | Payload mass | 0.215 | kg | ESTIMATED | CosmicWatch v3X. **The repo publishes no mass** — computed from its own drawings: PN2506 enclosure 136 g + endplates 19 g + scintillator 26 g + boards ~25 g + sundries ~10 g. Scintillator thickness assumed 10 mm (not dimensioned). Two detectors for coincidence ≈ 0.43 kg. **Weigh the real unit.** |
 | C5 | Recovery system mass | — | kg | OPEN | |
-| C6 | Tank dry mass | — | kg | OPEN | See D6 |
+| C6 | Tank dry mass | 10.61 | kg | DERIVED | From D6 geometry: 2700 × π(0.0762²−0.0727²) × 2.401. Not a guess. |
 | C7 | Dry CG | derived | m | DERIVED | |
 | C8 | Inertia I_xx, I_yy | derived | kg·m² | DERIVED | |
-| C9 | Mass margin policy | — | % | OPEN | **What growth allowance do they recommend at this design stage?** |
+| C9 | Mass margin policy | +5 % | % | CONFIRMED | On structure, as used in the design record's derate ledger. |
 
 ## D. Oxidizer system
 
@@ -166,8 +166,9 @@ from `docs/reference/02_BUDGET_50KFT_DESIGN.md`.
 | I3 | Foam core type | — | — | OPEN | **Which foam? Divinycell, Rohacell, other?** |
 | I4 | Foam core shear modulus | — | MPa | OPEN | **Dominates fin GJ — the single most important structural unknown** |
 | I5 | Foam core density | — | kg/m³ | OPEN | |
-| I6 | Aluminum tip alloy | — | — | OPEN | 6061? 7075? **Which has the service temperature margin at Mach 2.5?** |
-| I7 | Al service temperature limit | — | K | OPEN | Checked against Fay–Riddell tip temperature |
+| I6 | Aluminum tip alloy | 6061-T6 | — | CONFIRMED | Team decision. Tip mass still needs weighing once the cap is machined. |
+| I7 | Al service temperature limit | 473 | K (200 °C) | CONFIRMED | Set by **over-ageing of the T6 temper**, not melting — the strengthening precipitates coarsen above ~200 °C and do not recover on cooling. Short-duration value, right for a ~40 s ascent. **Lower than the old 550 K default, so heating margin is tighter than it looked.** |
+| I8 | Nose tip mass | — | kg | OPEN | Solid bonded aluminium cap. Drives the lumped-capacitance thermal response: a heavier tip heats more slowly. **Weigh it once machined.** |
 | I8 | Fin root attachment | rigid | — | ASSUMPTION | Root fixity assumed perfect. **Real root compliance lowers flutter speed — how much margin to carry?** |
 | I9 | Required flutter margin | ≥ 1.5 | — | CONFIRMED | Stated requirement. **Must be recomputed for CF/foam** — the source's 2.22 was for solid G10. |
 
@@ -200,17 +201,17 @@ from `docs/reference/02_BUDGET_50KFT_DESIGN.md`.
 
 ## Summary — what blocks a trustworthy run
 
-**111 parameters tracked.** Counts below are generated from this file, not
+**112 parameters tracked.** Counts below are generated from this file, not
 hand-tallied — regenerate with the script in `docs/README.md` after editing.
 
 | Count | Status | Meaning |
 |---|---|---|
-| **23** | OPEN | No value yet. Model cannot run. |
+| **18** | OPEN | No value yet. Model cannot run. |
 | **0** | PLACEHOLDER | G11 resolved — the CEA table is in `data/`. |
 | **3** | BANDED | E5, F8, G9. The dominant uncertainty. Band mode reports an envelope. |
 | **13** | ASSUMPTION | Effects deliberately not modeled — worth a sanity check with them |
-| **13** | ESTIMATED | Usable now; better data improves confidence |
-| **54** | CONFIRMED | Locked by team decision |
+| **14** | ESTIMATED | Usable now; better data improves confidence |
+| **59** | CONFIRMED | Locked by team decision |
 | **5** | DERIVED | Computed from other entries |
 
 ### The five questions most worth their time

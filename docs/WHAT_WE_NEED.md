@@ -1,9 +1,9 @@
 # What We Need — Goddard 26-27
 
-**23 values block a trustworthy run.** This document sorts every one of them by
+**18 values block a trustworthy run.** This document sorts every one of them by
 *how you get it*, so work can start in parallel instead of waiting on a meeting.
 
-Coverage is verified: 23 blocking entries in the register, 23 assigned below,
+Coverage is verified: 18 blocking entries in the register, 18 assigned below,
 no duplicates, none dropped. Regenerate the underlying list with
 `run.bat check`.
 

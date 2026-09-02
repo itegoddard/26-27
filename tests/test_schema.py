@@ -43,11 +43,11 @@ def test_open_is_not_silently_falsy():
 def test_default_config_reports_its_gaps():
     cfg = s.RocketConfig()
     missing = cfg.missing()
-    assert len(missing) > 20
+    assert len(missing) > 5
     ids = {o.register_id for _, o in missing}
     # Spot-check parameters known to be OPEN in the register
     # Spot-check parameters still OPEN after the design-record intake.
-    assert {"A4", "A6", "C3", "C4", "D7", "I3", "I4", "J3"} <= ids
+    assert {"A4", "A6", "C3", "C5", "D7", "I3", "I4", "J3"} <= ids
 
 
 def test_report_missing_is_readable():

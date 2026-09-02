@@ -315,12 +315,31 @@ class MassBudget:
     predict.
     """
 
-    airframe_material_density: Number = Open("C2", "airframe material density", "kg/m^3")
+    # C2 CONFIRMED. Stacked-pressure-vessel architecture: the 6061-T6 tank and
+    # chamber case ARE the airframe over their own length; only 0.45 m of
+    # non-structural fibreglass tube remains. Density here is the aluminium.
+    airframe_material_density: Number = 2700.0
+    airframe_material: str = "6061-T6 aluminium (pressure vessels), fibreglass tube"
     avionics_mass_kg: Number = Open("C3", "avionics mass", "kg")
-    payload_mass_kg: Number = Open("C4", "payload mass", "kg")
+    # C4 ESTIMATED, not measured. CosmicWatch Desktop Muon Detector v3X.
+    # The repository publishes no mass, so this is built from its own drawings:
+    #   enclosure PN2506 aluminium extrusion, 66.4 x 39.9 mm, 73.7 mm long,
+    #     1.88 mm wall -> 50.3 cm^3 -> 136 g
+    #   2 acrylic endplates, 3 mm                                    ->  19 g
+    #   plastic scintillator 50 x 50 x 10 mm at 1.03 g/cc            ->  26 g
+    #   PCBs, Pico, OLED, connectors                                 -> ~25 g
+    #   microSD, screws, foil, tape                                  -> ~10 g
+    # Scintillator THICKNESS is not given in the drawing (only 50 x 50);
+    # 10 mm is assumed. At 20 mm the total rises to ~241 g.
+    # Coincidence mode needs TWO detectors: ~0.43 kg plus the CAT5 cable.
+    # WEIGH THE ACTUAL UNIT before this is treated as confirmed.
+    payload_mass_kg: Number = 0.215
     recovery_mass_kg: Number = Open("C5", "recovery system mass", "kg")
-    tank_dry_mass_kg: Number = Open("C6", "tank dry mass", "kg")
-    growth_allowance: Number = Open("C9", "mass growth allowance", "fraction")
+    # C6 DERIVED from D6 geometry, not guessed:
+    #   rho_Al * pi * (R^2 - (R-t)^2) * L
+    #   = 2700 * pi * (0.0762^2 - 0.0727^2) * 2.401 = 10.61 kg
+    tank_dry_mass_kg: Number = 10.61
+    growth_allowance: Number = 0.05          # C9 CONFIRMED, +5 % on structure
 
 
 # --------------------------------------------------------- materials
@@ -368,9 +387,18 @@ class FinMaterials:
 class NoseTipMaterial:
     """Aluminium tip. Register I6, I7."""
 
-    alloy: Number = Open("I6", "aluminium alloy")
-    service_limit_K: Number = Open("I7", "alloy service temperature limit", "K")
-    mass_kg: Number = Open("I6", "tip mass", "kg")
+    alloy: str = "6061-T6"                  # I6 CONFIRMED
+    # I7. 6061-T6 is limited by OVER-AGEING of the T6 temper, not by melting:
+    # the precipitate structure that gives T6 its strength coarsens above
+    # roughly 200 C, and the alloy does not recover on cooling. 473 K is the
+    # short-duration limit, appropriate for a ~40 s ascent; sustained exposure
+    # should use ~423 K.
+    #
+    # NOTE this is LOWER than the 550 K that TipThermal defaulted to, so the
+    # heating margin is now tighter than it looked. That is the correct
+    # direction -- the old default was not tied to any alloy.
+    service_limit_K: Number = 473.0         # I7 CONFIRMED, 200 C
+    mass_kg: Number = Open("I8", "nose tip mass -- weigh the machined cap", "kg")
     emissivity: float = 0.15
 
 
