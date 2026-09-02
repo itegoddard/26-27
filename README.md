@@ -258,6 +258,7 @@ tests/                         227 tests
 out/                           generated results (gitignored)
 data/
   cea_S10W1_N2O_35bar.csv      NASA CEA sweep -- resolves register G11
+payload/                       CosmicWatch muon detector (CC BY-NC, see its README)
 docs/
   DESIGN_POINT.md              values from the reference docs, conflicts flagged
   reference/                   design record and literature (sources, not model)
