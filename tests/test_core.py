@@ -258,3 +258,29 @@ def test_missing_event_reports_none():
     log = EventLog()
     assert not log.has(Event.LANDING)
     assert log.time_of(Event.LANDING) is None
+
+
+def test_tip_area_must_be_the_stagnation_region_not_the_wetted_area():
+    """Regression test for a 30x heating over-prediction.
+
+    Sutton-Graves returns the flux at the stagnation point. Passing the wetted
+    area of the whole metal cap, rather than the tip hemisphere, applied that
+    peak flux everywhere and gave a peak tip temperature of 1156 K against a
+    true figure nearer 320 K -- which would have condemned a perfectly good
+    nose cone.
+    """
+    import math
+
+    Rn = 0.00381
+    hemisphere = 2.0 * math.pi * Rn ** 2
+
+    heat_mod.TipThermal(nose_radius_m=Rn, mass_kg=0.028, area_m2=hemisphere)
+
+    with pytest.raises(ValueError) as exc:
+        heat_mod.TipThermal(nose_radius_m=Rn, mass_kg=0.028, area_m2=27.3e-4)
+    assert "stagnation" in str(exc.value).lower()
+
+
+def test_6061_service_limit_is_the_default():
+    """Over-ageing of the T6 temper, not melting."""
+    assert heat_mod.TipThermal(0.00381, 0.028, 9e-5).service_limit_K == 473.0

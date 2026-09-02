@@ -34,6 +34,7 @@ doi:10.2514/8.7517. See ``docs/references.bib``.
 
 from __future__ import annotations
 
+import math
 from dataclasses import dataclass
 
 SUTTON_GRAVES_K = 1.7415e-4  # SI
@@ -42,14 +43,30 @@ STEFAN_BOLTZMANN = 5.670374419e-8
 
 @dataclass(frozen=True)
 class TipThermal:
-    """Aluminium nose tip thermal properties and geometry."""
+    """Aluminium nose tip thermal properties and geometry.
+
+    Attributes
+    ----------
+    nose_radius_m : tip radius of curvature, m
+    mass_kg       : mass of the metal cap, m
+    area_m2       : **effective area over which the STAGNATION-POINT flux
+        acts** -- roughly the hemispherical tip, ``2*pi*R_n**2``.
+
+        This is NOT the wetted area of the cap, and the distinction is not
+        pedantic. Sutton-Graves returns the flux at the stagnation point, which
+        is the maximum; it falls off steeply within a few nose radii. Passing
+        the wetted area of a 50 mm cap here instead of the tip hemisphere
+        over-stated the heated area by 30x and produced a peak tip temperature
+        of 1156 K against a true figure nearer 400 K. ``__post_init__``
+        rejects that mistake now.
+    """
 
     nose_radius_m: float
     mass_kg: float
     area_m2: float
     specific_heat: float = 900.0        # J/(kg K), typical aluminium
     emissivity: float = 0.15            # bare aluminium; rises when oxidised
-    service_limit_K: float = 550.0      # register I7 -- alloy dependent
+    service_limit_K: float = 473.0      # 6061-T6 over-ageing limit, 200 C
 
     def __post_init__(self) -> None:
         if self.nose_radius_m <= 0.0:
@@ -58,6 +75,20 @@ class TipThermal:
             raise ValueError("tip mass and area must be positive")
         if not 0.0 <= self.emissivity <= 1.0:
             raise ValueError("emissivity must be between 0 and 1")
+
+        # Guard against the wetted-area mistake described above. The stagnation
+        # region cannot be much larger than the tip hemisphere; anything beyond
+        # a few times that is a units or definition error, not a design.
+        hemisphere = 2.0 * math.pi * self.nose_radius_m ** 2
+        if self.area_m2 > 5.0 * hemisphere:
+            raise ValueError(
+                f"area_m2 = {self.area_m2 * 1e4:.2f} cm^2 is more than 5x the "
+                f"tip hemisphere {hemisphere * 1e4:.2f} cm^2. This field is the "
+                "effective STAGNATION-REGION area, not the wetted area of the "
+                "cap -- Sutton-Graves gives the peak flux at the tip, and "
+                "applying it over the whole cap over-predicts heating badly. "
+                f"Use about {hemisphere * 1e4:.2f} cm^2."
+            )
 
 
 def stagnation_heat_flux(

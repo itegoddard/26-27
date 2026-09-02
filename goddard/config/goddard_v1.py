@@ -286,7 +286,9 @@ def build_vehicle() -> sim_mod.Vehicle:
         nose_tip=heat_mod.TipThermal(
             nose_radius_m=NOSE_TIP_RADIUS_M,
             mass_kg=PROVISIONAL["nose tip mass"],
-            area_m2=27.3e-4,
+            # Effective STAGNATION-REGION area = 2*pi*R_n^2, not the wetted
+            # area of the cap. See TipThermal's docstring.
+            area_m2=2.0 * math.pi * NOSE_TIP_RADIUS_M ** 2,
             service_limit_K=473.0,   # 6061-T6, over-ageing limit
         ),
         field_elevation_m=FIELD_ELEVATION_M,
