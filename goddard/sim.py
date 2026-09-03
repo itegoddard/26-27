@@ -25,7 +25,9 @@ from goddard.motor import injector as inj_mod
 from goddard.motor import tank as tank_mod
 from goddard.props import n2o
 from goddard.props.cea import CEATable
+from goddard.structures import flutter as fl_mod
 from goddard.structures import heating as heat_mod
+from goddard.structures import laminate as lam_mod
 
 
 @dataclass(frozen=True)
@@ -46,8 +48,25 @@ class Vehicle:
     latent_heat: Callable[[float], float]
     nose_tip: heat_mod.TipThermal | None = None
     field_elevation_m: float = 1216.0
-    rail_length_m: float = 9.0
+    rail_length_m: float = 5.2
     eta_cf: float = 0.97
+
+    # 2026 IREC DTEG requires this at rail departure. It is a VELOCITY
+    # requirement; thrust-to-weight is only a proxy and can pass while this
+    # fails, which is exactly what happens on this vehicle.
+    min_rail_exit_velocity_ms: float = 25.0
+
+    # Feed line. Loss here is subtracted from the injector pressure drop before
+    # the chug ratio is formed, because the criterion is about the drop across
+    # the ORIFICES, not from the tank.
+    feed_line_diameter_m: float = 0.0221
+    feed_line_length_m: float = 0.50
+    feed_line_loss_coefficient: float = 3.0
+
+    # Optional aeroelastics. Supply both to have flutter and divergence
+    # evaluated along the trajectory rather than computed once and forgotten.
+    flutter_planform: "fl_mod.FinPlanform | None" = None
+    flutter_section: "lam_mod.SandwichSection | None" = None
 
     # Combustion extinguishes when the tank runs out of LIQUID, expressed as a
     # fraction of the initial liquid charge.
@@ -116,6 +135,51 @@ class Sample:
     chug_margin: float
     static_margin: float
     tip_temperature: float
+    flutter_margin: float = math.inf
+    divergence_margin: float = math.inf
+
+
+def _feed_line_loss_Pa(vehicle: "Vehicle", m_dot: float, rho: float) -> float:
+    """Pressure lost between tank and injector face, Pa.
+
+    ``dP = K * 0.5 * rho * v**2`` with ``v`` the bulk line velocity. Small in
+    absolute terms, but the chug criterion is a RATIO sitting near its floor,
+    so a few tenths of a bar decides marginal-pass against fail.
+    """
+    if m_dot <= 0.0 or rho <= 0.0 or vehicle.feed_line_diameter_m <= 0.0:
+        return 0.0
+    area = math.pi * (vehicle.feed_line_diameter_m / 2.0) ** 2
+    velocity = m_dot / (rho * area)
+    return vehicle.feed_line_loss_coefficient * 0.5 * rho * velocity ** 2
+
+
+def _corrected_chug_margin(vehicle, chamber, n2o_mod, tank_state) -> float:
+    """Chug margin against the drop across the ORIFICES, not from the tank.
+
+    The raw margin uses tank-minus-chamber. Feed-line loss happens upstream of
+    the injector face, so it is not available to stiffen the injector and must
+    come off first.
+    """
+    p_c = chamber.chamber_pressure_Pa
+    if p_c <= 0.0:
+        return math.inf
+    rho = n2o_mod.liquid_density(tank_state.temperature_K)
+    loss = _feed_line_loss_Pa(vehicle, chamber.m_dot_ox, rho)
+    dp = chamber.injector_dp_ratio * p_c - loss
+    return (dp / p_c) / 0.20
+
+
+def _aeroelastic_margins(vehicle, speed, q_dyn, atm) -> tuple[float, float]:
+    """(flutter, divergence) margins, or infinities if not configured."""
+    if vehicle.flutter_planform is None or vehicle.flutter_section is None:
+        return math.inf, math.inf
+    if speed <= 1.0 or atm.P <= 0.0:
+        return math.inf, math.inf
+    pf, sec = vehicle.flutter_planform, vehicle.flutter_section
+    gj = lam_mod.torsional_stiffness(sec, characteristic_length_m=pf.mean_chord_m)
+    g_eff = gj / lam_mod.torsion_constant_solid(pf.mean_chord_m, pf.thickness_m)
+    m = fl_mod.margins(pf, g_eff, gj, speed, q_dyn, atm.P, atm.a)
+    return m.flutter_margin, m.divergence_margin
 
 
 @dataclass
@@ -154,6 +218,38 @@ class FlightResult:
     @property
     def min_web_fraction(self) -> float:
         return min((s.web_fraction for s in self.samples), default=1.0)
+
+    @property
+    def min_flutter_margin(self) -> float:
+        return min((s.flutter_margin for s in self.samples), default=math.inf)
+
+    @property
+    def min_divergence_margin(self) -> float:
+        return min((s.divergence_margin for s in self.samples), default=math.inf)
+
+    def constraints(self, vehicle: "Vehicle") -> list[tuple[str, float, float, bool]]:
+        """(name, actual, limit, passes) for every checkable requirement.
+
+        Reported rather than merely computed, because a constraint that is not
+        printed is a constraint nobody checks. Rail departure velocity is the
+        case in point: thrust-to-weight was being reported and passing while
+        the actual IREC requirement, which is on velocity, was failing.
+        """
+        return [
+            ("rail exit velocity (m/s)", self.rail_exit_velocity_ms,
+             vehicle.min_rail_exit_velocity_ms,
+             self.rail_exit_velocity_ms >= vehicle.min_rail_exit_velocity_ms),
+            ("min chug margin", self.min_chug_margin, 1.0,
+             self.min_chug_margin >= 1.0),
+            ("min static margin (cal)", self.min_static_margin, 1.5,
+             self.min_static_margin >= 1.5),
+            ("min web remaining (%)", self.min_web_fraction * 100.0, 5.0,
+             self.min_web_fraction * 100.0 >= 5.0),
+            ("min flutter margin", self.min_flutter_margin, 1.5,
+             self.min_flutter_margin >= 1.5),
+            ("min divergence margin", self.min_divergence_margin, 1.5,
+             self.min_divergence_margin >= 1.5),
+        ]
 
     @property
     def min_chug_margin(self) -> float:
@@ -342,6 +438,8 @@ def run(
                 vehicle.nose_tip, tip_T, flux, atm.T, dt
             )
 
+        flut = _aeroelastic_margins(vehicle, v, q_dyn, atm)
+
         result.samples.append(
             Sample(
                 t=t,
@@ -366,11 +464,16 @@ def run(
                 web_fraction=grain_mod.web_fraction(
                     vehicle.grain_geometry, grain_state
                 ),
-                chug_margin=chamber.chug_margin if chamber else math.inf,
+                chug_margin=(
+                    _corrected_chug_margin(vehicle, chamber, n2o, tank_state)
+                    if chamber else math.inf
+                ),
                 static_margin=nf_mod.static_margin(
                     nf.x_cp_m, mass_state.x_cg_m, geom.reference_length_m
                 ),
                 tip_temperature=tip_T,
+                flutter_margin=flut[0],
+                divergence_margin=flut[1],
             )
         )
 

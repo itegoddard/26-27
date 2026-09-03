@@ -63,6 +63,20 @@ def cmd_run(args: argparse.Namespace) -> int:
     result = sim_mod.run(vehicle, dt=args.dt, max_time_s=args.max_time)
     print(result.summary())
 
+    # Constraints are printed on every run, pass or fail. A requirement that is
+    # computed but not shown is a requirement nobody checks -- rail departure
+    # velocity was failing for exactly that reason while thrust-to-weight, a
+    # proxy for it, was being reported and passing.
+    print()
+    print("CONSTRAINTS")
+    failures = 0
+    for name, actual, limit, ok in result.constraints(vehicle):
+        if not ok:
+            failures += 1
+        print(f"  {'PASS' if ok else 'FAIL'}  {name:28s} {actual:9.2f}  vs {limit:.2f}")
+    if failures:
+        print(f"\n  {failures} CONSTRAINT(S) FAILING -- see docs/WHAT_WE_NEED.md")
+
     if args.out:
         out = Path(args.out)
         from goddard.report import excel, plots

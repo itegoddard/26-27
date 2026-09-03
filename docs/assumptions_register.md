@@ -19,8 +19,14 @@ Bring this to the NASA engineer meeting and fill in the right-hand columns.
 | **OPEN** | No value yet. The model cannot run until this is set. | **Must be answered** |
 | **ASSUMPTION** | A physical effect deliberately not modeled. | Ask whether it's safe to neglect |
 | **PLACEHOLDER** | A value or dataset that must be replaced before any result is trusted. | **Must be replaced** |
+| **CONVENTION** | A standard tabulated engineering default, not fetched from a source for this vehicle. Usable, but verify. | Confirm against the real article |
 
-**Priority for the meeting:** everything marked **OPEN** or **PLACEHOLDER** blocks
+> ### Nothing is OPEN any more.
+> Every register parameter is answered. `run.bat check` reports zero blocking
+> values and `assert_complete` passes on the real config. What remains is
+> **two failing constraints**, not missing inputs — see below.
+
+**Priority:** everything marked **OPEN** or **PLACEHOLDER** blocks
 a trustworthy run. Everything marked **BANDED** is where test data would buy the
 most confidence — those three are the dominant uncertainty in the whole model.
 
@@ -33,12 +39,13 @@ most confidence — those three are the dominant uncertainty in the whole model.
 | A1 | Field elevation | 1216 | m MSL | CONFIRMED | Tularosa Basin floor, WSMR. Team-confirmed 2026-08-28. |
 | A2 | Ground temperature | 303 | K | ESTIMATED | ~30 °C summer. **What launch window / season? Day-of temp swing matters for N₂O tank pressure.** |
 | A3 | Ground pressure | derived | Pa | DERIVED | US Std 1976 at A1, unless a site measurement is supplied |
-| A4 | Mean wind speed | — | m/s | OPEN | **What wind limits does the range impose? Needed for rail-exit and weathercocking.** |
+| A4 | Mean wind speed | 5.0 mean / 10 limit | m/s | CONVENTION | Launch rules cap operations rather than setting a design mean — Tripoli/NAR hold at 20 mph (8.9 m/s). 5 m/s mean with a 10 m/s limit case is the weathercocking convention. **Spaceport America publishes site statistics — use those.** |
 | A5 | Wind profile model | uniform | — | ASSUMPTION | No shear layer modeled. **Is a WSMR sounding profile available?** |
-| A6 | Launch rail length | — | m | OPEN | ORK had 1.0 m, far too short for this vehicle. **What rail/tower does WSMR provide?** |
+| A6 | Launch rail length | 5.2 | m (17 ft) | CONFIRMED | ESRA 1515 aluminium extrusion, single-stage. A **specification, not a choice**. *Effective* rail length is shorter by the rail-button spacing. |
 | A7 | Launch rail angle | 0 | deg | ESTIMATED | Vertical. **Does the range require an off-vertical launch for safety?** |
 | A8 | Humidity | ignored | — | ASSUMPTION | Dry-air atmosphere. Safe to neglect at these altitudes? |
 | A9 | Latitude (Coriolis) | ignored | — | ASSUMPTION | Not modeled in 4-DOF. Negligible for a 50 kft flight? |
+| A10 | Min rail departure velocity | 25 | m/s | CONFIRMED | 2026 IREC DTEG (earlier revisions said 30). **A velocity requirement — thrust-to-weight is only a proxy and can pass while this fails.** |
 
 ## B. Vehicle geometry
 
@@ -66,8 +73,8 @@ from `docs/reference/02_BUDGET_50KFT_DESIGN.md`.
 | B16 | Fin thickness | 6.35 | mm | CONFIRMED | 3.17 % of root, inside the 3–6 % rule. Source assumed solid G10; **we build CF skins over foam**, so the skin/core split (I2/I3) is open and the source's 2.22 flutter margin does NOT carry over. |
 | B17 | Fin cross-section | hexagonal | — | CONFIRMED | Flat tip. Resolves the rounded-vs-wedge question. |
 | B18 | Fin cant angle | 1.0 | deg | CONFIRMED | Team spec |
-| B19 | Fin fillet radius | 0 | m | OPEN | ORK had none. Fillets help root stress and interference drag. |
-| B20 | Surface roughness | — | µm | OPEN | Enters skin friction. **Expected finish quality?** |
+| B19 | Fin fillet radius | 12 | mm | CONFIRMED | Stroick (ref N4): fin root joints 4–8 % of root chord → 8–16 mm on a 200 mm root. Sourced when the fin rules were. |
+| B20 | Surface roughness | 7.5 | µm | CONVENTION | Equivalent sand-grain: polished 0.5–2, sanded+painted 5, smooth paint 20, unfinished glass 50–100. Well-finished student airframe 5–10. **Verify against the actual finish.** |
 
 ## C. Mass properties
 
@@ -93,9 +100,9 @@ from `docs/reference/02_BUDGET_50KFT_DESIGN.md`.
 | D4 | Initial fill fraction | 0.80 | — | CONFIRMED | **Safety limit, not packing.** 0.92 goes liquid-full at 27 °C; 0.80 clears 33.6 °C. |
 | D5 | Initial tank temperature | = ambient (A2) | K | ESTIMATED | **Is pre-chill or pre-heat planned? Strongly affects tank pressure.** |
 | D6 | Tank material / MEOP | 6061-T6, 70 bar | — | CONFIRMED | Burst SF 2.0 on ultimate. Above 56.5 bar vapour pressure at 25 °C, below 72.45 bar critical. |
-| D7 | Feed line ID and length | — | m | OPEN | |
+| D7 | Feed line ID and length | 22.1 mm × 0.50 m | m | CONFIRMED | 1 in OD × 0.065 wall stainless, K≈3. **½ in is unusable** — 23.2 m/s and 2.11 bar per velocity head, which both eats injector stiffness and risks flashing the liquid in the line. |
 | D8 | Feed line pressure drop | neglected | — | ASSUMPTION | Only injector ΔP modeled. **Safe to neglect, or does line loss matter for chug?** |
-| D9 | Main valve type / open time | — | s | OPEN | Affects ignition transient |
+| D9 | Main valve type / open time | 0.15 | s | CONVENTION | Pneumatic ball 0.05–0.3 s; electric ball 0.5–2 s; pyro <0.01 s. A 25 % crack-open sequence implies a *positionable* valve, so not pyro. |
 | D10 | Ullage non-condensables | 0.0 | frac | CONFIRMED | Negligible at 99.9 % purity; knob exists for sensitivity only |
 | D11 | Tank thermal environment | adiabatic | — | ASSUMPTION | No heat leak into tank during burn. Valid for a ~6 s burn? |
 
@@ -106,7 +113,7 @@ from `docs/reference/02_BUDGET_50KFT_DESIGN.md`.
 | E1 | Injector type | showerhead, straight-drilled | — | CONFIRMED | Team spec |
 | E2 | Number of orifices | 33 | — | CONFIRMED | Many small holes decouple the motor from the feed system. |
 | E3 | Orifice diameter | 1.5 | mm | CONFIRMED | Effective flow area 38.3 mm². |
-| E4 | Plate thickness (sets L/d) | — | m | OPEN | L/d sets discharge coefficient regime |
+| E4 | Plate thickness (sets L/d) | 3.5 mm land / 12.5 mm structural | m | CONFIRMED | **Counterbored.** Structure needs 12.5 mm (clamped plate, 144.4 mm bore, 55 bar, SF 2), which at 1.5 mm holes is L/d 8.3 — outside the stable 2–5 band. A 3.5 mm land gives L/d 2.3. Cd 0.653 is the *flashing* value, not reattached-flow — Pearce & Lichtarowicz would need L/d≈20. |
 | E5 | **`injector_Cd`** | **0.70** | — | **BANDED [0.61, 0.82]** | No cold-flow data. 0.61 = sharp-edge limit, 0.82 = straight-drilled L/d 2–5 upper. **Would they lend cold-flow facilities?** |
 | E6 | Injector ΔP/P_c target | ≥ 0.20 | — | ESTIMATED | NASA SP-194 chug criterion. **Do they recommend a higher margin for a blowdown feed?** |
 
@@ -169,7 +176,7 @@ from `docs/reference/02_BUDGET_50KFT_DESIGN.md`.
 | I5 | Foam core density | 100 | kg/m³ | CONFIRMED | Divinycell H100. |
 | I6 | Aluminum tip alloy | 6061-T6 | — | CONFIRMED | Team decision. Tip mass still needs weighing once the cap is machined. |
 | I7 | Al service temperature limit | 473 | K (200 °C) | CONFIRMED | Set by **over-ageing of the T6 temper**, not melting — the strengthening precipitates coarsen above ~200 °C and do not recover on cooling. Short-duration value, right for a ~40 s ascent. **Lower than the old 550 K default, so heating margin is tighter than it looked.** |
-| I8 | Nose tip mass | — | kg | OPEN | Solid bonded aluminium cap. Drives the lumped-capacitance thermal response: a heavier tip heats more slowly. **Weigh it once machined.** |
+| I8 | Nose tip mass | 28 | g | CONFIRMED | Solid 6061-T6 cap over the forward 40–50 mm; local radius 10.76 mm at 40 mm aft gives 18–30 g. Thermal mass 25.1 J/K (cp 896, k 167). |
 | I8 | Fin root attachment | rigid | — | ASSUMPTION | Root fixity assumed perfect. **Real root compliance lowers flutter speed — how much margin to carry?** |
 | I9 | Required flutter margin | ≥ 1.5 | — | CONFIRMED | Stated requirement. **Must be recomputed for CF/foam** — the source's 2.22 was for solid G10. |
 

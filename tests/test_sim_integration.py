@@ -220,3 +220,61 @@ def test_failed_corner_is_recorded_not_raised(vehicle):
     assert len(out.corners) == 8
     # Whatever happens, run_band must return rather than propagate.
     assert all(c.ok or c.error for c in out.corners)
+
+
+def test_constraints_are_reported_pass_or_fail(vehicle):
+    """Every requirement must be listed, not just the failing ones.
+
+    A constraint that is computed but never printed is a constraint nobody
+    checks. Rail departure velocity was failing for exactly that reason while
+    thrust-to-weight -- a proxy for it -- was reported and passing.
+    """
+    result = sim_mod.run(vehicle, dt=0.02, max_time_s=300.0)
+    names = [c[0] for c in result.constraints(vehicle)]
+    assert "rail exit velocity (m/s)" in names
+    assert "min flutter margin" in names
+    assert "min chug margin" in names
+    for name, actual, limit, ok in result.constraints(vehicle):
+        assert isinstance(ok, bool)
+        assert ok == (actual >= limit)
+
+
+def test_feed_line_loss_reduces_the_chug_margin(vehicle):
+    """Line loss is upstream of the injector, so it cannot stiffen it.
+
+    The criterion is the drop across the ORIFICES. Small in absolute terms --
+    tenths of a bar -- but the margin sits near its floor, so it decides
+    marginal-pass against fail.
+    """
+    import dataclasses
+
+    lossless = sim_mod.run(
+        dataclasses.replace(vehicle, feed_line_loss_coefficient=0.0),
+        dt=0.02, max_time_s=300.0,
+    )
+    real = sim_mod.run(vehicle, dt=0.02, max_time_s=300.0)
+    assert real.min_chug_margin < lossless.min_chug_margin
+
+
+def test_a_narrow_feed_line_is_much_worse(vehicle):
+    """Half-inch line: 23 m/s and 2.1 bar per velocity head. Unusable."""
+    import dataclasses
+
+    wide = sim_mod.run(vehicle, dt=0.02, max_time_s=300.0)
+    narrow = sim_mod.run(
+        dataclasses.replace(vehicle, feed_line_diameter_m=0.0109),
+        dt=0.02, max_time_s=300.0,
+    )
+    assert narrow.min_chug_margin < wide.min_chug_margin
+
+
+def test_flutter_is_evaluated_when_configured(vehicle):
+    """Regression test: flutter used to be implemented and never called."""
+    import math
+
+    result = sim_mod.run(vehicle, dt=0.02, max_time_s=300.0)
+    if vehicle.flutter_planform is None:
+        assert math.isinf(result.min_flutter_margin)
+    else:
+        assert math.isfinite(result.min_flutter_margin)
+        assert result.min_flutter_margin > 0.0

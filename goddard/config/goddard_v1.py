@@ -33,7 +33,9 @@ from goddard.motor import injector as inj_mod
 from goddard.props import cea as cea_mod
 from goddard.props import fuel as fuel_mod
 from goddard.props import n2o
+from goddard.structures import flutter as fl_mod
 from goddard.structures import heating as heat_mod
+from goddard.structures import laminate as lam_mod
 
 # ---------------------------------------------------------------------------
 # CONFIRMED -- airframe
@@ -125,7 +127,7 @@ PROVISIONAL = {
     "foam core shear modulus": 3.5e7,
     "foam core Young's modulus": 1.35e8,
     "foam core density": 100.0,
-    "nose tip mass": 0.028,              # derived below; weigh the machined cap
+    "nose tip mass": 0.028,              # solid 6061-T6 cap, 40-50 mm
     # --- recovery: bounded, not open. 3.5 kN is ~11 g on 32.9 kg, sized on
     #     the binding element in the load path -- the nose cone bulkhead bond,
     #     not the hardware. A 3/8-16 forged eyebolt carries several kN working
@@ -142,11 +144,16 @@ PROVISIONAL = {
     # dynamic pressure is negligible.
     "reefing ratio": 0.40,
     "opening force coefficient": 1.7,    # Knacke, solid cloth
-    # --- hardware
-    "injector plate thickness": 0.0030,  # need: the drawing. Sets L/d = 2.0
-    "launch rail length": 9.0,           # need: what WSMR provides
-    "mean wind speed": 5.0,              # need: range limits. 25-26 used 5.0
-    "surface roughness": 20e-6,          # need: expected finish quality
+    # --- hardware: all sourced now
+    # Counterbored plate: 3.5 mm orifice LAND (L/d 2.3, the stable short-tube
+    # band) with 12.5 mm of structure behind it. Flat-drilling 12.5 mm would
+    # give L/d 8.3, outside the band the correlations cover.
+    "injector plate thickness": 0.0035,
+    # ESRA 1515 extrusion, 5.2 m. A specification, not a choice. EFFECTIVE
+    # length is shorter by the rail-button spacing, so this is optimistic.
+    "launch rail length": 5.2,
+    "mean wind speed": 5.0,              # convention; site stats would be better
+    "surface roughness": 7.5e-6,         # well-finished student airframe
     # --- mass breakdown: the 32.55 kg dry total is CONFIRMED, the split is not
     # -- masses RESOLVED from the register; kept here for one-place visibility
     "avionics mass": 1.200,              # sled, two flight computers, batteries
@@ -340,4 +347,25 @@ def build_vehicle() -> sim_mod.Vehicle:
         ),
         field_elevation_m=FIELD_ELEVATION_M,
         rail_length_m=PROVISIONAL["launch rail length"],
+        min_rail_exit_velocity_ms=25.0,     # 2026 IREC DTEG
+        feed_line_diameter_m=0.0221,        # 1 in OD x 0.065 wall stainless
+        feed_line_length_m=0.50,
+        feed_line_loss_coefficient=3.0,     # ball valve + entrance + one bend
+        # Aeroelastics evaluated along the trajectory, not computed once.
+        flutter_planform=fl_mod.FinPlanform(
+            root_chord_m=FIN_ROOT_CHORD_M,
+            tip_chord_m=FIN_TIP_CHORD_M,
+            span_m=FIN_SPAN_M,
+            thickness_m=FIN_THICKNESS_M,
+        ),
+        flutter_section=lam_mod.SandwichSection(
+            face_thickness_m=FIN_FACE_THICKNESS_M,
+            core_thickness_m=FIN_CORE_THICKNESS_M,
+            chord_m=0.5 * (FIN_ROOT_CHORD_M + FIN_TIP_CHORD_M) * FIN_SPAN_M
+                    / FIN_SPAN_M,
+            face_modulus_Pa=1.733e10,
+            face_shear_Pa=3.10e10,
+            core_modulus_Pa=PROVISIONAL["foam core Young's modulus"],
+            core_shear_Pa=PROVISIONAL["foam core shear modulus"],
+        ),
     )

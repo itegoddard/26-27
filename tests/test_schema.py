@@ -40,34 +40,60 @@ def test_open_is_not_silently_falsy():
     assert bool(s.Open("A4", "wind"))
 
 
-def test_default_config_reports_its_gaps():
-    cfg = s.RocketConfig()
-    missing = cfg.missing()
-    assert len(missing) > 5
-    ids = {o.register_id for _, o in missing}
-    # Spot-check parameters known to be OPEN in the register
-    # Spot-check parameters still OPEN after the design-record intake.
-    assert {"A4", "A6", "B19", "B20", "D7", "D9", "E4", "I8"} <= ids
+def test_the_default_config_is_now_complete():
+    """Every register parameter is answered.
+
+    This is the milestone the Open sentinel existed to drive towards: the
+    default config no longer contains a single unfilled value. If this starts
+    failing, a NEW parameter was added and needs answering -- the failure names
+    it.
+    """
+    missing = s.RocketConfig().missing()
+    assert missing == [], (
+        "unfilled parameters: "
+        + ", ".join(f"{o.register_id} ({o.description})" for _, o in missing)
+    )
 
 
-def test_report_missing_is_readable():
-    report = s.RocketConfig().report_missing()
+def test_report_missing_says_so_when_nothing_is_missing():
+    assert s.RocketConfig().report_missing() == "All parameters filled."
+
+
+def test_report_missing_is_readable_when_something_is_open():
+    """The reporting machinery must still work -- it will be needed again."""
+    cfg = dataclasses.replace(
+        s.RocketConfig(),
+        environment=dataclasses.replace(
+            s.Environment(), mean_wind_speed_ms=s.Open("A4", "mean wind speed", "m/s")
+        ),
+    )
+    report = cfg.report_missing()
     assert "still OPEN" in report
     assert "A4" in report
     assert "mean wind speed" in report
 
 
+def test_assert_complete_passes_on_the_real_config():
+    """Nothing is unfilled any more, so this must not raise."""
+    s.assert_complete(s.RocketConfig())
+
+
 def test_assert_complete_lists_everything_at_once():
-    """One run should reveal the whole gap, not just the first missing value."""
+    """One run must reveal the whole gap, not just the first missing value.
+
+    The real config is complete now, so this injects two sentinels to keep the
+    machinery under test -- it will be needed again the moment a new parameter
+    is added.
+    """
+    env = dataclasses.replace(
+        s.Environment(),
+        mean_wind_speed_ms=s.Open("A4", "mean wind speed", "m/s"),
+        rail_length_m=s.Open("A6", "launch rail length", "m"),
+    )
     with pytest.raises(s.OpenParameter) as exc:
-        s.assert_complete(s.RocketConfig())
+        s.assert_complete(env)
     msg = str(exc.value)
-    # One line per unfilled parameter, plus a header and a trailer. The count
-    # shrinks as the register is answered, so this asserts only that every
-    # remaining gap is listed -- the point is that it does not stop at the
-    # first one.
-    assert msg.count("\n") >= len(s.RocketConfig().missing())
-    assert msg.count("\n") > 5
+    assert "A4" in msg and "A6" in msg, "stopped at the first missing value"
 
 
 def test_assert_complete_passes_when_filled():

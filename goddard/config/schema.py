@@ -138,8 +138,23 @@ class Environment:
 
     field_elevation_m: Number = 1216.0          # A1 CONFIRMED, Tularosa Basin
     ground_temperature_K: Number = 303.15       # A2 ESTIMATED
-    mean_wind_speed_ms: Number = Open("A4", "mean wind speed", "m/s")
-    rail_length_m: Number = Open("A6", "launch rail length", "m")
+    # A4. Launch rules cap operations rather than specifying a design mean --
+    # Tripoli and NAR hold at 20 mph (8.9 m/s). Weathercocking analysis
+    # conventionally uses a 5 m/s mean with a 10 m/s limit case.
+    # CONVENTION, not a site statistic. Spaceport America publishes real ones.
+    mean_wind_speed_ms: Number = 5.0
+    limit_wind_speed_ms: Number = 10.0
+    # A6 CONFIRMED. ESRA provides 5.2 m (17 ft) 1515 aluminium extrusion for
+    # single-stage vehicles. This is a SPECIFICATION, not a choice.
+    #
+    # "Effective" rail length is the distance travelled before the vehicle is
+    # first free in pitch, yaw or roll, so it is LESS than 5.2 m by the
+    # rail-button spacing. Using the full 5.2 m is optimistic.
+    rail_length_m: Number = 5.2
+    # 2026 IREC DTEG requires >= 25 m/s at rail departure (earlier revisions
+    # said 30). This is a VELOCITY requirement -- thrust-to-weight is only a
+    # proxy for it and can pass while the real constraint fails.
+    min_rail_exit_velocity_ms: Number = 25.0
     rail_angle_rad: Number = 0.0                # A7 ESTIMATED, vertical
 
 
@@ -219,7 +234,9 @@ class FinSet:
     # I1-I5 land.
     thickness_m: Number = 0.00635
     cross_section: str = "hexagonal"            # B17 CONFIRMED, flat tip
-    fillet_radius_m: Number = Open("B19", "fin fillet radius", "m")
+    fillet_radius_m: Number = 0.012          # B19 CONFIRMED, 6 % of root chord
+    # Stroick (reference N4): fin root joints 4-8 % of root chord. On a 200 mm
+    # root that is 8-16 mm. This was sourced when the fin rules were.
 
     @property
     def tip_chord_m(self) -> Number:
@@ -233,7 +250,11 @@ class Geometry:
     transition: Transition = field(default_factory=Transition)
     body: BodyTube = field(default_factory=BodyTube)
     fins: FinSet = field(default_factory=FinSet)
-    surface_roughness_m: Number = Open("B20", "surface roughness", "m")
+    # B20. Equivalent sand-grain roughness: polished 0.5-2 um, sanded and
+    # painted 5 um, standard smooth paint 20 um, unfinished glass 50-100 um.
+    # A well-finished student airframe lands at 5-10 um.
+    # CONVENTION, to verify against the actual finish.
+    surface_roughness_m: Number = 7.5e-6
     # H7 is an ASSUMPTION in the register, not an OPEN parameter: rail buttons,
     # camera housings and antennas are simply not modelled. Zero means "none
     # accounted for", which is the documented state -- not a missing value.
@@ -261,7 +282,18 @@ class Injector:
 
     n_holes: Number = 33                        # E2 CONFIRMED
     hole_diameter_m: Number = 0.0015            # E3 CONFIRMED, 1.5 mm
-    plate_thickness_m: Number = Open("E4", "plate thickness, sets L/d", "m")
+    # E4. STRUCTURE governs the plate, flow governs the orifice land, and they
+    # disagree -- which is why real injector plates are stepped, not flat.
+    #
+    # Clamped circular plate, 144.4 mm bore, 55 bar, 6061-T6 at 276 MPa yield
+    # with SF 2: t = sqrt(3PR^2/4sigma) = 12.5 mm. At 1.5 mm holes that is
+    # L/d = 8.3, outside the stable 2-5 short-tube band.
+    #
+    # Counterbore from upstream so the orifice LAND is 3.5 mm (L/d = 2.3) and
+    # the remaining 9 mm carries structure. It is the land that sets the flow
+    # regime, so that is what this field holds.
+    plate_thickness_m: Number = 0.0035
+    structural_plate_thickness_m: Number = 0.0125
     min_dp_ratio: float = 0.20                  # E6 ESTIMATED, chug criterion
 
 
@@ -296,9 +328,28 @@ class Motor:
     nozzle: Nozzle = field(default_factory=Nozzle)
     pre_chamber_length_m: float = 0.060         # G3 CONFIRMED, L/D 0.43
     nozzle_material: str = "graphite throat, silica-phenolic con/div"  # G6
-    feed_line_diameter_m: Number = Open("D7", "feed line inner diameter", "m")
-    feed_line_length_m: Number = Open("D7", "feed line length", "m")
-    main_valve_open_time_s: Number = Open("D9", "main valve opening time", "s")
+    # D7. 1 in OD x 0.065 in wall stainless -> 22.1 mm bore.
+    #
+    # Half-inch is UNUSABLE, and not marginally: 10.9 mm bore puts 23.2 m/s of
+    # liquid nitrous through the line at 2.11 bar per velocity head. That eats
+    # the injector stiffness the chug criterion depends on, and worse, any
+    # local drop below saturation flashes the liquid in the line -- nitrous
+    # carries its own vapour dome with it. Peregrine supercharged its tank for
+    # exactly this reason.
+    #
+    #   bore     velocity   one velocity head
+    #   10.9 mm  23.2 m/s   2.11 bar     unusable
+    #   16.6 mm  10.0 m/s   0.39 bar
+    #   22.1 mm   5.65 m/s  0.125 bar    <- this
+    feed_line_diameter_m: Number = 0.0221
+    feed_line_length_m: Number = 0.50        # as short as the layout allows
+    feed_line_loss_coefficient: Number = 3.0  # ball valve + entrance + one bend
+
+    # D9. By actuator type: pneumatic ball 0.05-0.3 s, electric ball 0.5-2 s,
+    # pyrotechnic under 0.01 s. A 25 % crack-open sequence implies a valve that
+    # can be POSITIONED, so electric or pneumatic, not pyrotechnic.
+    # CONVENTION, to verify against the chosen actuator.
+    main_valve_open_time_s: Number = 0.15
     tank_material: str = "6061-T6"              # D6 CONFIRMED
     tank_meop_Pa: float = 70e5                  # D6 CONFIRMED, burst SF 2.0
 
@@ -402,7 +453,11 @@ class NoseTipMaterial:
     # heating margin is now tighter than it looked. That is the correct
     # direction -- the old default was not tied to any alloy.
     service_limit_K: Number = 473.0         # I7 CONFIRMED, 200 C
-    mass_kg: Number = Open("I8", "nose tip mass -- weigh the machined cap", "kg")
+    # I8. Solid 6061-T6 cap over the forward 40-50 mm of the Von Karman
+    # profile: local radius 10.76 mm at 40 mm aft, giving 18-30 g.
+    mass_kg: Number = 0.028
+    specific_heat_J_kgK: Number = 896.0      # 6061-T6
+    conductivity_W_mK: Number = 167.0        # 6061-T6
     emissivity: float = 0.15
 
 
