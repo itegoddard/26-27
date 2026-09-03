@@ -445,12 +445,12 @@ class Calibration:
 class Recovery:
     """Drogue then reefed main then full main. Register section J."""
 
-    canopy_cds_m2: Number = Open("J3", "canopy Cd*S, full open", "m^2")
-    reefing_ratio: Number = Open("J4", "reefing ratio")
-    disreef_altitude_m: Number = Open("J5", "disreef trigger altitude", "m")
+    canopy_cds_m2: Number = 12.11            # J3 DERIVED from the 7 m/s limit
+    reefing_ratio: Number = 0.40             # J4 SOLVED from J9, not chosen
+    disreef_altitude_m: Number = 450.0       # J5 CONFIRMED
     filling_constant: float = 8.0               # J6 ESTIMATED, Knacke
-    opening_force_coefficient: Number = Open("J7", "opening force coefficient Cx")
-    max_opening_load_N: Number = Open("J9", "max allowable opening load", "N")
+    opening_force_coefficient: Number = 1.7  # J7 ESTIMATED, Knacke solid cloth
+    max_opening_load_N: Number = 3500.0      # J9 ESTIMATED, ~11 g. Pull test pending.
     max_landing_speed_ms: float = 7.0           # J10 CONFIRMED
 
 

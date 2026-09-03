@@ -57,6 +57,12 @@ class ChamberState:
     injector_dp_ratio: float
     chug_margin: float
     web_fraction: float
+    cold_gas: bool = False
+    """True when no fuel is burning, so ``c_star_ms`` is NOT valid.
+
+    The value carried is a combustion c* clamped at the CEA table edge, applied
+    to cold nitrous vapour. Thrust in this state is over-predicted several-fold.
+    """
 
     @property
     def m_dot_total(self) -> float:
@@ -185,6 +191,14 @@ def solve(
     p_chamber = 0.5 * (lo + hi)
     _, info = _residual(p_chamber, *args)
 
+    # If no fuel is burning, c* came from the CEA table clamped at its O/F
+    # edge -- i.e. a COMBUSTION characteristic velocity applied to what is
+    # really cold nitrous vapour. Cold-gas c* is roughly 400-600 m/s against
+    # combustion's ~1500, so thrust in that regime is over-predicted by a large
+    # factor. The default flame-out criterion in sim.run avoids the regime
+    # entirely; this flag is only reached with combust_vapour_phase=True.
+    cold_gas = info["m_dot_fuel"] <= 0.0
+
     gamma = cea.gamma(info["of_ratio"], p_chamber)
     perf = nozzle_mod.performance(
         p_chamber=p_chamber,
@@ -198,6 +212,7 @@ def solve(
     dp_ratio = inj_mod.pressure_drop_ratio(tank_pressure, p_chamber)
 
     return ChamberState(
+        cold_gas=cold_gas,
         chamber_pressure_Pa=p_chamber,
         m_dot_ox=info["m_dot_ox"],
         m_dot_fuel=info["m_dot_fuel"],

@@ -9,7 +9,7 @@ blocking entries to 25, and the model has no PLACEHOLDER left.
 
 Section A is retained as the audit trail: what came from where.
 
-**Headline:** 61,962 ft nominal, **53,298 ft after every derate** — 6.6 % above
+**Headline:** 60,829 ft verified (the 61,962 in the source is its zero-erosion sweep row), **53,298 ft after every derate** — 6.6 % above
 the 50,000 ft target. 54,357 N·s (class O), 61.14 kg liftoff, 4.362 m long,
 aluminium stacked-pressure-vessel architecture, ~$5,740.
 

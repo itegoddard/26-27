@@ -49,6 +49,36 @@ class Vehicle:
     rail_length_m: float = 9.0
     eta_cf: float = 0.97
 
+    # Combustion extinguishes when the tank runs out of LIQUID, expressed as a
+    # fraction of the initial liquid charge.
+    #
+    # This is the primary flame-out criterion and it is grounded in the tank
+    # state the model already computes, rather than in a tuned number. The
+    # regression law returns a non-zero rate for any non-zero oxidiser flux, so
+    # without this the grain keeps pyrolysing right through the vapour
+    # blowdown, in a phase where chamber pressure has collapsed and there is
+    # not enough enthalpy arriving to sustain a flame. On the v1 config that
+    # phantom tail burn consumed an 18 % web margin and reported a false
+    # burnthrough.
+    #
+    # 0.02 matches the working model's cutoff. The flux floor in props.fuel is
+    # retained as a SECONDARY guard for cases this misses.
+    min_liquid_fraction: float = 0.02
+
+    # Set True to keep combusting into the vapour-blowdown phase.
+    #
+    # Default False truncates at liquid depletion, which matches the working
+    # model and is the conservative choice. But it IS a known omission: gaseous
+    # N2O is still an oxidiser, and HEROS flew roughly 15 s of liquid plus 10 s
+    # of gaseous blowdown that delivered real impulse -- low thrust, but at
+    # altitude where it converts efficiently and drag is thin.
+    #
+    # Enabling it restores the tail, with the props.fuel flux floor as the
+    # guard against the runaway regression that used to eat the whole web.
+    # Provided so the tail's contribution can be differenced rather than
+    # argued about.
+    combust_vapour_phase: bool = False
+
 
 @dataclass(frozen=True)
 class Calibration:
@@ -199,6 +229,8 @@ def run(
     state = dynamics.State(x=0.0, z=ground_z)
     t = 0.0
     tip_T = vehicle.tank_initial_temperature_K
+    initial_liquid_kg = tank_state.liquid_mass_kg
+    liquid_cutoff = vehicle.min_liquid_fraction * initial_liquid_kg
     burning = True
     stage = rec_mod.Stage.STOWED
     stage_start_t = 0.0
@@ -217,6 +249,22 @@ def run(
         # ---------------------------------------------------------- motor
         thrust = 0.0
         chamber = None
+
+        # Primary flame-out criterion: the tank has gone vapour-only.
+        if (
+            burning
+            and not vehicle.combust_vapour_phase
+            and tank_state.liquid_mass_kg <= liquid_cutoff
+        ):
+            burning = False
+            result.events.record(EventRecord(Event.BURNOUT, t, agl, v, mach))
+            result.warnings.append(
+                f"flame out at t={t:.2f}s: liquid oxidiser exhausted "
+                f"({vehicle.min_liquid_fraction:.0%} residual cutoff). "
+                "Vapour-phase impulse is discarded -- set "
+                "combust_vapour_phase=True to retain it."
+            )
+
         if burning and tank_state.total_mass_kg > 1e-6:
             try:
                 chamber = chamber_mod.solve(

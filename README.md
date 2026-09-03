@@ -262,11 +262,11 @@ payload/                       CosmicWatch muon detector (CC BY-NC, see its READ
 docs/
   DESIGN_POINT.md              values from the reference docs, conflicts flagged
   reference/                   design record and literature (sources, not model)
-  WHAT_WE_NEED.md              13 blocking values, sorted by how to get them
+  WHAT_WE_NEED.md              8 blocking values, sorted by how to get them
   equations.pdf                every governing equation  <- start here
   equations.tex                its source
   superpowers/specs/2026-08-28-goddard-math-model-design.md   approved design
-  assumptions_register.md      113 parameters, 13 OPEN  <- the meeting artifact
+  assumptions_register.md      113 parameters, 8 OPEN  <- the meeting artifact
   assumptions_register.csv     fillable; regenerate with tools/
   references.bib               31 sources, grouped by module
   references_dois.txt          13 DOIs, 11 publisher-verified

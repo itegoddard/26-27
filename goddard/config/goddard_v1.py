@@ -126,10 +126,22 @@ PROVISIONAL = {
     "foam core Young's modulus": 1.35e8,
     "foam core density": 100.0,
     "nose tip mass": 0.028,              # derived below; weigh the machined cap
-    # --- recovery
-    "reefing ratio": 0.30,               # need: max allowable opening load
-    "opening force coefficient": 1.7,    # need: canopy type, then Knacke
-    "max allowable opening load": 12000.0,  # need: airframe/payload g-limit
+    # --- recovery: bounded, not open. 3.5 kN is ~11 g on 32.9 kg, sized on
+    #     the binding element in the load path -- the nose cone bulkhead bond,
+    #     not the hardware. A 3/8-16 forged eyebolt carries several kN working
+    #     and Dyneema far more; a bonded 1/2 in plywood or G10 bulkhead fails
+    #     in the bondline first. PENDING A PULL TEST on the real assembly.
+    "max allowable opening load": 3500.0,
+    # Solved from that limit, not chosen: 0.396 puts the disreef load exactly
+    # at 3.5 kN. Rounded up to 0.40 for margin.
+    #
+    # Note the direction, which is counterintuitive: a LARGER reefing ratio
+    # LOWERS the disreef load, because the reefed canopy slows the vehicle more
+    # before the line is cut. And the binding case is the DISREEF, not the
+    # apogee deployment -- at apogee the vehicle is nearly stationary so
+    # dynamic pressure is negligible.
+    "reefing ratio": 0.40,
+    "opening force coefficient": 1.7,    # Knacke, solid cloth
     # --- hardware
     "injector plate thickness": 0.0030,  # need: the drawing. Sets L/d = 2.0
     "launch rail length": 9.0,           # need: what WSMR provides

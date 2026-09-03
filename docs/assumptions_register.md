@@ -178,13 +178,13 @@ from `docs/reference/02_BUDGET_50KFT_DESIGN.md`.
 | ID | Parameter | Value | Units | Status | Basis / question for NASA |
 |---|---|---|---|---|---|
 | J1 | Architecture | single canopy: reefed → full | — | CONFIRMED | Team spec. No drogue — the reefed stage does that job. |
-| J3 | Canopy C_d·S (full open) | — | m² | OPEN | Single canopy; reefed area is this × ratio² |
-| J4 | Reefing ratio | — | — | OPEN | **Sets the reefed-stage load. Typical starting value?** |
-| J5 | Disreef trigger | — | m or s | OPEN | Altitude-triggered or timer? |
+| J3 | Canopy C_d·S (full open) | 12.11 | m² | DERIVED | Sized for the 7 m/s touchdown limit at field density. D₀ ≈ 3.21 m at Cd 1.5. |
+| J4 | Reefing ratio | 0.40 | — | DERIVED | **Solved** from the 3.5 kN load limit: 0.396 puts the disreef load exactly there. Counterintuitively a *larger* ratio *lowers* the load — the reefed canopy slows the vehicle more before the line is cut. |
+| J5 | Disreef trigger | 450 | m AGL | CONFIRMED | Community standard; comparable vehicles use 1,200–1,500 ft. |
 | J6 | Filling constant n | 8 | — | ESTIMATED | Knacke, solid cloth. Range 8–10. |
-| J7 | Opening force coefficient C_x | — | — | OPEN | Knacke, canopy-type dependent |
+| J7 | Opening force coefficient C_x | 1.7 | — | ESTIMATED | Knacke, solid cloth. |
 | J8 | Canopy deploy | at apogee, no delay | — | ASSUMPTION | **Should there be a delay past apogee to reduce deployment velocity?** Reefed deployment at apogee is the high-load case. |
-| J9 | Max allowable opening load | — | N | OPEN | **What g-limit does the airframe/payload impose? This is what reefing is sized against.** |
+| J9 | Max allowable opening load | 3500 | N | ESTIMATED | ~11 g on 32.9 kg. Sized on the binding element in the load path — the nose cone bulkhead **bondline**, not the hardware (a 3/8-16 forged eyebolt carries several kN working). **Pending a pull test on the real bulkhead assembly.** |
 | J10 | Max allowable landing speed | 7 | m/s | CONFIRMED | Design target achieved in the source. |
 
 ## K. Simulation settings
@@ -207,7 +207,7 @@ hand-tallied — regenerate with the script in `docs/README.md` after editing.
 
 | Count | Status | Meaning |
 |---|---|---|
-| **13** | OPEN | No value yet. Model cannot run. |
+| **8** | OPEN | No value yet. Model cannot run. |
 | **0** | PLACEHOLDER | G11 resolved — the CEA table is in `data/`. |
 | **3** | BANDED | E5, F8, G9. The dominant uncertainty. Band mode reports an envelope. |
 | **13** | ASSUMPTION | Effects deliberately not modeled — worth a sanity check with them |

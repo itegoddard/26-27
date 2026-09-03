@@ -72,18 +72,39 @@ def test_of_ratio_stays_physical_while_the_flame_is_lit(vehicle):
     )
 
 
-def test_flame_blows_out_before_the_tank_empties(vehicle):
-    """The flame-holding floor must actually fire in a blowdown burn.
+def test_flame_goes_out_when_the_liquid_oxidiser_runs_dry(vehicle):
+    """Combustion must stop at liquid depletion, not grind on through the tail.
 
-    Without it the regression law returns a non-zero rate for any non-zero
-    flux, so the model eats fuel through the entire vapour tail. On the v1
-    config that consumed an 18 % web margin and reported a false burnthrough.
+    This is the primary flame-out criterion and it is read off the tank state
+    rather than tuned. Without it the regression law returns a non-zero rate
+    for any non-zero flux, so the grain keeps pyrolysing through the vapour
+    blowdown -- a phase where chamber pressure has collapsed. On the v1 config
+    that phantom burn consumed an 18 % web margin and reported a false
+    burnthrough.
     """
-    import math
-
     result = sim_mod.run(vehicle, dt=0.02, max_time_s=200.0)
-    out = [s for s in result.samples if not math.isfinite(s.of_ratio)]
-    assert out, "flame never blew out -- the flame-holding floor is not firing"
+    assert result.events.has(Event.BURNOUT), "motor never registered burnout"
+    assert any("flame out" in w for w in result.warnings), (
+        "flame-out was not reported: the liquid-depletion criterion did not fire"
+    )
+
+
+def test_the_vapour_tail_is_worth_real_altitude(vehicle):
+    """Retaining vapour-phase combustion must gain height, not lose it.
+
+    The default truncates at liquid depletion, matching the working model. That
+    is conservative, and this test pins how much it gives away so the omission
+    stays visible rather than becoming invisible truth.
+    """
+    import dataclasses
+
+    truncated = sim_mod.run(vehicle, dt=0.02, max_time_s=400.0)
+    with_tail = sim_mod.run(
+        dataclasses.replace(vehicle, combust_vapour_phase=True),
+        dt=0.02, max_time_s=400.0,
+    )
+    assert with_tail.apogee_agl_m > truncated.apogee_agl_m
+    assert not vehicle.combust_vapour_phase, "must default to the conservative case"
 
 
 def test_grain_web_is_consumed_but_tracked(vehicle):

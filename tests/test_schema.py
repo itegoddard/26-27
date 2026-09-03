@@ -47,7 +47,7 @@ def test_default_config_reports_its_gaps():
     ids = {o.register_id for _, o in missing}
     # Spot-check parameters known to be OPEN in the register
     # Spot-check parameters still OPEN after the design-record intake.
-    assert {"A4", "A6", "D7", "D9", "E4", "J3", "J4", "J9"} <= ids
+    assert {"A4", "A6", "B19", "B20", "D7", "D9", "E4", "I8"} <= ids
 
 
 def test_report_missing_is_readable():
