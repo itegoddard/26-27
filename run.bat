@@ -14,8 +14,9 @@ REM      run.bat show               open the last results
 REM      run.bat setup              create .venv and install dependencies
 REM      run.bat doctor             diagnose the environment
 REM
-REM  Optional second argument overrides the config module:
-REM      run.bat sim goddard.config.goddard_v2
+REM  Runs the REAL vehicle (goddard_v1) by default. Override it with a
+REM  second argument:
+REM      run.bat sim goddard.config.demo_placeholder
 REM
 REM  Portability notes:
 REM    - Works from any directory; cd's to its own folder first.
@@ -28,7 +29,7 @@ REM ===========================================================================
 cd /d "%~dp0"
 set "ROOT=%CD%"
 
-set "CONFIG=goddard.config.demo_placeholder"
+set "CONFIG=goddard.config.goddard_v1"
 set "OUT=out"
 set "PAUSE_AT_END="
 set "DEADREADS=0"
@@ -298,14 +299,43 @@ goto :end
 REM =================================================================== notices
 
 :warn_if_demo
-if /i not "%CONFIG%"=="goddard.config.demo_placeholder" exit /b 0
+if /i "%CONFIG%"=="goddard.config.demo_placeholder" goto :warn_demo
+if /i "%CONFIG%"=="goddard.config.goddard_v1" goto :warn_v1
+exit /b 0
+
+:warn_demo
 echo   ------------------------------------------------------------
 echo    WARNING: using the DEMO config. Every number in it is made
 echo    up. The results show that the model runs - they are NOT a
 echo    prediction and must not be quoted.
 echo.
-echo    Real values are the OPEN entries in
-echo    docs\assumptions_register.md  ^(see option 1^).
+echo    The real vehicle is goddard.config.goddard_v1, which is now
+echo    the default. You have gone out of your way to get here.
+echo   ------------------------------------------------------------
+echo.
+exit /b 0
+
+:warn_v1
+echo   ------------------------------------------------------------
+echo    Running the REAL vehicle: goddard_v1
+echo.
+echo    Airframe, motor and trajectory run on confirmed numbers.
+echo    Five values are still provisional and do affect the result:
+echo.
+echo       nose tip mass           injector plate thickness
+echo       launch rail length      mean wind speed
+echo       surface roughness
+echo.
+echo    Recovery is solved from a 3.5 kN opening-load limit, which is
+echo    itself pending a pull test on the real bulkhead assembly.
+echo.
+echo    Apogee is reported with the vapour tail TRUNCATED at liquid
+echo    depletion - the conservative choice, matching the working
+echo    model. Retaining the tail would read higher, but its c* is
+echo    not valid once no fuel is burning.
+echo.
+echo    Option 1 lists what is still open. Details in
+echo    docs\WHAT_WE_NEED.md
 echo   ------------------------------------------------------------
 echo.
 exit /b 0

@@ -93,7 +93,7 @@ run.bat show                                    :: reopen last results
 run.bat test                                    :: 227 tests
 run.bat equations                               :: validate equations, open PDF
 run.bat doctor                                  :: diagnose the environment
-run.bat sim goddard.config.goddard_v2           :: use a specific config
+run.bat sim goddard.config.demo_placeholder     :: override the config
 ```
 
 **Portability.** It `cd`s to its own folder first, so spaces in the path never
@@ -109,16 +109,15 @@ menu silently never appears.
 pip install -e ".[dev,report]"
 python -m pytest                    # 227 tests
 python -m goddard.cli check         # what still needs filling in
-python -m goddard.cli run  --config goddard.config.demo_placeholder --out out
-python -m goddard.cli band --config goddard.config.demo_placeholder --out out
+python -m goddard.cli run  --config goddard.config.goddard_v1 --out out
+python -m goddard.cli band --config goddard.config.goddard_v1 --out out
 ```
 
-> ⚠️ **The demo config produces meaningless numbers.**
-> `goddard/config/demo_placeholder.py` exists only so you can *see the report
-> format* before the real parameters are known. Every value in it is invented —
-> it is the apogee of a rocket nobody is building. `run.bat` prints a warning
-> box before every demo run. Delete that file once a real
-> `goddard/config/goddard_v2.py` exists.
+**`run.bat` now runs the real vehicle** — `goddard/config/goddard_v1.py` —
+and prints which values are still provisional before every run.
+
+> `goddard/config/demo_placeholder.py` is still there for format previews, but
+> every number in it is invented. You have to ask for it explicitly now.
 
 ---
 
