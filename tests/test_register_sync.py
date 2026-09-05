@@ -52,16 +52,22 @@ def test_every_open_schema_field_has_a_register_entry():
     )
 
 
-def test_no_placeholders_remain():
-    """G11 (the CEA table) was the only one, and it is resolved.
+def test_the_only_placeholder_is_the_known_one():
+    """D12, the N2O latent heat, is the single outstanding placeholder.
 
-    A PLACEHOLDER is a dataset the model refuses to invent. If one reappears it
-    must be given the same treatment: a loader that raises rather than guessing,
-    and tests pinning the real data once it lands.
+    G11 (the CEA table) was resolved. D12 was NOT tracked here at all until the
+    register was audited against the code -- it claimed zero placeholders while
+    props.n2o.enthalpy_vaporisation was raising and goddard_v1 was supplying a
+    shaped substitute. A register that does not know what the model is standing
+    on is worse than no register.
+
+    Clearing D12 means the verified ESDU 91022 latent-heat coefficients, checked
+    against ~376 kJ/kg at the normal boiling point and ~145-150 kJ/kg at 20 C.
+    If a NEW placeholder appears, track it here rather than loosening this test.
     """
     rows = _register_rows()
     placeholders = [r["ID"] for r in rows if r["Status"].startswith("PLACEHOLDER")]
-    assert placeholders == [], f"unresolved PLACEHOLDER(s): {placeholders}"
+    assert placeholders == ["D12"], f"unexpected PLACEHOLDER(s): {placeholders}"
 
 
 def test_the_three_banded_constants_are_the_expected_ones():

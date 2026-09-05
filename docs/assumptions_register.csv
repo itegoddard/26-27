@@ -49,6 +49,7 @@ D8,D - Oxidizer system,Feed line pressure drop,neglected,—,ASSUMPTION,"Only in
 D9,D - Oxidizer system,Main valve type / open time,0.15,s,CONVENTION,"Pneumatic ball 0.05–0.3 s; electric ball 0.5–2 s; pyro <0.01 s. A 25 % crack-open sequence implies a *positionable* valve, so not pyro.",,,,
 D10,D - Oxidizer system,Ullage non-condensables,0.0,frac,CONFIRMED,Negligible at 99.9 % purity; knob exists for sensitivity only,,,,
 D11,D - Oxidizer system,Tank thermal environment,adiabatic,—,ASSUMPTION,No heat leak into tank during burn. Valid for a ~6 s burn?,,,,
+D12,D - Oxidizer system,N₂O latent heat of vaporisation,stand-in,J/kg,PLACEHOLDER,"`props.n2o.enthalpy_vaporisation` raises — the ESDU 91022 coefficient set could not be verified. `goddard_v1._latent_heat` supplies a physically-shaped substitute so the tank can run. It sets the tank chilling rate, hence thrust taper, hence burn time — so it touches everything downstream. This was never tracked here before; the register said zero placeholders while the model stood on one.",,,,
 E1,E - Injector,Injector type,"showerhead, straight-drilled",—,CONFIRMED,Team spec,,,,
 E2,E - Injector,Number of orifices,33,—,CONFIRMED,Many small holes decouple the motor from the feed system.,,,,
 E3,E - Injector,Orifice diameter,1.5,mm,CONFIRMED,Effective flow area 38.3 mm².,,,,

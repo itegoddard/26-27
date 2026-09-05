@@ -1,19 +1,44 @@
 # What We Need — Goddard 26-27
 
-**8 values block a trustworthy run.** This document sorts every one of them by
+**0 values block a run.** This document sorts every one of them by
 *how you get it*, so work can start in parallel instead of waiting on a meeting.
 
-Coverage is verified: 8 blocking entries in the register, 8 assigned below,
-no duplicates, none dropped. Regenerate the underlying list with
-`run.bat check`.
+Every register parameter is answered. `run.bat check` reports
+*"All parameters filled."*
 
-> **Updated after the design-record intake.** 26 of the original 51 were
-> answered by `docs/reference/02_BUDGET_50KFT_DESIGN.md` — see
-> [`DESIGN_POINT.md`](DESIGN_POINT.md). **G11, the CEA table, is resolved**, so
-> the model has no PLACEHOLDER left.
->
-> Of the 25 remaining, the **7 material properties (I1–I7) are now the single
-> largest block** and they gate the entire flutter and divergence calculation.
+**What remains is not missing inputs.** It is two failing constraints, one
+untracked placeholder, and a body of values that are filled but not measured.
+See *Where it actually stands* below.
+
+## Where it actually stands
+
+**Two constraints failing** — these are the work:
+
+```
+FAIL  rail exit velocity    24.01  vs 25.00   IREC requirement, on the real 5.2 m rail
+FAIL  min chug margin        0.73  vs  1.00   dP/Pc = 0.146 against a 0.15 floor
+```
+
+They pull in **opposite directions**: rail wants more initial thrust, chug fails
+at the *end* of the burn and is hurt by anything that lowers injector stiffness.
+Worth solving together.
+
+**One placeholder, newly tracked (D12).** The N₂O latent heat is a shaped
+stand-in — the ESDU 91022 coefficients were never verified. It sets tank
+chilling → thrust taper → burn time, so it touches everything. The register
+previously claimed zero placeholders while the model stood on this one.
+
+**Filled but not measured** — the numbers run, but they are not evidence:
+
+| Count | Status | Meaning |
+|---|---|---|
+| 3 | BANDED | regression calibration, injector Cd, c\* efficiency. No static fire, no cold flow. Swept, not trusted. |
+| 3 | CONVENTION | surface roughness, wind, valve opening time. Tabulated defaults, not fetched for this vehicle. |
+| 16 | ESTIMATED | usable, better data improves confidence |
+| 13 | ASSUMPTION | physics deliberately not modelled — throat erosion, feed-line thermal, Coriolis |
+
+Plus **supersonic wave drag is `[U]`-tagged**: 29–51 % high through the
+transonic against the working model, 4 % off at Mach 2. RASAero settles it.
 
 | # | Route | Count | Blocked on |
 |---|---|---|---|

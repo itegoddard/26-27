@@ -5,7 +5,7 @@ Source: `02_BUDGET_50KFT_DESIGN.md` (+ `04_ENGINE_DESIGN.md`, `NOZZLE_DESIGN.md`
 
 Every value below is mapped to its register ID. **All three conflicts in §C are
 resolved and everything here is now applied** — the register went from 51
-blocking entries to 25, and the model has no PLACEHOLDER left.
+blocking entries to zero.
 
 Section A is retained as the audit trail: what came from where.
 

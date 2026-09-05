@@ -22,9 +22,15 @@ Bring this to the NASA engineer meeting and fill in the right-hand columns.
 | **CONVENTION** | A standard tabulated engineering default, not fetched from a source for this vehicle. Usable, but verify. | Confirm against the real article |
 
 > ### Nothing is OPEN any more.
-> Every register parameter is answered. `run.bat check` reports zero blocking
-> values and `assert_complete` passes on the real config. What remains is
-> **two failing constraints**, not missing inputs — see below.
+> Every register parameter is answered. `run.bat check` reports
+> *"All parameters filled."* and `assert_complete` passes on the real config.
+>
+> **One PLACEHOLDER remains: D12, the N₂O latent heat.** It was not tracked
+> here until the register was audited against the code — this document claimed
+> zero placeholders while the model was standing on a shaped substitute. A
+> register that does not know what the model rests on is worse than none.
+>
+> What else remains is **two failing constraints**, not missing inputs.
 
 **Priority:** everything marked **OPEN** or **PLACEHOLDER** blocks
 a trustworthy run. Everything marked **BANDED** is where test data would buy the
@@ -105,6 +111,7 @@ from `docs/reference/02_BUDGET_50KFT_DESIGN.md`.
 | D9 | Main valve type / open time | 0.15 | s | CONVENTION | Pneumatic ball 0.05–0.3 s; electric ball 0.5–2 s; pyro <0.01 s. A 25 % crack-open sequence implies a *positionable* valve, so not pyro. |
 | D10 | Ullage non-condensables | 0.0 | frac | CONFIRMED | Negligible at 99.9 % purity; knob exists for sensitivity only |
 | D11 | Tank thermal environment | adiabatic | — | ASSUMPTION | No heat leak into tank during burn. Valid for a ~6 s burn? |
+| D12 | N₂O latent heat of vaporisation | **stand-in** | J/kg | PLACEHOLDER | `props.n2o.enthalpy_vaporisation` raises — the ESDU 91022 coefficient set could not be verified. `goddard_v1._latent_heat` supplies a physically-shaped substitute so the tank can run. **It sets the tank chilling rate, hence thrust taper, hence burn time — so it touches everything downstream.** This was never tracked here before; the register said zero placeholders while the model stood on one. |
 
 ## E. Injector
 
