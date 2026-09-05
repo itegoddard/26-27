@@ -48,6 +48,7 @@ def write(
     path: str | Path,
     band: BandResult | None = None,
     sample_stride: int = 10,
+    vehicle=None,
 ) -> Path:
     """Write the flight report workbook.
 
@@ -104,6 +105,36 @@ def write(
         ws.append([f"Terminated: {result.terminated_reason}"])
     _style_header(ws, row=4)
     _autosize(ws)
+
+    # -------------------------------------------------------- Constraints
+    # A requirement that is computed but not written down is a requirement
+    # nobody checks. Rail departure velocity was failing for exactly that
+    # reason while thrust-to-weight, a proxy for it, was reported and passing.
+    if vehicle is not None:
+        ws = wb.create_sheet("Constraints")
+        ws.append(["Constraint", "Actual", "Limit", "Result"])
+        failing = 0
+        for name, actual, limit, ok in result.constraints(vehicle):
+            ws.append([name, round(actual, 3), limit, "PASS" if ok else "FAIL"])
+            if not ok:
+                failing += 1
+        ws.append([])
+        ws.append([f"{failing} constraint(s) failing" if failing
+                   else "All constraints pass"])
+        ws.append([])
+        ws.append(["What this run is standing on"])
+        ws.append(["Supersonic wave drag", "UNVALIDATED",
+                   "cross-check against RASAero II; ~29-51 % high transonic"])
+        if vehicle is not None and not getattr(
+            vehicle, "latent_heat_is_verified", False
+        ):
+            ws.append(["N2O latent heat (D12)", "PLACEHOLDER",
+                       "unverified ESDU 91022 stand-in; sets thrust taper"])
+        ws.append(["regression / injector Cd / eta_c*", "UNMEASURED",
+                   "no static fire or cold flow; swept in band mode"])
+        ws.append(["See", "docs/STATUS.md", ""])
+        _style_header(ws, row=1)
+        _autosize(ws)
 
     # ------------------------------------------------------------- Events
     ws = wb.create_sheet("Events")

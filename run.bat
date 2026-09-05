@@ -334,8 +334,15 @@ echo    depletion - the conservative choice, matching the working
 echo    model. Retaining the tail would read higher, but its c* is
 echo    not valid once no fuel is burning.
 echo.
-echo    Option 1 lists what is still open. Details in
-echo    docs\WHAT_WE_NEED.md
+echo    ONE PLACEHOLDER remains: the N2O latent heat is an unverified
+echo    stand-in ^(register D12^). It sets tank chilling, hence thrust
+echo    taper and burn time, so it touches everything downstream.
+echo.
+echo    Supersonic wave drag is UNVALIDATED and runs high through the
+echo    transonic. It is the largest known model error.
+echo.
+echo    Constraints are printed after every run and written to the
+echo    Constraints sheet. Full picture: docs\STATUS.md
 echo   ------------------------------------------------------------
 echo.
 exit /b 0

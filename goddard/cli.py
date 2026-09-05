@@ -5,9 +5,13 @@
     python -m goddard.cli band   --config ...   sweep the three unmeasured constants
 
 A config module must define ``build_vehicle()`` returning a ``sim.Vehicle``.
-There is no such module yet -- 54 register parameters are still OPEN, and the
-model refuses to invent them. ``check`` works today and tells you what is
-missing.
+``goddard.config.goddard_v1`` is the real vehicle and the default everywhere;
+``goddard.config.demo_placeholder`` exists only for format previews and every
+number in it is invented.
+
+Every register parameter is now answered, so ``check`` reports nothing missing.
+What remains is two failing constraints and one placeholder -- see
+``docs/STATUS.md``.
 """
 
 from __future__ import annotations
@@ -81,7 +85,7 @@ def cmd_run(args: argparse.Namespace) -> int:
         out = Path(args.out)
         from goddard.report import excel, plots
 
-        excel.write(result, out / "goddard_results.xlsx")
+        excel.write(result, out / "goddard_results.xlsx", vehicle=vehicle)
         print(f"\nwrote {out / 'goddard_results.xlsx'}")
         if plots.available():
             written = plots.write(result, out / "plots")
@@ -106,7 +110,8 @@ def cmd_band(args: argparse.Namespace) -> int:
 
         best = next((c.result for c in out.corners if c.ok), None)
         if best is not None:
-            excel.write(best, directory / "goddard_results.xlsx", band=out)
+            excel.write(best, directory / "goddard_results.xlsx", band=out,
+                        vehicle=vehicle)
             print(f"\nwrote {directory / 'goddard_results.xlsx'}")
     return 0
 
@@ -134,7 +139,10 @@ def build_parser() -> argparse.ArgumentParser:
         )
         p.add_argument("--dt", type=float, default=0.01, help="time step, s")
         p.add_argument(
-            "--max-time", type=float, default=600.0, dest="max_time",
+            # A reefed descent from ~17 km takes well over 600 s; the old
+            # default cut the flight off before landing and reported
+            # "reached max_time" instead of a touchdown.
+            "--max-time", type=float, default=1200.0, dest="max_time",
             help="simulation cutoff, s",
         )
         p.add_argument("--out", help="output directory for report and plots")

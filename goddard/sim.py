@@ -68,6 +68,12 @@ class Vehicle:
     flutter_planform: "fl_mod.FinPlanform | None" = None
     flutter_section: "lam_mod.SandwichSection | None" = None
 
+    # Set True ONLY when latent_heat comes from verified ESDU 91022
+    # coefficients. Left False, every run says so -- a result that looks
+    # authoritative should carry what it is standing on, and this one sets the
+    # tank chilling rate, hence thrust taper, hence burn time.
+    latent_heat_is_verified: bool = False
+
     # Combustion extinguishes when the tank runs out of LIQUID, expressed as a
     # fraction of the initial liquid charge.
     #
@@ -325,6 +331,13 @@ def run(
     state = dynamics.State(x=0.0, z=ground_z)
     t = 0.0
     tip_T = vehicle.tank_initial_temperature_K
+    if not vehicle.latent_heat_is_verified:
+        result.warnings.append(
+            "N2O latent heat is an UNVERIFIED stand-in (register D12). The ESDU "
+            "91022 coefficients were never checked, so tank chilling rate -- and "
+            "therefore thrust taper, burn time and apogee -- carry that error."
+        )
+
     initial_liquid_kg = tank_state.liquid_mass_kg
     liquid_cutoff = vehicle.min_liquid_fraction * initial_liquid_kg
     burning = True

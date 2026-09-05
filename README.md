@@ -90,7 +90,7 @@ run.bat check                                   :: unfilled parameters
 run.bat sim                                     :: one flight + open results
 run.bat band                                    :: 27-corner sweep
 run.bat show                                    :: reopen last results
-run.bat test                                    :: 227 tests
+run.bat test                                    :: 257 tests
 run.bat equations                               :: validate equations, open PDF
 run.bat doctor                                  :: diagnose the environment
 run.bat sim goddard.config.demo_placeholder     :: override the config
@@ -107,7 +107,7 @@ menu silently never appears.
 
 ```bash
 pip install -e ".[dev,report]"
-python -m pytest                    # 227 tests
+python -m pytest                    # 257 tests
 python -m goddard.cli check         # what still needs filling in
 python -m goddard.cli run  --config goddard.config.goddard_v1 --out out
 python -m goddard.cli band --config goddard.config.goddard_v1 --out out
@@ -123,7 +123,7 @@ and prints which values are still provisional before every run.
 
 ## Status
 
-**All modules implemented. 227 tests, all green.**
+**All modules implemented. 257 tests, all green.**
 
 | Package | Modules |
 |---|---|
@@ -139,25 +139,32 @@ and prints which values are still provisional before every run.
 A full flight — launch, rail exit, max-Q, burnout, apogee, chute deploy, disreef,
 landing — runs in about 1.5 s. Band mode's 27 corners take under a minute.
 
-### What it still needs to produce a *trustworthy* number
+### Where it stands — see [`docs/STATUS.md`](docs/STATUS.md)
 
-The code is done; the inputs are not. Three things, in order of impact:
+**Every register parameter is answered.** `run.bat check` reports *"All
+parameters filled."* What remains is not missing inputs:
 
-1. **Work through [`docs/WHAT_WE_NEED.md`](docs/WHAT_WE_NEED.md)** — 25 blocking
-   values, down from 51 after the design-record intake. The 7 material
-   properties (I1–I7) are the critical path: they gate flutter entirely.
-   `run.bat check` lists them by register ID.
-2. ~~Generate the CEA table (register G11)~~ — **done.**
-   `data/cea_S10W1_N2O_35bar.csv` is a real NASA CEA sweep for the S10W1 blend;
-   peak c\* 1598.1 m/s at O/F 7.00. Load with `cea.load_of_sweep(path, 35e5)`.
-3. **Supply the ESDU 91022 latent-heat coefficients.** Needed by the tank
-   blowdown and the Dyer HEM term. Both take it as an injected callable, so the
-   physics is complete and tested — only the data is outstanding.
+**Two constraints failing** — design problems, printed after every run and
+written to the workbook's Constraints sheet:
 
-And one calibration task: **the supersonic wave-drag terms are unvalidated.**
-`DragBuildup.validated` is `False`, every run emits a warning, and the warning
-is carried into the Excel report. Cross-check total `C_D` against RASAero II or
-CFD at Mach 0.5 / 1.2 / 2.0 / 2.5 before trusting an absolute apogee.
+```
+FAIL  rail exit velocity (m/s)      24.01  vs 25.00
+FAIL  min chug margin                0.73  vs  1.00
+```
+
+They want opposite fixes: rail wants more initial thrust, chug wants more
+injector stiffness at the end of the burn.
+
+**One placeholder** — the N₂O latent heat (register D12) is an unverified
+stand-in, because the ESDU 91022 coefficients could not be checked. It sets tank
+chilling, hence thrust taper and burn time, so it touches everything downstream.
+Every run says so.
+
+**The largest model error is supersonic drag.** Mine runs 29–51 % high through
+the transonic against the working model. Substituting their curve — nothing else
+changed — moves apogee +4,488 ft and lands within 3.2 % of their published
+number. A RASAero II cross-check is worth more than any other single analysis
+task.
 
 ---
 
@@ -259,6 +266,7 @@ data/
   cea_S10W1_N2O_35bar.csv      NASA CEA sweep -- resolves register G11
 payload/                       CosmicWatch muon detector (CC BY-NC, see its README)
 docs/
+  STATUS.md                    failing constraints, what the model rests on
   DESIGN_POINT.md              values from the reference docs, conflicts flagged
   reference/                   design record and literature (sources, not model)
   WHAT_WE_NEED.md              8 blocking values, sorted by how to get them
